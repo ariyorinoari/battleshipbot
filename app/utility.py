@@ -43,7 +43,7 @@ def generateInviteMsg(fromUserName,fromUserId):
         thumbnail_image_url=getImage(fromUserId),
         actions=[
             MessageTemplateAction(label='OK！', text='ACK__fromUserName'),
-            MessageTemplateAction(label='あとで', text='REJECT__fromUserName'),
+            MessageTemplateAction(label='あとで', text='REJECT__fromUserName')
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦しよーぜ！', template=buttons_template)
