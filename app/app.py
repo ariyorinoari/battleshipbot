@@ -280,7 +280,7 @@ def handle_text_message(event):
                     TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
             else:
                 if getKingPosition(sourceId) == '-':
-                    if setKingPosition(sourceId,num_matcher(0)) == False:
+                    if setKingPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でKingの位置を入力してください'))
@@ -289,7 +289,7 @@ def handle_text_message(event):
                             event.reply_token,
                             TextMessage(text='Kingを配置しました。\n 次はQueenの位置を入力してください'))
                 elif getQueenPosition(sourceId) == '-':
-                    if setQueenPosition(sourceId,num_matcher(0)) == False:
+                    if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でQueenの位置を入力してください'))
