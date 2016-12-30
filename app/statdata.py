@@ -48,7 +48,7 @@ def getStat(userId):
     return redis.hget(userId,'status')
 
 def setStat(userId,newStatus):
-    redis.hset(userId,newStatus)
+    redis.hset(userId,'status',newStatus)
 
 def isValidKey(userId):
     #redisにキーとして登録されているかチェック

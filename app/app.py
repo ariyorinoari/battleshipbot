@@ -151,7 +151,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='誰かに対戦を申込みたい場合は、対戦申込/やめる　メニューを押してください。'+
+                TextMessage(text='ヘルプへようこそ(ﾟｰﾟ)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
