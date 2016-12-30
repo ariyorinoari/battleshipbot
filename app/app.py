@@ -311,9 +311,9 @@ def handle_text_message(event):
                         #★★ここで待ち続けると抜けられなくなるので、一定時間でnormalに戻りたい
                     else:
                         #相手側はすでに完了していた
-                        line_bot_api.reply_message(
-                            event.reply_token,
-                            TextMessage(text='準備完了、相手のターンから開始します(^ー^* )'))
+                        line_bot_api.push_message(
+                            sourceId,
+                            TextMessage(text='準備完了、相手のターンから開始します(^-^* )'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(enemyId,'battle_myturn')
                         #相手に開始＆入力求めるメッセージPush
