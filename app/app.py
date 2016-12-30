@@ -69,7 +69,7 @@ def handle_sticker_message(event):
     #スタンプ対応
     sourceId = getSourceId(event.source)
     enemyId = getEnemyId(sourceId)
-    if enemyId is not None:
+    if enemyId != '-':
         profile = line_bot_api.get_profile(sourceId)
         pack = event.message.package_id
         if pack == 1 or pack == 2 or pack ==3:
@@ -120,8 +120,8 @@ def handle_postback(event):
             TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)初期状態に戻ります'))
         setStat(sourceId,'normal')
         setStat(enemyId,'normal')
-        setEnemy(sourceId,'')
-        setEnemy(enemyId,'')
+        setEnemy(sourceId,'-')
+        setEnemy(enemyId,'-')
     elif answer == 'QUIT_NO':
         #Noなら直前のステータスに戻る
         setStat(sourceId,getPreviousStat(sourceId))
@@ -166,7 +166,7 @@ def handle_text_message(event):
                 #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
                 if isValidKey(matcher.group(2)):
                     setStat(sourceId,'battle_init')
-                    if getEnemyId(sourceId) is None:
+                    if getEnemyId(sourceId) == '-':
                         setEnemy(sourceId,matcher.group(2))
                         line_bot_api.push_message(
                             matcher.group(2),generateAckMsg(profile.display_name,sourceId))
@@ -181,7 +181,7 @@ def handle_text_message(event):
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
                         matcher.group(2),generateRejectMsg(profile.display_name))
-                    setEnemy(matcher.group(2),'')
+                    setEnemy(matcher.group(2),'-')
         elif matcher is not None and text.find('@') == 1:
             mention_matcher = re.match(r'@(.*)',matcher.group(1))
             if mention_matcher is not None:
