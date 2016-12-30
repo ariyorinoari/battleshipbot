@@ -23,6 +23,7 @@ from linebot.models import (
     TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
     ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
     CarouselTemplate, CarouselColumn, PostbackEvent,
+    UnfollowEvent, FollowEvent,
     ImagemapSendMessage, MessageImagemapAction, BaseSize, ImagemapArea
 )
 
