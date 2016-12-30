@@ -107,7 +107,6 @@ def handle_postback(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     answer = event.postback.data
-    matcher = re.match(r'(.*?)__(.*)', text)
 
     enemyId = getEnemyId(sourceId)
     if answer == 'QUIT_YES':
@@ -124,7 +123,7 @@ def handle_postback(event):
         setEnemy(enemyId,'-')
     elif answer == 'QUIT_NO':
         #Noなら直前のステータスに戻る
-        setStat(sourceId,getPreviousStat(sourceId))
+#        setStat(sourceId,getPreviousStat(sourceId))
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='ゲームを続行します'))
