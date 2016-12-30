@@ -2,9 +2,10 @@
 import redis
 
 def memberIdAdd(userId):
-    if redis.sismember('memberKeyList',userId) == 0:
-        redis.sadd('memberKeyList',userId)
-
+#    if redis.sismember('memberKeyList',userId) == 0:
+#        redis.sadd('memberKeyList',userId)
+    redis.sadd('memberKeyList',userId)
+    
 def memberIdRemove(userId):
     if redis.sismember('memberKeyList',userId) == 1:
         redis.srem('memberKeyList',userId)
