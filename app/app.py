@@ -208,7 +208,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦を申し込むには、お相手のゲームキーが必要です。'+
-                'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします。'))
+                'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします(-人-)'))
         else:
             #他テキストは相手キーとみなしてredis上に存在するか確認する
             if isValidKey(text):
