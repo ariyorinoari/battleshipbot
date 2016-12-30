@@ -174,16 +174,18 @@ def handle_text_message(event):
                         line_bot_api.push_message(
                             matcher.group(2),generateAckMsg(profile.display_name,sourceId))
                     #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
-                    displayInitialMap()
                     enemy_name = getEnemyName(matcher.group(2))
                     line_bot_api.push_message(
                         sourceId,
                         TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
+                    line_bot_api.push_message(
+                        sourceId, generateInitialMap())
+
             elif matcher.group(1) == 'REJECT':
                 #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
-                        matcher.group(2),generateRejectMsg(profile.display_name))
+                        matcher.group(2),TextSendMessage(text=display_name+'さんは今は無理なようです・・・(;д;)'))
                     setEnemy(matcher.group(2),'-')
         elif matcher is not None and text.find('@') == 1:
             mention_matcher = re.match(r'@(.*)',matcher.group(1))
@@ -194,10 +196,10 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                     mentioned_key,
                     TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
-            else:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextMessage(text='( ﾟﾛﾟ)送信相手がわかりませんでした'))
+                else:
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='( ﾟﾛﾟ)送信相手がわかりませんでした'))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
@@ -368,9 +370,6 @@ def generateAckMsg(fromUserName,enemyId):
         alt_text='対戦しよー', template=buttons_template)
     return template_message
 
-def generateRejectMsg(fromUserName):
-    pass
-
 def generateInviteMsg(fromUserName,fromUserId):
     #スペース抑制
     if fromUserName.find(' ') > 0:
@@ -401,9 +400,27 @@ def generateQuitConfirm():
         alt_text='かくにん', template=buttons_template)
     return template_message
 
-def displayInitialMap():
-    pass
-
+def generateInitialMap():
+    message = ImagemapSendMessage(
+        base_url='https://s-battleship.herokuapp.com/images/map',
+        alt_text='battle field map',
+        base_size=BaseSize(height=790, width=1040))
+    actions=[]
+    location=0
+    for i in range(0, 4):
+        for j in range(0, 4):
+            actions.append(MessageImagemapAction(
+                text = u'#' + number + u' ' + mapping[str(location).encode('utf-8')],
+                area=ImagemapArea(
+                    x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
+                    y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
+                    width=(j + 1) * POKER_IMAGEMAP_ELEMENT_WIDTH,
+                    height=(i + 1) * POKER_IMAGEMAP_ELEMENT_HEIGHT
+                )
+            ))
+            location+=1
+    message.actions = actions
+    return message
 
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
