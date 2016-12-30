@@ -352,6 +352,34 @@ def push_all_room_member_sticker(roomId, event):
     else:
         push_all_room_member(roomId,'＜スタンプ＞*対応できませんでした')
 
+
+
+def generateAckMsg(fromUserName):
+    pass
+
+def generateRejectMsg(fromUserName):
+    pass
+
+def generateInviteMsg(fromUserName,fromUserId):
+    buttons_template = ButtonsTemplate(
+        title='Here comes a new challenger!',
+        text=fromUserName+'さんからの対戦申し込みがとどきました！',
+        thumbnail_image_url=getImage(fromUserId),
+        actions=[
+            MessageTemplateAction(label='OK！', text='ACK__fromUserName'),
+            MessageTemplateAction(label='あとで', text='REJECT__fromUserName')
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='対戦しよーぜ！', template=buttons_template)
+    return template_message
+
+def generateQuitConfirm():
+    pass
+
+def displayInitialMap():
+    pass
+
+
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
     tmp = generate_voting_result_image(data)
