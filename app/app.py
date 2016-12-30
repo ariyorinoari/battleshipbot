@@ -78,6 +78,58 @@ def handle_sticker_message(event):
                 package_id=event.message.package_id,
                 sticker_id=event.message.sticker_id))
 
+@handler.add(FollowEvent)
+def handle_follow(event):
+#友達追加イベント、ここでredisへの登録を行う
+    sourceId = getSourceId(event.source)
+    profile = line_bot_api.get_profile(sourceId)
+    line_bot_api.reply_message(
+        event.reply_token, TextSendMessage(text='友達追加ありがとう(smile)ゲームの始め方はヘルプボタンで確認してね(wink)'))
+    memberIdAdd(sourceId)
+    memberNameAdd(profile.display_name,sourceId)
+    createHashData(sourceId)
+
+@handler.add(UnFollowEvent)
+def handle_unfollow(event):
+#友達削除イベント、ここでredisからデータ削除を行う
+    sourceId = getSourceId(event.source)
+    profile = line_bot_api.get_profile(sourceId)
+    memberIdRemove(sourceId)
+    memberNameRemove(profile.display_name,sourceId)
+    removeHashData(sourceId)
+
+@handler.add(PostbackEvent)
+def handle_postback(event):
+#■ステータスbattle_quit_confirm(本当にやめますか？の確認ダイアログのポストバック）
+    sourceId = getSourceId(event.source)
+    profile = line_bot_api.get_profile(sourceId)
+    answer = event.postback.data
+    matcher = re.match(r'(.*?)__(.*)', text)
+
+    enemyId = getEnemyId(sourceId)
+    if answer == 'QUIT_YES':
+        #Yesなら相手に「降参」Pushし、ノーマル状態へ。
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(smile)'))
+        line_bot_api.push_message(
+            enemyId,
+            TextSendMessage(text=profile.display_name+'さんが降参しました(tired)初期状態に戻ります'))
+        setStat(sourceId,'normal')
+        setStat(enemyId,'normal')
+        setEnemy(sourceId,'')
+        setEnemy(enemyId,'')
+    elif answer == 'QUIT_NO':
+        #Noなら直前のステータスに戻る
+        setStat(sourceId,getPreviousStat(sourceId))
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='ゲームを続行します'))
+    else:
+        line_bot_api.push_message(
+            sourceId,generateQuitConfirm())
+        #他のメニュー押される可能性はいったん考慮しない
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
@@ -247,25 +299,7 @@ def handle_text_message(event):
                         line_bot_api.push_message(
                             enemyId,
                             TextSendMessage(text='ゲーム開始、あなたのターンです。行動をメニューから選んでください。'))
-#■ステータスbattle_quit_confirm
-    elif currentStatus == 'battle_quit_confirm':
-        enemyId = getEnemyId(sourceId)
-        if text == 'QUIT_YES':
-            #Yesなら相手に「降参」Pushし、ノーマル状態へ。
-            line_bot_api.push_message(
-                enemyId,
-                TextSendMessage(text='降参です(tired)'))
-            setStat(sourceId,'normal')
-            setStat(enemyId,'normal')
-            setEnemy(sourceId,'')
-            setEnemy(enemyId,'')
-        elif text == 'QUIT_NO':
-            #Noなら直前のステータスに戻る
-            setStat(sourceId,getPreviousStat(sourceId))
-        else:
-            line_bot_api.push_message(
-                sourceId,generateQuitConfirm())
-            #他のメニュー押される可能性はいったん考慮しない
+
 #■ステータスbaattle_myturn
     elif currentStatus == 'battle_myturn':
         if text == 'ENTRY_EXIT_MENU':
