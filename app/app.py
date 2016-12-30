@@ -85,7 +85,7 @@ def handle_follow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)\n ゲームの始め方はヘルプボタンで確認してね(＾▽＾)'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)\n ゲームの始め方はボードメニューの中のヘルプで確認してね(＾▽＾)'))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId,profile.display_name,profile.picture_url)
@@ -153,7 +153,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(*^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。\n'+
+                TextMessage(text='ヘルプへようこそ(*^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -222,7 +222,9 @@ def handle_text_message(event):
                 enemy_status = getStat(text)
                 if enemy_status == 'normal':
                     #相手ステータスがノーマル状態であれば、招待ConfirmをPush
-                    pushInviteMsg(text)
+                    line_bot_api.push_message(
+                        text,
+                        generateInviteMsg(profile.display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
@@ -234,7 +236,7 @@ def handle_text_message(event):
                     setStat(text,'normal')
                     line_bot_api.push_message(
                         text,
-                        generateInviteMsg(profile.display_name))
+                        generateInviteMsg(profile.display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))

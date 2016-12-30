@@ -5,6 +5,7 @@ import os
 from random import randint
 
 from const import *
+from statdata import *
 
 def make_static_dir(path):
     try:
@@ -35,8 +36,18 @@ def generateAckMsg(fromUserName):
 def generateRejectMsg(fromUserName):
     pass
 
-def generateInviteMsg(fromUserName):
-    pass
+def generateInviteMsg(fromUserName,fromUserId):
+    buttons_template = ButtonsTemplate(
+        title='Here comes a new challenger!',
+        text=fromUserName+'さんからの対戦申し込みがとどきました！',
+        thumbnail_image_url=getImage(fromUserId),
+        actions=[
+            MessageTemplateAction(label='OK！', text='ACK__fromUserName'),
+            MessageTemplateAction(label='あとで', text='REJECT__fromUserName'),
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='対戦しよーぜ！', template=buttons_template)
+    return template_message
 
 def generateQuitConfirm():
     pass
