@@ -39,10 +39,10 @@ def removeHashData(userId):
     redis.delete(userId)
 
 def getEnemyId(userId):
-    return 'xxxxxxxxxx'
+    return redis.hget(userId,'enemyId')
 
 def setEnemy(userId,enemyId):
-    pass
+    redis.hset(userId,'enemyId',enemyId)
 
 def getStat(userId):
     return redis.hget(userId,'status')
