@@ -85,7 +85,7 @@ def handle_follow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)ゲームの始め方はヘルプボタンで確認してね(＾▽＾)'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)\n ゲームの始め方はヘルプボタンで確認してね(＾▽＾)'))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId,profile.display_name,profile.picture_url)
@@ -153,7 +153,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(*^^*)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。'+
+                TextMessage(text='ヘルプへようこそ(*^^*)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。\n'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -190,7 +190,7 @@ def handle_text_message(event):
                     if mentioned_key is not None:
                         line_bot_api.push_message(
                         mentioned_key,
-                        TextSendMessage(text=matcher.group(2)))
+                        TextSendMessage(text=profile.display_name + 'さんからのメッセージ：'+ matcher.group(2)))
                 else:
                     line_bot_api.reply_message(
                         event.reply_token,
@@ -213,7 +213,7 @@ def handle_text_message(event):
             setStat(sourceId,'normal')
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='対戦を申し込むには、お相手のゲームキーが必要です。'+
+                TextMessage(text='対戦を申し込むには、お相手のゲームキーが必要です。\n'+
                 'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします(-人-)'))
         else:
             #他テキストは相手キーとみなしてredis上に存在するか確認する
@@ -245,16 +245,16 @@ def handle_text_message(event):
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(;д;)伝言だけしておきますね。初期状態に戻ります。'))
+                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(;д;)\n 伝言だけしておきますね。初期状態に戻ります。'))
                     line_bot_api.push_message(
                         text,
-                        TextSendMessage(text='おじゃまします。'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
+                        TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
                     setStat(sourceId,'normal')
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextMessage(text='キーが正しくないかもしれません( ﾟﾛﾟ)確認してもう一度入力してください'))
+                    TextMessage(text='キーが正しくないかもしれません( ﾟﾛﾟ)\n 確認してもう一度入力してください'))
 
 #■ステータスbattle_init
     elif currentStatus == 'battle_init':
@@ -274,18 +274,18 @@ def handle_text_message(event):
             if num_matcher is None:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)マップ上の1から16の数字をタップして、再度位置を入力してください'))
+                    TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
             else:
                 if getKingPosition(sourceId) == '-':
                     if setKingPosition(sourceId,num_matcher(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)マップ上の1から16の数字でKingの位置を入力してください'))
+                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でKingの位置を入力してください'))
                 elif getQueenPosition(sourceId) == '-':
                     if setQueenPosition(sourceId,num_matcher(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)マップ上の1から16の数字でQueenの位置を入力してください'))
+                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でQueenの位置を入力してください'))
                 if getKingPosition(sourceId) != '-' and getQueenPosition(sourceId) != '-':
                     #KingとQueenのPosition設定が決まったら、battle_readyステータス。
                     setStat(sourceId,'battle_ready')
@@ -320,7 +320,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。'+
+                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
                 'King,Queenのアクションをメニューから選んで場所を指定してくださいρ(-ω- )'))
         else:
             if getKingOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'KING':
