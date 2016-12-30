@@ -31,7 +31,7 @@ def createHashData(userId,display_name,image_url):
     redis.hset(userId,'QueenOrderstatus','notyet')
 
 def removeHashData(userId):
-    redis.del(userId)
+    redis.delete(userId)
 
 def getEnemyId(userId):
     return 'xxxxxxxxxx'
