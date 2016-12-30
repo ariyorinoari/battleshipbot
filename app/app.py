@@ -184,7 +184,7 @@ def handle_text_message(event):
                 #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
-                        matcher.group(2),TextSendMessage(text=display_name+'さんは今は無理なようです・・・(;д;)'))
+                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
                     setEnemy(matcher.group(2),'-')
 
         elif matcher is not None and text.find('@') == 0:
@@ -357,8 +357,6 @@ def push_all_room_member_sticker(roomId, event):
     else:
         push_all_room_member(roomId,'＜スタンプ＞*対応できませんでした')
 
-
-
 def generateAckMsg(fromUserName,enemyId):
     buttons_template = ButtonsTemplate(
         title='対戦OK',
@@ -410,7 +408,7 @@ def generateInitialMap():
     for i in range(0, 4):
         for j in range(0, 4):
             actions.append(MessageImagemapAction(
-                text = u'#' + number + u' ' + mapping[str(location).encode('utf-8')],
+                text = 'ORDER__'+location,
                 area=ImagemapArea(
                     x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
                     y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
