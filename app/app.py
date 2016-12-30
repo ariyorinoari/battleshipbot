@@ -426,6 +426,9 @@ def generateInitialMap():
     message.actions = actions
     return message
 
+def generateCurrentMap():
+    pass
+    
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
     tmp = generate_voting_result_image(data)
