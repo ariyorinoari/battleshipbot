@@ -362,13 +362,13 @@ def generateRejectMsg(fromUserName):
 
 def generateInviteMsg(fromUserName,fromUserId):
     #スペース抑制
-#    if fromUserName.find(' ') > 0:
-#        fromUserName.replace(' ','_')
+    if fromUserName.find(' ') > 0:
+        fromUserName.replace(' ','_')
     if fromUserName.find('　') > 0:
         fromUserName.replace('　','_')
 
     buttons_template = ButtonsTemplate(
-        title='NewChallenger',
+        title='挑戦者',
         text=fromUserName+'さんからの対戦申し込みです',
         thumbnail_image_url=getImage(fromUserId),
         actions=[
