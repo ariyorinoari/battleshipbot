@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from flask import Flask, request, abort, send_from_directory, url_for
 import redis
 
 app = Flask(__name__)
@@ -8,7 +9,7 @@ redis = redis.from_url(app.config['REDIS_URL'])
 def memberIdAdd(userId):
     if redis.sismember('memberKeyList',userId) == 0:
         redis.sadd('memberKeyList',userId)
-    
+
 def memberIdRemove(userId):
     if redis.sismember('memberKeyList',userId) == 1:
         redis.srem('memberKeyList',userId)
