@@ -124,8 +124,8 @@ def handle_text_message(event):
             elif matcher(1) == 'REJECT':
                 #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher(2)):
-                        line_bot_api.push_message(
-                            matcher(2),generateRejectMsg(profile.display_name))
+                    line_bot_api.push_message(
+                        matcher(2),generateRejectMsg(profile.display_name))
                     setEnemy(matcher(2),'')
             else:
                 mention_matcher = re.match(r'@(.*)',matcher(1))
