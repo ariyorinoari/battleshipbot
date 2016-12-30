@@ -27,8 +27,8 @@ def memberNameRemove(display_name,userId):
 
 def createHashData(userId,display_name,image_url):
     redis.hset(userId,'displayName',display_name)
-    redis.hset(userId,'imageUrl',image_url)
-
+#    redis.hset(userId,'imageUrl',image_url)
+    redis.hset(userId,'imageUrl','https://i0.wp.com/dashboard.heroku.com/images/static/ninja-avatar-48x48.png?ssl=1')
     redis.hset(userId,'status','normal')
 
     redis.hset(userId,'enemyId','-')
