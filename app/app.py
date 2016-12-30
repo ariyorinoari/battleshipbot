@@ -114,13 +114,14 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-        line_bot_api.push_message(
-            enemyId,
-            TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)初期状態に戻ります'))
         setStat(sourceId,'normal')
-        setStat(enemyId,'normal')
         setEnemy(sourceId,'-')
-        setEnemy(enemyId,'-')
+        if enemyId != '-':
+            line_bot_api.push_message(
+                enemyId,
+                TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)初期状態に戻ります'))
+                setStat(enemyId,'normal')
+                setEnemy(enemyId,'-')
     elif answer == 'QUIT_NO':
         #Noなら直前のステータスに戻る
 #        setStat(sourceId,getPreviousStat(sourceId))
