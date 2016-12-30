@@ -387,7 +387,16 @@ def generateInviteMsg(fromUserName,fromUserId):
     return template_message
 
 def generateQuitConfirm():
-    pass
+    buttons_template = ButtonsTemplate(
+        title='かくにん',
+        text='本当に対戦をやめますか？',
+        actions=[
+            PostbackTemplateAction(label='やめる', data='QUIT_YES'),
+            PostbackTemplateAction(label='やめないで続ける', data='QUIT_NO')
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='かくにん', template=buttons_template)
+    return template_message
 
 def displayInitialMap():
     pass
