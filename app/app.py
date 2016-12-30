@@ -367,6 +367,8 @@ def generateInviteMsg(fromUserName,fromUserId):
     if fromUserName.find('　') > 0:
         fromUserName.replace('　','_')
 
+    line_bot_api.push_message(fromUserId,text=fromUserName)
+
     buttons_template = ButtonsTemplate(
         title='挑戦者',
         text=fromUserName+'さんからの対戦申し込みです',
