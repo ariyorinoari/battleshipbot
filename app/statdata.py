@@ -52,10 +52,14 @@ def setStat(userId,newStatus):
 
 def isValidKey(userId):
     #redisにキーとして登録されているかチェック
-    return True
+    if redis.sismember('memberKeyList',userId) == 0:
+        return False
+    else:
+        return True
 
 def getEnemyName(myUserId):
-    return 'teki'
+    enemyId = redis.hget(myUserId,'enemyId')
+    return redis.hget(enemyId,'displayName')
 
 def getKeyFromDisplayName(userName):
     return 'xxxxxxxxxx'

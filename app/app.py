@@ -239,10 +239,11 @@ def handle_text_message(event):
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(;д;)伝言だけしておきますね。'))
+                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(;д;)伝言だけしておきますね。初期状態に戻ります。'))
                     line_bot_api.push_message(
                         text,
                         TextSendMessage(text='おじゃまします。'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
+                    setStat(sourceId,'normal')
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
                 line_bot_api.reply_message(
