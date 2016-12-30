@@ -219,7 +219,7 @@ def handle_text_message(event):
                     pushInviteMsg(text)
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました(*'ー'*)'))
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
                     setStatus(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemyKey(sourceId,text)
@@ -231,7 +231,7 @@ def handle_text_message(event):
                         generateInviteMsg(profile.display_name))
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました(*'ー'*)'))
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
                     setStatus(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemyKey(sourceId,text)
@@ -293,7 +293,7 @@ def handle_text_message(event):
                         #相手側はすでに完了していた
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='準備完了、相手のターンから開始します(*'ー'*)'))
+                            TextMessage(text='準備完了、相手のターンから開始します(^ー^* )'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(enemyId,'battle_myturn')
                         #相手に開始＆入力求めるメッセージPush
@@ -313,7 +313,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです(*'ー'*)'+
+                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。'+
                 'King,Queenのアクションをメニューから選んで場所を指定してくださいρ(-ω- )'))
         else:
             if getKingOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'KING':
