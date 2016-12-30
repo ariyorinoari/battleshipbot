@@ -29,6 +29,21 @@ def getSourceId(source):
 class NotFoundSourceError(Exception):
     pass
 
+def generateAckMsg(fromUserName):
+    pass
+
+def generateRejectMsg(fromUserName):
+    pass
+
+def generateInviteMsg(fromUserName):
+    pass
+
+def generateQuitConfirm():
+    pass
+
+def displayInitialMap():
+    pass
+
 entry = {
     '0':'+75+75',
     '1':'+313+75',
@@ -75,4 +90,3 @@ def _tmpdir():
     path = os.path.join(TMP_ROOT_PATH, number)
     make_static_dir(path)
     return (number, path)
-

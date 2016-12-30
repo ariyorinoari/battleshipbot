@@ -29,6 +29,7 @@ from linebot.models import (
 from const import *
 from utility import *
 from mutex import Mutex
+from statdata import *
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -64,148 +65,230 @@ def download_imagemap(size):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
+    #スタンプ対応
     sourceId = getSourceId(event.source)
-    profile = line_bot_api.get_profile(sourceId)
-
-    if redis.get('Current'+sourceId) is not None:
-        roomId = redis.get('Current'+sourceId)
-    else:
-        roomId = 'Room'+sourceId
-        redis.set('Current'+sourceId,roomId)
-    push_all_room_member(roomId, profile.display_name+'：')
-    push_all_room_member_sticker(roomId,event)
+    enemyId = getEnemyId(sourceId)
+    if enemyId is not None:
+        profile = line_bot_api.get_profile(sourceId)
+        pack = event.message.package_id
+        if pack == 1 or pack == 2 or pack ==3:
+            line_bot_api.push_message(
+                enemyId,
+                StickerSendMessage(
+                package_id=event.message.package_id,
+                sticker_id=event.message.sticker_id))
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
     sourceId = getSourceId(event.source)
-    matcher = re.match(r'^#(\d+) (.+)', text)
-
-    roomReqStat = 'isReq' + sourceId
     profile = line_bot_api.get_profile(sourceId)
+    matcher = re.match(r'(.*?)__(.*)', text)
+    currentStatus = getStat(sourceId)
 
-    if redis.get('Current'+sourceId) is not None:
-        roomId = redis.get('Current'+sourceId)
-    else:
-        roomId = 'Room'+sourceId
-        redis.set('Current'+sourceId,roomId)
-
-    if text == 'LEAVE':
-        redis.set(roomReqStat,'N')
-        if roomId != 'Room'+sourceId:
-            push_all_room_member(roomId, profile.display_name+'が退室しました')
-            if redis.exists(roomId) == 1:
-                redis.lrem(roomId, sourceId,0)
-                redis.set('Current'+sourceId,'Room'+sourceId)
-        else:
+#■ステータスノーマル（非戦闘状態）
+    if currentStatus == 'normal':
+        if text == 'ENTRY_EXIT_MENU':
+            #対戦申込/やめる　ボタンの場合は相手キー入力待ち状態へ
+            setStat(sourceId,'wait_game_key')
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='自分がオーナーの部屋からは退室できません。他メンバーを退室させます'))
-            if redis.exists(roomId) == 1:
-                for i in range(0,redis.llen(roomId)):
-                    id_i = redis.lindex(roomId,i)
-                    if id_i != sourceId:
-                        redis.lrem(roomId, id_i,0)
-                        line_bot_api.push_message(
-                            id_i,
-                            TextSendMessage(text=profile.display_name+'の部屋がクローズされました'))
-    elif text == 'MEMBER':
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextMessage(text= 'この部屋に参加しているメンバー：'))
-        if redis.exists(roomId) == 0:
+                TextMessage(text='対戦相手のゲームキーを入力してください(smile)'))
+        elif text == 'HELP_MENU':
+            #ヘルプボタンの場合はゲーム説明の表示
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text='(lightbulb)XXにようこそ。誰かに対戦を申込みたい場合は、対戦申込/やめる　メニューを押してください。'+
+                '対戦できる条件は２つ。①お相手がXXとLINEでお友達になっていること。②お相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
-                sourceId, TextSendMessage(text='誰もいません'))
+                sourceId,
+                TextSendMessage(text='ちなみに'+profile.display_name+'さんのゲームキーはこれです！↓'))
+            line_bot_api.push_message(
+                sourceId,
+                TextSendMessage(text=sourceId))
         else:
-            for i in range(0,redis.llen(roomId)):
-                profile = line_bot_api.get_profile(redis.lindex(roomId,i))
-                line_bot_api.push_message(
-                    sourceId, TextSendMessage(text=profile.display_name))
-    elif text == 'INVITE':
-        redis.set(roomReqStat,'N')
-        roomId = 'Room'+sourceId
-        prevRoomId = redis.get('Current'+sourceId)
-        if roomId != prevRoomId:
-            redis.lrem(prevRoomId, sourceId,0)
-            push_all_room_member(prevRoomId, profile.display_name+'が退室しました')
-        if redis.exists(roomId) ==0:
-            redis.rpush(roomId,sourceId)
-
-        redis.set('Current'+sourceId,roomId)
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextMessage(text='招待相手に部屋コードを連絡してください。部屋コードは↓です'))
-        line_bot_api.push_message(
-            sourceId, TextSendMessage(text=roomId))
-
-    elif text == 'JOIN':
-        redis.set(roomReqStat,'Y')
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextMessage(text='入りたい部屋コードを入力してください'))
-    elif redis.get(roomReqStat) == 'Y':
-        if redis.exists(text) == 1:
-            no_add = False
-            for i in range(0,redis.llen(text)):
-                    if redis.lindex(text,i) == sourceId:
-                        no_add = True
-            if no_add == False:
-                redis.rpush(text,sourceId)
-            redis.set(roomReqStat,'N')
-
-            redis.set('Current'+sourceId,text)
-            push_all_room_member(text, profile.display_name+'が参加しました')
-
-        else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextMessage(text='部屋が見つかりません。部屋コードをもう一度入力してください'))
-
-    elif text == 'プラポ':
-        poker_mutex = Mutex(redis, POKER_MUTEX_KEY_PREFIX+ sourceId)
-        poker_mutex.lock()
-        if poker_mutex.is_lock():
-            number = str(redis.incr(sourceId)).encode('utf-8')
-            line_bot_api.reply_message(
-               event.reply_token,
-               generate_planning_poker_message(number))
-            time.sleep(POKER_MUTEX_TIMEOUT)
-            if poker_mutex.is_lock():
-                poker_mutex.unlock()
-    elif matcher is not None:
-        number = matcher.group(1)
-        value = matcher.group(2)
-        current = redis.get(sourceId).encode('utf-8')
-        vote_key = sourceId + number
-        status = redis.hget(vote_key, 'status')
-        if status is None:
-            if number != current:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextMessage(text=MESSAGE_INVALID_VOTE.format(number)))
-                return
-            poker_mutex = Mutex(redis, POKER_MUTEX_KEY_PREFIX+ sourceId)
-            vote_mutex = Mutex(redis, VOTE_MUTEX_KEY_PREFIX  + sourceId)
-            location = mapping.keys()[mapping.values().index(value)]
-            vote_mutex.lock()
-            if vote_mutex.is_lock():
-                time.sleep(VOTE_MUTEX_TIMEOUT)
-                redis.hincrby(vote_key, location)
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    genenate_voting_result_message(vote_key)
-                )
-                redis.hset(vote_key, 'status', 'complete')
-                vote_mutex.unlock()
-                poker_mutex.release()
+            if matcher(1) == 'ACK':
+                #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
+                if isValidKey(matcher(2)):
+                    setStat(sourceId,'battle_init')
+                    if getEnemyId(sourceId) is None:
+                        setEnemy(sourceId,matcher(2))
+                        line_bot_api.push_message(
+                            matcher(2),generateAckMsg(profile.display_name))
+                    #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
+                    displayInitialMap()
+                    enemy_name = getEnemyName(matcher(2))
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
+            elif matcher(1) == 'REJECT':
+                #誰かの招待受けて　No　の場合は拒否を相手にPush
+                if isValidKey(matcher(2)):
+                        line_bot_api.push_message(
+                            matcher(2),generateRejectMsg(profile.display_name))
+                    setEnemy(matcher(2),'')
             else:
-                redis.hincrby(vote_key, location)
-        else:
+                mention_matcher = re.match(r'@(.*)',matcher(1))
+                if mention_matcher is not None:
+                    #@display_name__に続く文字列は相手にPushする・・・displayname重複対応がいりそう
+                    mentioned_key = getKeyFromDisplayName(mention_matcher(1))
+                    if mentioned_key is not None:
+                        line_bot_api.push_message(
+                        mentioned_key,
+                        TextSendMessage(text=matcher(2)))
+                else
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='(?)送信相手がわかりませんでした'))
+
+#■ステータス相手キー入力待ち
+    elif currentStatus == 'wait_game_key':
+        if text == 'ENTRY_EXIT_MENU':
+        #対戦申込/やめる　ボタンの場合はノーマル状態へ
+            setStat(sourceId,'normal')
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=MESSAGE_END_POKER.format(number)))
-    else:
-        push_all_room_member(roomId, profile.display_name+'のメッセージ：'+text)
+                TextMessage(text='対戦申込をキャンセルします。'))
+        elif text == 'HELP_MENU':
+        #ヘルプボタンの場合は招待方法を表示しノーマル状態へ
+            setStat(sourceId,'normal')
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text='(lightbulb)対戦を申し込むには、お相手のゲームキーが必要です。'+
+                'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします。'))
+        else:
+            #他テキストは相手キーとみなしてredis上に存在するか確認する
+            if isValidKey(text):
+                #ある場合は、相手ステータスを確認する。
+                enemy_status = getStatus(text)
+                if enemy_status == 'normal':
+                    #相手ステータスがノーマル状態であれば、招待ConfirmをPush
+                    pushInviteMsg(text)
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました(wink)'))
+                    setStatus(sourceId,'normal')
+                    #この時点でenemy_keyを保持
+                    setEnemyKey(sourceId,text)
+                elif enemy_status == 'wait_game_key':
+                    #相手がキーを入力しようとしている状態、相手ステータスをクリアした後invite
+                    setStatus(text,'normal')
+                    line_bot_api.push_message(
+                        text,
+                        generateInviteMsg(profile.display_name))
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました(wink)'))
+                    setStatus(sourceId,'normal')
+                    #この時点でenemy_keyを保持
+                    setEnemyKey(sourceId,text)
+                else:
+                    #相手は誰かと戦闘状態なのでメッセージPushのみ
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(tear)伝言だけしておきますね。'))
+                    line_bot_api.push_message(
+                        text,
+                        TextSendMessage(text='おじゃまします。'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
+            else:
+                #ない場合は、エラー表示し、再度相手キーを入力させる
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextMessage(text='キーが正しくないかもしれません(eh?!)確認してもう一度入力してください'))
+
+#■ステータスbattle_init
+    elif currentStatus == 'battle_init':
+        if text == 'ENTRY_EXIT_MENU':
+        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
+            setPreviousStat(sourceId,'battle_init')
+            setStat(sourceId,'battle_quit_confirm')
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+        elif text == 'HELP_MENU':
+            #ヘルプボタンの場合は配置方法を表示
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text='マップ上の1から16の数字をタップして、位置を入力してください(smile)'))
+        else:
+            num_matcher = re.match(r'^[0-9]{1,}$',text)
+            if num_matcher is None:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextMessage(text='うまく認識できませんでした(tear)マップ上の1から16の数字をタップして、再度位置を入力してください'))
+            else
+                if getKingPosition(sourceId) == '-':
+                    if setKingPosition(sourceId,num_matcher(0)) == False
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='うまく認識できませんでした(tear)マップ上の1から16の数字でKingの位置を入力してください'))
+                elif getQueenPosition(sourceId) == '-':
+                    if setQueenPosition(sourceId,num_matcher(0)) == False
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='うまく認識できませんでした(tear)マップ上の1から16の数字でQueenの位置を入力してください'))
+                if getKingPosition(sourceId) != '-' and getQueenPosition(sourceId) != '-':
+                    #KingとQueenのPosition設定が決まったら、battle_readyステータス。
+                    setStat(sourceId,'battle_ready')
+                    enemyId = getEnemyId(sourceId)
+                    if getStat(enemyId) != 'battle_ready':
+                        #相手の場所設定が終わっていない
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='相手が配置を決め終わるまでお待ちください'))
+                        #★★ここで待ち続けると抜けられなくなるので、一定時間でnormalに戻りたい
+                    else:
+                        #相手側はすでに完了していた
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='準備完了、相手のターンから開始します(wink)'))
+                        setStat(sourceId,'battle_not_myturn')
+                        setStat(enemyId,'battle_myturn')
+                        #相手に開始＆入力求めるメッセージPush
+                        line_bot_api.push_message(
+                            enemyId,
+                            TextSendMessage(text='ゲーム開始、あなたのターンです。行動をメニューから選んでください。'))
+#■ステータスbattle_quit_confirm
+    elif currentStatus == 'battle_quit_confirm':
+        enemyId = getEnemyId(sourceId)
+        if text == 'QUIT_YES':
+            #Yesなら相手に「降参」Pushし、ノーマル状態へ。
+            line_bot_api.push_message(
+                enemyId,
+                TextSendMessage(text='降参です(tired)'))
+            setStat(sourceId,'normal')
+            setStat(enemyId,'normal')
+            setEnemy(sourceId,'')
+            setEnemy(enemyId,'')
+        elif text == 'QUIT_NO':
+            #Noなら直前のステータスに戻る
+            setStat(sourceId,getPreviousStat(sourceId))
+        else:
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+            #他のメニュー押される可能性はいったん考慮しない
+#■ステータスbaattle_myturn
+    elif currentStatus == 'battle_myturn':
+        if text == 'ENTRY_EXIT_MENU':
+        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
+            setPreviousStat(sourceId,'battle_init')
+            setStat(sourceId,'battle_quit_confirm')
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+        elif text == 'HELP_MENU':
+            #ヘルプボタンの場合は配置方法を表示
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです(smile)'+
+                'King,Queenのアクションをメニューから選んで場所を指定してください（wink)'))
+        else:
+            if getKingOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'KING':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextMessage(text='(eh?!)Kingはすでに行動済です'))
+            elif getQueenOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'QUEEN':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextMessage(text='(eh?!)Queenはすでに行動済です'))
 
 def push_all_room_member(roomId, message):
     for i in range(0,redis.llen(roomId)):
@@ -214,12 +297,16 @@ def push_all_room_member(roomId, message):
             TextSendMessage(text=message))
 
 def push_all_room_member_sticker(roomId, event):
-    for i in range(0,redis.llen(roomId)):
-        line_bot_api.push_message(
-            redis.lindex(roomId,i),
-            StickerSendMessage(
-                package_id=event.message.package_id,
-                sticker_id=event.message.sticker_id))
+    pack = event.message.package_id
+    if pack == 1 or pack == 2 or pack ==3:
+        for i in range(0,redis.llen(roomId)):
+            line_bot_api.push_message(
+                redis.lindex(roomId,i),
+                StickerSendMessage(
+                    package_id=event.message.package_id,
+                    sticker_id=event.message.sticker_id))
+    else:
+        push_all_room_member(roomId,'＜スタンプ＞*対応できませんでした')
 
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
