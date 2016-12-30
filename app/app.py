@@ -86,14 +86,9 @@ def handle_follow(event):
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)ゲームの始め方はヘルプボタンで確認してね(＾▽＾)'))
-
     memberIdAdd(sourceId)
-
-    if redis.sismember('memberKeyList',sourceId) == 0:
-        redis.sadd('memberKeyList',sourceId)
-
     memberNameAdd(profile.display_name,sourceId)
-    createHashData(sourceId)
+    createHashData(sourceId,profile.display_name,profile.picture_url)
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
