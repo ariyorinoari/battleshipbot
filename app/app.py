@@ -85,7 +85,7 @@ def handle_follow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう(smile)ゲームの始め方はヘルプボタンで確認してね(wink)'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう(にこ)ゲームの始め方はヘルプボタンで確認してね(ういんく)'))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId)
