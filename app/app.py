@@ -109,29 +109,32 @@ def handle_postback(event):
     answer = event.postback.data
 
     enemyId = getEnemyId(sourceId)
-    if answer == 'QUIT_YES':
-        #Yesなら相手に「降参」Pushし、ノーマル状態へ。
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-        setStat(sourceId,'normal')
-        setEnemy(sourceId,'-')
-        if enemyId != '-':
+    if enemyId != '-':
+        if answer == 'QUIT_YES':
+            #Yesなら相手に「降参」Pushし、ノーマル状態へ。
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
+            setStat(sourceId,'normal')
+            setEnemy(sourceId,'-')
+
             line_bot_api.push_message(
                 enemyId,
                 TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)初期状態に戻ります'))
-                setStat(enemyId,'normal')
-                setEnemy(enemyId,'-')
-    elif answer == 'QUIT_NO':
-        #Noなら直前のステータスに戻る
+            setStat(enemyId,'normal')
+            setEnemy(enemyId,'-')
+        elif answer == 'QUIT_NO':
+            #Noなら直前のステータスに戻る
 #        setStat(sourceId,getPreviousStat(sourceId))
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='ゲームを続行します'))
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='ゲームを続行します'))
+        else:
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+            #他のメニュー押される可能性はいったん考慮しない
     else:
-        line_bot_api.push_message(
-            sourceId,generateQuitConfirm())
-        #他のメニュー押される可能性はいったん考慮しない
+        setStat(sourceId,'normal')
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
