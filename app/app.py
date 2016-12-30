@@ -363,9 +363,9 @@ def generateRejectMsg(fromUserName):
 def generateInviteMsg(fromUserName,fromUserId):
     #スペース抑制
     if fromUserName.find(' ') > 0:
-        fromUserName.replace(' ','_')
+        fromUserName = fromUserName.replace(' ','_')
     if fromUserName.find('　') > 0:
-        fromUserName.replace('　','_')
+        fromUserName = fromUserName.replace('　','_')
 
     line_bot_api.push_message(fromUserId,TextSendMessage(text=fromUserName))
 
