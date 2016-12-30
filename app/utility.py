@@ -45,6 +45,16 @@ entry = {
     '11':'+789+533',
 }
 
+def generate_map_image(data):
+    number, path = _tmpdir()
+    for i in range(0, 16):
+        cmd = _generate_cmd(i, data, path)
+        os.system(cmd)
+    resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/result_11.png'
+    os.system(resize_cmd)
+    return number
+
+
 def generate_voting_result_image(data):
     number, path = _tmpdir()
     for i in range(0, 12):

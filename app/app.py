@@ -58,10 +58,10 @@ def callback():
 def download_result(number, filename):
     return send_from_directory(os.path.join(app.root_path, 'static', 'tmp', number), filename)
 
-@app.route('/images/planning_poker/<size>', methods=['GET'])
+@app.route('/images/map/<size>', methods=['GET'])
 def download_imagemap(size):
     filename = POKER_IMAGE_FILENAME.format(size)
-    return send_from_directory(os.path.join(app.root_path, 'static', 'planning_poker'),
+    return send_from_directory(os.path.join(app.root_path, 'static', 'map','userId'),
             filename)
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -95,8 +95,6 @@ def handle_unfollow(event):
 #友達削除イベント、ここでredisからデータ削除を行う
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
-    line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='･△･)ﾉ また友達になってね！'))
     memberIdRemove(sourceId)
     memberNameRemove(profile.display_name,sourceId)
     removeHashData(sourceId)
@@ -267,8 +265,6 @@ def handle_text_message(event):
     elif currentStatus == 'battle_init':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
-#            setPreviousStat(sourceId,'battle_init')
-#            setStat(sourceId,'battle_quit_confirm')
             line_bot_api.push_message(
                 sourceId,generateQuitConfirm())
         elif text == 'HELP_MENU':
@@ -288,19 +284,29 @@ def handle_text_message(event):
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でKingの位置を入力してください'))
+                    else:
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Kingを配置しました。\n 次はQueenの位置を入力してください'))
                 elif getQueenPosition(sourceId) == '-':
                     if setQueenPosition(sourceId,num_matcher(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でQueenの位置を入力してください'))
+                    else:
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Queenを配置しました。'))
                 if getKingPosition(sourceId) != '-' and getQueenPosition(sourceId) != '-':
                     #KingとQueenのPosition設定が決まったら、battle_readyステータス。
+                    generateCurrentMap()
+                    #★★ここで配置済の地図を出したい
                     setStat(sourceId,'battle_ready')
                     enemyId = getEnemyId(sourceId)
                     if getStat(enemyId) != 'battle_ready':
                         #相手の場所設定が終わっていない
-                        line_bot_api.reply_message(
-                            event.reply_token,
+                        line_bot_api.push_message(
+                            sourceId,
                             TextMessage(text='相手が配置を決め終わるまでお待ちください'))
                         #★★ここで待ち続けると抜けられなくなるので、一定時間でnormalに戻りたい
                     else:

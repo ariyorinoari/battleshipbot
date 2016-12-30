@@ -34,6 +34,8 @@ def createHashData(userId,display_name,image_url):
     redis.hset(userId,'enemyId','-')
     redis.hset(userId,'KingOrderStatus','notyet')
     redis.hset(userId,'QueenOrderstatus','notyet')
+    redis.hset(userId,'KingPosition','-')
+    redis.hset(userId,'QueenPosition','-')
 
 def removeHashData(userId):
     redis.delete(userId)
@@ -77,7 +79,20 @@ def getKingPosition(userId):
     return '1'
 
 def setKingPosition(userId,positionNum):
-    return True
+    position = int(positionNum)
+    if position < 1 or position > 16:
+        return False
+
+    current_position = redis.hget(userId,'KingPosition')
+    if current_position == '-':
+        redis.hset(userId,'KingPosition',positionNum)
+        return True
+    else:
+        if isAvailablePosition(current_position,positionNum) and isVacant(userId,positionNum):
+            redis.hset(userId,'KingPosition',positionNum)
+            return True
+        else:
+            return False
 
 def getQueenPosition(userId):
     return '2'
@@ -90,3 +105,46 @@ def getKingOrderStatus(userId):
 
 def getQueenOrderStatus(userId):
     return redis.hget(userId,'QueenOrderStatus')
+
+def isAvailablePosition(current,future):
+#飛車（縦横方向移動のみ）の動きになっているかチェック
+    if current == future:
+        return False
+
+    current_int = int(current)
+    future_int = int(future)
+    if future_int > 16 or future_int < 1:
+        return False
+
+    if current == '1' or current == '5' or current == '9' or current == '13':
+        if (future_int > current_int and future_int < current_int + 4) or \
+            future_int % 4 == 1 :
+            return True
+        else:
+            return False
+    elif current == '2' or current == '6' or current == '10' or current == '14':
+        if (future_int > current_int -2 and future_int < current_int + 3) or \
+            future_int % 4 == 2 :
+            return True
+        else:
+            return False
+    elif current == '3' or current == '7' or current == '11' or current == '15':
+        if (future_int > current_int -3 and future_int < current_int + 2) or \
+            future_int % 4 == 3 :
+            return True
+        else:
+            return False
+    elif current == '4' or current == '8' or current == '12' or current == '16':
+        if (future_int > current_int -4 and future_int < current_int) or \
+            future_int % 4 == 0 :
+            return True
+        else:
+            return False
+
+def isVacant(userId,future):
+    if redis.hget(userId,'KingPosition') != future and \
+        redis.hget(userId,'QueenPosition') != future:
+        return True
+    else:
+        return False
+        
