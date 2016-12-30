@@ -120,7 +120,7 @@ def handle_postback(event):
 
             line_bot_api.push_message(
                 enemyId,
-                TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)初期状態に戻ります'))
+                TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
             setStat(enemyId,'normal')
             setEnemy(enemyId,'-')
         elif answer == 'QUIT_NO':
@@ -379,7 +379,7 @@ def generateInviteMsg(fromUserName,fromUserId):
         title='挑戦者きました',
         text=fromUserName+'さんからの対戦申し込みです',
         actions=[
-            MessageTemplateAction(label='OK', text='ACK__'+fromUserId),
+            MessageTemplateAction(label='うけてたつ', text='ACK__'+fromUserId),
             MessageTemplateAction(label='あとで', text='REJECT__'+fromUserId)
     ])
     template_message = TemplateSendMessage(
@@ -408,7 +408,7 @@ def generateInitialMap():
     for i in range(0, 4):
         for j in range(0, 4):
             actions.append(MessageImagemapAction(
-                text = 'ORDER__'+location,
+                text = 'ORDER__'+str(location).encode('utf-8'),
                 area=ImagemapArea(
                     x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
                     y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
