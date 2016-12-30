@@ -367,19 +367,15 @@ def generateInviteMsg(fromUserName,fromUserId):
     if fromUserName.find('　') > 0:
         fromUserName = fromUserName.replace('　','_')
 
-    line_bot_api.push_message(fromUserId,TextSendMessage(text=fromUserName))
-
-
     buttons_template = ButtonsTemplate(
         title='挑戦者',
         text=fromUserName+'さんからの対戦申し込みです',
-        thumbnail_image_url=getImage(fromUserId),
         actions=[
-            MessageTemplateAction(label='OK！', text='ACK__'+fromUserId),
+            MessageTemplateAction(label='OK', text='ACK__'+fromUserId),
             MessageTemplateAction(label='あとで', text='REJECT__'+fromUserId)
     ])
     template_message = TemplateSendMessage(
-        alt_text='対戦しよーぜ！', template=buttons_template)
+        alt_text='対戦しよー', template=buttons_template)
     return template_message
 
 def generateQuitConfirm():
