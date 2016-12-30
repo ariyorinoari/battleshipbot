@@ -215,7 +215,7 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextMessage(text='うまく認識できませんでした(tear)マップ上の1から16の数字をタップして、再度位置を入力してください'))
-            else
+            else:
                 if getKingPosition(sourceId) == '-':
                     if setKingPosition(sourceId,num_matcher(0)) == False
                         line_bot_api.reply_message(
