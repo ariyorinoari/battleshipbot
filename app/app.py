@@ -164,7 +164,7 @@ def handle_text_message(event):
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
-        elif matcher is not None and text.find('@') != 1:
+        elif matcher is not None and text.find('@') != 0:
             if matcher.group(1) == 'ACK':
                 #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
                 if isValidKey(matcher.group(2)):
@@ -180,14 +180,14 @@ def handle_text_message(event):
                         TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
                     line_bot_api.push_message(
                         sourceId, generateInitialMap())
-
             elif matcher.group(1) == 'REJECT':
                 #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
                         matcher.group(2),TextSendMessage(text=display_name+'さんは今は無理なようです・・・(;д;)'))
                     setEnemy(matcher.group(2),'-')
-        elif matcher is not None and text.find('@') == 1:
+
+        elif matcher is not None and text.find('@') == 0:
             mention_matcher = re.match(r'@(.*)',matcher.group(1))
             if mention_matcher is not None:
                 #@display_name__に続く文字列は相手にPushする・・・displayname重複対応がいりそう
