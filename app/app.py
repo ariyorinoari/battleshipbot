@@ -151,7 +151,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(ﾟｰﾟ)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。'+
+                TextMessage(text='ヘルプへようこそ(*^^*)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -213,26 +213,26 @@ def handle_text_message(event):
             #他テキストは相手キーとみなしてredis上に存在するか確認する
             if isValidKey(text):
                 #ある場合は、相手ステータスを確認する。
-                enemy_status = getStatus(text)
+                enemy_status = getStat(text)
                 if enemy_status == 'normal':
                     #相手ステータスがノーマル状態であれば、招待ConfirmをPush
                     pushInviteMsg(text)
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
-                    setStatus(sourceId,'normal')
+                    setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemyKey(sourceId,text)
                 elif enemy_status == 'wait_game_key':
                     #相手がキーを入力しようとしている状態、相手ステータスをクリアした後invite
-                    setStatus(text,'normal')
+                    setStat(text,'normal')
                     line_bot_api.push_message(
                         text,
                         generateInviteMsg(profile.display_name))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
-                    setStatus(sourceId,'normal')
+                    setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemyKey(sourceId,text)
                 else:
@@ -253,8 +253,8 @@ def handle_text_message(event):
     elif currentStatus == 'battle_init':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
-            setPreviousStat(sourceId,'battle_init')
-            setStat(sourceId,'battle_quit_confirm')
+#            setPreviousStat(sourceId,'battle_init')
+#            setStat(sourceId,'battle_quit_confirm')
             line_bot_api.push_message(
                 sourceId,generateQuitConfirm())
         elif text == 'HELP_MENU':
