@@ -362,12 +362,12 @@ def generateRejectMsg(fromUserName):
 
 def generateInviteMsg(fromUserName,fromUserId):
     buttons_template = ButtonsTemplate(
-        title='Here comes a new challenger!',
-        text=fromUserName+'さんからの対戦申し込みがとどきました！',
+        title='Here comes a challenger!',
+        text=fromUserName+'さんからの対戦申し込みです',
         thumbnail_image_url=getImage(fromUserId),
         actions=[
-            MessageTemplateAction(label='OK！', text='ACK__fromUserName'),
-            MessageTemplateAction(label='あとで', text='REJECT__fromUserName')
+            MessageTemplateAction(label='OK！', text='ACK__'+fromUserId),
+            MessageTemplateAction(label='あとで', text='REJECT__'+fromUserId)
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦しよーぜ！', template=buttons_template)
