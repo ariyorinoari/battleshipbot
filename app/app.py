@@ -95,6 +95,8 @@ def handle_unfollow(event):
 #友達削除イベント、ここでredisからデータ削除を行う
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
+    line_bot_api.reply_message(
+        event.reply_token, TextSendMessage(text='･△･)ﾉ また友達になってね！'))
     memberIdRemove(sourceId)
     memberNameRemove(profile.display_name,sourceId)
     removeHashData(sourceId)
@@ -160,35 +162,35 @@ def handle_text_message(event):
                 sourceId,
                 TextSendMessage(text=sourceId))
         elif matcher is not None:
-            if matcher(1) == 'ACK':
+            if matcher.group(1) == 'ACK':
                 #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
                 if isValidKey(matcher(2)):
                     setStat(sourceId,'battle_init')
                     if getEnemyId(sourceId) is None:
-                        setEnemy(sourceId,matcher(2))
+                        setEnemy(sourceId,matcher.group(2))
                         line_bot_api.push_message(
-                            matcher(2),generateAckMsg(profile.display_name))
+                            matcher.group(2),generateAckMsg(profile.display_name))
                     #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
                     displayInitialMap()
-                    enemy_name = getEnemyName(matcher(2))
+                    enemy_name = getEnemyName(matcher.group(2))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
-            elif matcher(1) == 'REJECT':
+            elif matcher.group(1) == 'REJECT':
                 #誰かの招待受けて　No　の場合は拒否を相手にPush
-                if isValidKey(matcher(2)):
+                if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
-                        matcher(2),generateRejectMsg(profile.display_name))
-                    setEnemy(matcher(2),'')
+                        matcher.group(2),generateRejectMsg(profile.display_name))
+                    setEnemy(matcher.group(2),'')
             else:
-                mention_matcher = re.match(r'@(.*)',matcher(1))
+                mention_matcher = re.match(r'@(.*)',matcher.group(1))
                 if mention_matcher is not None:
                     #@display_name__に続く文字列は相手にPushする・・・displayname重複対応がいりそう
-                    mentioned_key = getKeyFromDisplayName(mention_matcher(1))
+                    mentioned_key = getKeyFromDisplayName(mention_matcher.group(1))
                     if mentioned_key is not None:
                         line_bot_api.push_message(
                         mentioned_key,
-                        TextSendMessage(text=matcher(2)))
+                        TextSendMessage(text=matcher.group(2)))
                 else:
                     line_bot_api.reply_message(
                         event.reply_token,
