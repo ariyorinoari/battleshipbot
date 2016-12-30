@@ -230,7 +230,7 @@ def handle_text_message(event):
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
-                    setEnemyKey(sourceId,text)
+                    setEnemy(sourceId,text)
                 elif enemy_status == 'wait_game_key':
                     #相手がキーを入力しようとしている状態、相手ステータスをクリアした後invite
                     setStat(text,'normal')
@@ -242,7 +242,7 @@ def handle_text_message(event):
                         TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
-                    setEnemyKey(sourceId,text)
+                    setEnemy(sourceId,text)
                 else:
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
