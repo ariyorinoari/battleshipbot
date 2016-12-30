@@ -90,7 +90,7 @@ def handle_follow(event):
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId)
 
-@handler.add(UnFollowEvent)
+@handler.add(UnfollowEvent)
 def handle_unfollow(event):
 #友達削除イベント、ここでredisからデータ削除を行う
     sourceId = getSourceId(event.source)
