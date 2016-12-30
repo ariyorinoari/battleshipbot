@@ -62,7 +62,7 @@ def getEnemyName(myUserId):
     return redis.hget(enemyId,'displayName')
 
 def getKeyFromDisplayName(userName):
-    return 'xxxxxxxxxx'
+    return redis.hget('memberNameList',userName)
 
 def setPreviousStat(userId,currentStat):
     pass
