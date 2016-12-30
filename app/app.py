@@ -324,9 +324,7 @@ def handle_text_message(event):
 #■ステータスbaattle_myturn
     elif currentStatus == 'battle_myturn':
         if text == 'ENTRY_EXIT_MENU':
-        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
-            setPreviousStat(sourceId,'battle_init')
-            setStat(sourceId,'battle_quit_confirm')
+        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
             line_bot_api.push_message(
                 sourceId,generateQuitConfirm())
         elif text == 'HELP_MENU':
@@ -336,14 +334,66 @@ def handle_text_message(event):
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
                 'King,Queenのアクションをメニューから選んで場所を指定してくださいρ(-ω- )'))
         else:
-            if getKingOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'KING':
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextMessage(text='( ﾟﾛﾟ)Kingはすでに行動済です'))
-            elif getQueenOrderStatus(sourceId) == 'ordered' and matcher.group(1) == 'QUEEN':
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextMessage(text='( ﾟﾛﾟ)Queenはすでに行動済です'))
+            if matcher.group(1) == 'KING':
+                if getKingOrderStatus(sourceId) == 'ordered':
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='( ﾟﾛﾟ)Kingはすでに行動済です'))
+                else:
+                    if matcher.group(2) == 'MOVE':
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Kingの移動先をタップしてください'))
+                        setKingOrderStatus(sourceId,'move_position_wait')
+                    elif matcher.group(2) == 'ATTACK':
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Kingの攻撃先をタップしてください'))
+                        setKingOrderStatus(sourceId,'attack_position_wait')
+            elif matcher.group(1) == 'QUEEN':
+                if getQueenOrderStatus(sourceId) == 'ordered':
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='( ﾟﾛﾟ)Queenはすでに行動済です'))
+                else:
+                    if matcher.group(2) == 'MOVE':
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Queenの移動先をタップしてください'))
+                        setQueenOrderStatus(sourceId,'move_position_wait')
+                    elif matcher.group(2) == 'ATTACK':
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='Queenの攻撃先をタップしてください'))
+                        setQueenOrderStatus(sourceId,'move_attack_wait')
+            else:
+                num_matcher = re.match(r'^[0-9]{1,}$',text)
+                if num_matcher is None:
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度入力してください')
+                else:
+                    if getKingOrderStatus(sourceId) == 'move_position_wait':
+                        setKingOrderStatus(sourceId,'ordered')
+                    elif getKingOrderStatus(sourceId) == 'attack_position_wait'
+                        setKingOrderStatus(sourceId,'ordered')
+                    elif getQueenOrderStatus(sourceId) == 'move_position_wait'
+                        setQueenOrderStatus(sourceId,'ordered')
+                    elif getQueenOrderStatus(sourceId) == 'attack_position_wait'
+                        setQueenOrderStatus(sourceId,'ordered')
+                    if getKingOrderStatus(sourceId) == 'ordered' and getQueenOrderStatus(sourceId) == 'ordered':
+                        line_bot_api.push_message(
+                            sourceId,
+                            TextMessage(text='相手のターンに移ります'))
+                        line_bot_api.push_message(
+                            getEnemyId(sourceId),
+                            TextMessage(text='あなたのターンです。行動をメニューから選んでください。'))
+                        setStat(sourceId,'battle_not_myturn')
+                        setStat(getEnemyId(sourceId),'battle_myturn')
+
+    elif currentStatus == 'battle_not_myturn':
+        pass
+
 
 def push_all_room_member(roomId, message):
     for i in range(0,redis.llen(roomId)):
@@ -428,7 +478,7 @@ def generateInitialMap():
 
 def generateCurrentMap():
     pass
-    
+
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
     tmp = generate_voting_result_image(data)

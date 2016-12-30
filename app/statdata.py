@@ -76,7 +76,7 @@ def getPreviousStat(userId):
     return 'battle_init'
 
 def getKingPosition(userId):
-    return '1'
+    return redis.hget(userId,'KingPosition')
 
 def setKingPosition(userId,positionNum):
     position = int(positionNum)
@@ -85,8 +85,11 @@ def setKingPosition(userId,positionNum):
 
     current_position = redis.hget(userId,'KingPosition')
     if current_position == '-':
-        redis.hset(userId,'KingPosition',positionNum)
-        return True
+        if isVacant(userId,positionNum):
+            redis.hset(userId,'KingPosition',positionNum)
+            return True
+        else:
+            return False
     else:
         if isAvailablePosition(current_position,positionNum) and isVacant(userId,positionNum):
             redis.hset(userId,'KingPosition',positionNum)
@@ -95,16 +98,39 @@ def setKingPosition(userId,positionNum):
             return False
 
 def getQueenPosition(userId):
-    return '2'
+    return redis.hget(userId,'QueenPosition')
 
 def setQueenPosition(userId,positionNum):
-    return True
+    position = int(positionNum)
+    if position < 1 or position > 16:
+        return False
+
+    current_position = redis.hget(userId,'QueenPosition')
+    if current_position == '-':
+        if isVacant(userId,positionNum):
+            redis.hset(userId,'QueenPosition',positionNum)
+            return True
+        else:
+            return False
+    else:
+        if isAvailablePosition(current_position,positionNum) and isVacant(userId,positionNum):
+            redis.hset(userId,'QueenPosition',positionNum)
+            return True
+        else:
+            return False
 
 def getKingOrderStatus(userId):
     return redis.hget(userId,'kingOrderStatus')
 
+def setKingOrderStatus(userId,status):
+    redis.hset(userId,'kingOrderStatus',status)
+
 def getQueenOrderStatus(userId):
     return redis.hget(userId,'QueenOrderStatus')
+
+def setQueenOrderStatus(userId,status):
+    redis.hset(userId,'QueenOrderStatus',status)
+
 
 def isAvailablePosition(current,future):
 #飛車（縦横方向移動のみ）の動きになっているかチェック
@@ -147,4 +173,3 @@ def isVacant(userId,future):
         return True
     else:
         return False
-        
