@@ -45,10 +45,10 @@ def setEnemy(userId,enemyId):
     pass
 
 def getStat(userId):
-    return 'xxxxxxxx'
+    return redis.hget(userId,'status')
 
 def setStat(userId,newStatus):
-    pass
+    redis.hset(userId,newStatus)
 
 def isValidKey(userId):
     #redisにキーとして登録されているかチェック
