@@ -371,15 +371,15 @@ def handle_text_message(event):
                 if num_matcher is None:
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度入力してください')
+                        TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度入力してください'))
                 else:
                     if getKingOrderStatus(sourceId) == 'move_position_wait':
                         setKingOrderStatus(sourceId,'ordered')
-                    elif getKingOrderStatus(sourceId) == 'attack_position_wait'
+                    elif getKingOrderStatus(sourceId) == 'attack_position_wait':
                         setKingOrderStatus(sourceId,'ordered')
-                    elif getQueenOrderStatus(sourceId) == 'move_position_wait'
+                    elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                         setQueenOrderStatus(sourceId,'ordered')
-                    elif getQueenOrderStatus(sourceId) == 'attack_position_wait'
+                    elif getQueenOrderStatus(sourceId) == 'attack_position_wait':
                         setQueenOrderStatus(sourceId,'ordered')
                     if getKingOrderStatus(sourceId) == 'ordered' and getQueenOrderStatus(sourceId) == 'ordered':
                         line_bot_api.push_message(
@@ -390,6 +390,8 @@ def handle_text_message(event):
                             TextMessage(text='あなたのターンです。行動をメニューから選んでください。'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(getEnemyId(sourceId),'battle_myturn')
+                        setKingOrderStatus(sourceId,'notyet')
+                        setQueenOrderStatus(sourceId,'notyet')
 
     elif currentStatus == 'battle_not_myturn':
         pass
