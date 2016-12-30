@@ -153,7 +153,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(*^^*)誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。\n'+
+                TextMessage(text='ヘルプへようこそ(*^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　メニューを押してください。\n'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -161,10 +161,10 @@ def handle_text_message(event):
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
-        elif matcher is not None:
+        elif matcher is not None and text.find('@') == 1:
             if matcher.group(1) == 'ACK':
                 #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
-                if isValidKey(matcher(2)):
+                if isValidKey(matcher.group(2)):
                     setStat(sourceId,'battle_init')
                     if getEnemyId(sourceId) is None:
                         setEnemy(sourceId,matcher.group(2))
@@ -190,7 +190,7 @@ def handle_text_message(event):
                     if mentioned_key is not None:
                         line_bot_api.push_message(
                         mentioned_key,
-                        TextSendMessage(text=profile.display_name + 'さんからのメッセージ：'+ matcher.group(2)))
+                        TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
                 else:
                     line_bot_api.reply_message(
                         event.reply_token,
