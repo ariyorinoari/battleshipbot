@@ -136,7 +136,7 @@ def handle_text_message(event):
                         line_bot_api.push_message(
                         mentioned_key,
                         TextSendMessage(text=matcher(2)))
-                else
+                else:
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='(?)送信相手がわかりませんでした'))
