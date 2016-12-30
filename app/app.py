@@ -159,7 +159,7 @@ def handle_text_message(event):
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
-        else:
+        elif matcher is not None:
             if matcher(1) == 'ACK':
                 #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
                 if isValidKey(matcher(2)):
@@ -193,6 +193,10 @@ def handle_text_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='( ﾟﾛﾟ)送信相手がわかりませんでした'))
+        else:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text='σ(￣、￣=)'))
 
 #■ステータス相手キー入力待ち
     elif currentStatus == 'wait_game_key':
