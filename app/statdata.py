@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import redis
 
+app = Flask(__name__)
+app.config.from_object('config')
+redis = redis.from_url(app.config['REDIS_URL'])
+
 def memberIdAdd(userId):
-#    if redis.sismember('memberKeyList',userId) == 0:
-#        redis.sadd('memberKeyList',userId)
-    redis.sadd('memberKeyList',userId)
+    if redis.sismember('memberKeyList',userId) == 0:
+        redis.sadd('memberKeyList',userId)
     
 def memberIdRemove(userId):
     if redis.sismember('memberKeyList',userId) == 1:
