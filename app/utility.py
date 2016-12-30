@@ -30,31 +30,6 @@ def getSourceId(source):
 class NotFoundSourceError(Exception):
     pass
 
-def generateAckMsg(fromUserName):
-    pass
-
-def generateRejectMsg(fromUserName):
-    pass
-
-def generateInviteMsg(fromUserName,fromUserId):
-    buttons_template = ButtonsTemplate(
-        title='Here comes a new challenger!',
-        text=fromUserName+'さんからの対戦申し込みがとどきました！',
-        thumbnail_image_url=getImage(fromUserId),
-        actions=[
-            MessageTemplateAction(label='OK！', text='ACK__fromUserName'),
-            MessageTemplateAction(label='あとで', text='REJECT__fromUserName')
-    ])
-    template_message = TemplateSendMessage(
-        alt_text='対戦しよーぜ！', template=buttons_template)
-    return template_message
-
-def generateQuitConfirm():
-    pass
-
-def displayInitialMap():
-    pass
-
 entry = {
     '0':'+75+75',
     '1':'+313+75',
