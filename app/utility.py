@@ -78,7 +78,7 @@ def _composite_king_cmd(position,tmp):
     cmd.append(os.path.join(tmp, out_file))
     return ' '.join(cmd)
 
-def _composite_queen_cmd(position,path):
+def _composite_queen_cmd(position,tmp):
     bg_file = BG_FILE_PATH
     out_file = os.path.join(tmp, 'map.png')
 
@@ -86,7 +86,7 @@ def _composite_queen_cmd(position,path):
     cmd.append('composite -gravity northwest -geometry')
     cmd.append(entry[str(position)])
     cmd.append('-compose over')
-    cmd.append(os.path.join(IMG_PATH, 'king.png'))
+    cmd.append(os.path.join(IMG_PATH, 'queen.png'))
     cmd.append(bg_file)
     cmd.append(os.path.join(tmp, out_file))
     return ' '.join(cmd)
