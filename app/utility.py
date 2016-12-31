@@ -60,7 +60,7 @@ def generate_map_image(king_position,queen_position):
         cmd = _composite_queen_cmd(queen_position,path)
         os.system(cmd)
 
-    resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/map.png'
+    resize_cmd = 'mogrify -format jpg -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/map.png'
     os.system(resize_cmd)
     return number
 
