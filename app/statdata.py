@@ -237,6 +237,7 @@ def getDistance(before,after):
             return_msg = '下方向に移動しました'
         else:
             return_msg = '右方向に移動しました'
+    return return_msg
 
 def isAvailablePosition(current,future):
 #飛車（縦横方向移動のみ）の動きになっているかチェック
