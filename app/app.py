@@ -107,31 +107,25 @@ def handle_postback(event):
     answer = event.postback.data
     enemyId = getEnemyId(sourceId)
 
-    if enemyId != '-':
-        if answer == 'QUIT_YES':
-            #Yesなら相手に「降参」Pushし、ノーマル状態へ。
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-            setStat(sourceId,'normal')
-            setEnemy(sourceId,'-')
+    if answer == 'QUIT_YES':
+        #本当にやめますかのPostback　Yesなら相手に「降参」Pushし、ノーマル状態へ。
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
+        setStat(sourceId,'normal')
+        setEnemy(sourceId,'-')
 
-            line_bot_api.push_message(
-                enemyId,
-                TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
-            setStat(enemyId,'normal')
-            setEnemy(enemyId,'-')
-        elif answer == 'QUIT_NO':
-            #Noなら直前のステータスに戻る
-#        setStat(sourceId,getPreviousStat(sourceId))
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='ゲームを続行します'))
-        else:
-            line_bot_api.push_message(
-                sourceId,generateQuitConfirm())
-            #他のメニュー押される可能性はいったん考慮しない
+        line_bot_api.push_message(
+            enemyId,
+            TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
+        setStat(enemyId,'normal')
+        setEnemy(enemyId,'-')
+    elif answer == 'QUIT_NO':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='ゲームを続行します'))
     else:
+        #招待へのACK/REJECT対応
         matcher = re.match(r'(.*?)__(.*)', answer)
         if matcher is not None and matcher.group(1) == 'ACK':
             #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
@@ -150,11 +144,11 @@ def handle_postback(event):
                     sourceId, generateInitialMap())
         elif matcher is not None and matcher.group(1) == 'REJECT':
             #誰かの招待受けて　No　の場合は拒否を相手にPush
-            if isValidKey(matcher.group(2)):
-                line_bot_api.push_message(
-                    matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
-                setEnemy(matcher.group(2),'-')
-        setStat(sourceId,'normal')
+                if isValidKey(matcher.group(2)):
+                    line_bot_api.push_message(
+                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
+                    setEnemy(matcher.group(2),'-')
+                    setStat(sourceId,'normal')
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
