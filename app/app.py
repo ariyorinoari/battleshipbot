@@ -61,7 +61,7 @@ def download_result(number, filename):
 @app.route('/images/map/<size>', methods=['GET'])
 def download_imagemap(size):
     filename = POKER_IMAGE_FILENAME.format(size)
-    return send_from_directory(os.path.join(app.root_path, 'static', 'map','userId'),
+    return send_from_directory(os.path.join(app.root_path, 'static', 'map'),
             filename)
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -501,11 +501,11 @@ def generateInitialMap():
         alt_text='battle field map',
         base_size=BaseSize(height=790, width=1040))
     actions=[]
-    location=0
+    location=1
     for i in range(0, 4):
         for j in range(0, 4):
             actions.append(MessageImagemapAction(
-                text = 'ORDER__'+str(location).encode('utf-8'),
+                text = str(location).encode('utf-8'),
                 area=ImagemapArea(
                     x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
                     y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
