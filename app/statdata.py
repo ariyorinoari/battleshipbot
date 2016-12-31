@@ -120,7 +120,7 @@ def setQueenPosition(userId,positionNum):
             return False
 
 def setAttackPosition(userId,fromPosition,toPosition):
-    if isPositionAroun(fromPosition,toPosition) == True:
+    if isPositionAround(fromPosition,toPosition) == True:
         return isVacant(userId,toPosition)
     else:
         return False
@@ -235,7 +235,7 @@ def getDistance(before,after):
             return_msg = '下方向に移動しました'
         else:
             return_msg = '右方向に移動しました'
-    
+
 def isAvailablePosition(current,future):
 #飛車（縦横方向移動のみ）の動きになっているかチェック
     if current == future:
