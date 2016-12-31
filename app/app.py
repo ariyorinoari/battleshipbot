@@ -20,8 +20,7 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     StickerMessage, StickerSendMessage,
-    TemplateSendMessage, ConfirmTemplate, ConfirmTemplateAction,
-    MessageTemplateAction,
+    TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
     ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
     CarouselTemplate, CarouselColumn, PostbackEvent,
     UnfollowEvent, FollowEvent,
@@ -455,7 +454,7 @@ def generateAckMsg(fromUserName,enemyId):
         title='対戦OK',
         text=fromUserName+'さんが対戦OKしました',
         actions=[
-            ConfirmTemplateAction(label='開始しよー', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='開始しよー', data='ACK__'+enemyId),
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦OK', template=confirm_template)
