@@ -20,7 +20,8 @@ from linebot.exceptions import (
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     StickerMessage, StickerSendMessage,
-    TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
+    TemplateSendMessage, ConfirmTemplate, ConfirmTemplateAction,
+    MessageTemplateAction,
     ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
     CarouselTemplate, CarouselColumn, PostbackEvent,
     UnfollowEvent, FollowEvent,
