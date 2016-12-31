@@ -292,9 +292,9 @@ def handle_text_message(event):
                             TextMessage(text='Queenを配置しました。'))
                 if getKingPosition(sourceId) != '-' and getQueenPosition(sourceId) != '-':
                     #KingとQueenのPosition設定が決まったら、battle_readyステータス。
-                    line_bot_api.push_message(
-                        sourceId, ImageSendMessage(image=generateCurrentMap(sourceId)))
-                        #★★ここで配置済の地図を出したい
+                    #本当はimagemap出したいが挫折
+                    #line_bot_api.push_message(
+                    #    sourceId, ImageSendMessage(image=generateCurrentMap(sourceId)))
                     setStat(sourceId,'battle_ready')
                     enemyId = getEnemyId(sourceId)
                     if getStat(enemyId) != 'battle_ready':
@@ -441,9 +441,10 @@ def handle_text_message(event):
                             line_bot_api.push_message(
                                 getEnemyId(sourceId),
                                 TextSendMessage(text='あなたのターンです。行動をメニューから選んでください。'))
-                            line_bot_api.push_message(
-                                getEnemyId(sourceId),
-                                ImageSendMessage(image=generateCurrentMap(getEnemyId(sourceId))))
+                            #本当はimagemap出したいが挫折
+                            #line_bot_api.push_message(
+                            #    getEnemyId(sourceId),
+                            #    ImageSendMessage(image=generateCurrentMap(getEnemyId(sourceId))))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(getEnemyId(sourceId),'battle_myturn')
                             if getKingOrderStatus(sourceId) == 'ordered':
@@ -524,7 +525,7 @@ def generateInitialMap(userId):
     message.actions = actions
     return message
 
-#imagemapにしたいが挫折
+#imagemapにしたいが挫折のうえに、謎のエラーで機能しない★★
 def generateCurrentMap(userId):
     king_position = getKingPosition(userId)
     queen_position = getQueenPosition(userId)
