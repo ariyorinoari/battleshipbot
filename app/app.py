@@ -530,8 +530,8 @@ def generateCurrentMap(userId):
     queen_position = getQueenPosition(userId)
     tmp = generate_map_image(king_position,queen_position)
     image_message = ImageSendMessage(
-        original_content_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.png',
-        preview_image_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.png')
+        original_content_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg',
+        preview_image_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg')
     return image_message
 
 def genenate_voting_result_message(key):
