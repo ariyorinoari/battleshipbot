@@ -334,7 +334,7 @@ def handle_text_message(event):
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
                 'King,Queenのアクションをメニューから選んで場所を指定してくださいρ(-ω- )'))
         else:
-            if matcher.group(1) == 'KING':
+            if matcher is not None and matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
                     line_bot_api.reply_message(event.reply_token,
                         TextMessage(text='( ﾟﾛﾟ)Kingはすでに行動済です'))
@@ -352,7 +352,7 @@ def handle_text_message(event):
                             event.reply_token,
                             TextMessage(text='Kingの攻撃先をタップしてください'))
                         setKingOrderStatus(sourceId,'attack_position_wait')
-            elif matcher.group(1) == 'QUEEN':
+            elif matcher is not None and matcher.group(1) == 'QUEEN':
                 if getQueenOrderStatus(sourceId) == 'ordered':
                     line_bot_api.reply_message(
                         event.reply_token,
