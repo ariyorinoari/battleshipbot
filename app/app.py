@@ -141,7 +141,7 @@ def handle_postback(event):
                     sourceId,
                     TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
                 line_bot_api.push_message(
-                    sourceId, generateInitialMap())
+                    sourceId, generateInitialMap(sourceId))
         elif matcher is not None and matcher.group(1) == 'REJECT':
             #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher.group(2)):
