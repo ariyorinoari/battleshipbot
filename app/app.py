@@ -307,13 +307,13 @@ def handle_text_message(event):
                         #相手の場所設定が終わっていない
                         line_bot_api.push_message(
                             sourceId,
-                            TextMessage(text='相手が配置を決め終わるまでお待ちください'))
+                            TextSendMessage(text='相手が配置を決め終わるまでお待ちください'))
                         #★★ここで待ち続けると抜けられなくなるので、一定時間でnormalに戻りたい
                     else:
                         #相手側はすでに完了していた
                         line_bot_api.push_message(
                             sourceId,
-                            TextMessage(text='準備完了、相手のターンから開始します(^-^* )'))
+                            TextSendMessage(text='準備完了、相手のターンから開始します(^-^* )'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(enemyId,'battle_myturn')
                         #相手に開始＆入力求めるメッセージPush
@@ -376,7 +376,7 @@ def handle_text_message(event):
                 #@つき→相手への通信
                     line_bot_api.push_message(
                         getEnemyId(sourceId),
-                        TextMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
+                        TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
                 else:
                     num_matcher = re.match(r'^[0-9]{1,}$',text)
                     if num_matcher is None:
@@ -388,18 +388,18 @@ def handle_text_message(event):
                     else:
                         if getKingOrderStatus(sourceId) == 'move_position_wait':
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,text='その位置には動けません')
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0))
-                                line_bot_api.push_message(getEnemyId(sourceId),text='Kingが'+move_direction)
+                                line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text='Kingが'+move_direction))
                                 setKingOrderStatus(sourceId,'ordered')
                         elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getQueenPosition(sourceId)
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,text='その位置には動けません')
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0))
-                                line_bot_api.push_message(getEnemyId(sourceId),text='Queenが'+move_direction)
+                                line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text='Queenが'+move_direction))
                                 setQueenOrderStatus(sourceId,'ordered')
                         elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             is_king_attack = False
@@ -409,14 +409,14 @@ def handle_text_message(event):
                             else:
                                 curren_position = getQueenPosition(sourceId)
                             if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,text='その位置には攻撃できません')
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません'))
                             else:
                                 impact_msg = getAttackImpact(getEnemyId(sourceId),num_matcher.group(0))
-                                line_bot_api.push_message(getEnemyId(sourceId),text=num_matcher.group(0)+'への攻撃を受けました：'+impact_msg)
+                                line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=num_matcher.group(0)+'への攻撃を受けました：'+impact_msg))
                                 if impact_msg != '':
-                                    line_bot_api.push_message(sourceId,text=impact_msg)
+                                    line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
                                 else:
-                                    line_bot_api.push_message(sourceId,text='かすりもしませんでした・・')
+                                    line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした・・'))
 
                                 if is_king_attack:
                                     setKingOrderStatus(sourceId,'ordered')
@@ -426,10 +426,10 @@ def handle_text_message(event):
                         if (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
                             (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
                             line_bot_api.push_message(sourceId,
-                                TextMessage(text='相手のターンに移ります'))
+                                TextSendMessage(text='相手のターンに移ります'))
                             line_bot_api.push_message(
                                 getEnemyId(sourceId),
-                                TextMessage(text='あなたのターンです。行動をメニューから選んでください。'))
+                                TextSendMessage(text='あなたのターンです。行動をメニューから選んでください。'))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(getEnemyId(sourceId),'battle_myturn')
                             if getKingOrderStatus(sourceId) == 'ordered':
@@ -441,10 +441,10 @@ def handle_text_message(event):
         if matcher is not None and text.find('@') == 0:
         #@つき→相手への通信
             line_bot_api.push_message(getEnemyId(sourceId),
-                TextMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
+                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
         else:
             line_bot_api.push_message(sourceId,
-            TextMessage(text='相手のターンです。相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
+            TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
 
 def generateAckMsg(fromUserName,enemyId):
     buttons_template = ButtonsTemplate(
