@@ -292,8 +292,9 @@ def handle_text_message(event):
                             TextMessage(text='Queenを配置しました。'))
                 if getKingPosition(sourceId) != '-' and getQueenPosition(sourceId) != '-':
                     #KingとQueenのPosition設定が決まったら、battle_readyステータス。
-                    generateCurrentMap()
-                    #★★ここで配置済の地図を出したい
+                    line_bot_api.push_message(
+                        sourceId, ImageSendMessage(generateCurrentMap(sourceId)))
+                        #★★ここで配置済の地図を出したい
                     setStat(sourceId,'battle_ready')
                     enemyId = getEnemyId(sourceId)
                     if getStat(enemyId) != 'battle_ready':
