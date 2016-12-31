@@ -30,29 +30,66 @@ def getSourceId(source):
 class NotFoundSourceError(Exception):
     pass
 
+#173,130
 entry = {
-    '0':'+75+75',
-    '1':'+313+75',
-    '2':'+551+75',
-    '3':'+789+75',
-    '4':'+75+304',
-    '5':'+313+304',
-    '6':'+551+304',
-    '7':'+789+304',
-    '8':'+75+533',
-    '9':'+313+533',
-    '10':'+551+533',
-    '11':'+789+533',
+    '1':'+7+7',
+    '2':'+180+7',
+    '3':'+353+7',
+    '4':'+526+7',
+    '5':'+7+137',
+    '6':'+180+137',
+    '7':'+353+137',
+    '8':'+526+137',
+    '9':'+7+267',
+    '10':'+180+267',
+    '11':'+353+267',
+    '12':'+526+267',
+    '13':'+7+397',
+    '14':'+180+397',
+    '15':'+353+397',
+    '16':'+526+397',
 }
 
-def generate_map_image(data):
+def generate_map_image(king_position,queen_position):
     number, path = _tmpdir()
-    for i in range(0, 16):
-        cmd = _generate_cmd(i, data, path)
+
+    if king_position != '-':
+        _composite_king_cmd(king_position,path)
         os.system(cmd)
-    resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/result_11.png'
+    if queen_position != '-':
+        _composite_queen_cmd(queen_position,path)
+        os.system(cmd)
+
+    resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/map.png'
     os.system(resize_cmd)
     return number
+
+def _composite_king_cmd(position,tmp):
+
+    bg_file = BG_FILE_PATH
+    out_file = os.path.join(tmp, 'map.png')
+
+    cmd = []
+    cmd.append('composite -gravity northwest -geometry')
+    cmd.append(entry[str(position)])
+    cmd.append('-compose over')
+    cmd.append(os.path.join(IMG_PATH, 'king.png'))
+    cmd.append(bg_file)
+    cmd.append(os.path.join(tmp, out_file))
+    return ' '.join(cmd)
+
+def _composite_queen_cmd(position,path):
+    bg_file = BG_FILE_PATH
+    out_file = os.path.join(tmp, 'map.png')
+
+    cmd = []
+    cmd.append('composite -gravity northwest -geometry')
+    cmd.append(entry[str(position)])
+    cmd.append('-compose over')
+    cmd.append(os.path.join(IMG_PATH, 'king.png'))
+    cmd.append(bg_file)
+    cmd.append(os.path.join(tmp, out_file))
+    return ' '.join(cmd)
 
 
 def generate_voting_result_image(data):

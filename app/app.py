@@ -23,7 +23,7 @@ from linebot.models import (
     TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
     ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
     CarouselTemplate, CarouselColumn, PostbackEvent,
-    UnfollowEvent, FollowEvent,
+    UnfollowEvent, FollowEvent,ImageSendMessage,
     ImagemapSendMessage, MessageImagemapAction, BaseSize, ImagemapArea
 )
 
@@ -58,11 +58,10 @@ def callback():
 def download_result(number, filename):
     return send_from_directory(os.path.join(app.root_path, 'static', 'tmp', number), filename)
 
-@app.route('/images/map/<userId>/<size>', methods=['GET'])
-def download_imagemap(userId,size):
+@app.route('/images/map/<size>', methods=['GET'])
+def download_imagemap(size):
     filename = POKER_IMAGE_FILENAME.format(size)
-    redis.hset('debug','1',os.path.join(app.root_path, 'static',userId, 'map'))
-    return send_from_directory(os.path.join(app.root_path, 'static',userId, 'map'),
+    return send_from_directory(os.path.join(app.root_path, 'static', 'map'),
             filename)
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -443,6 +442,9 @@ def handle_text_message(event):
                             line_bot_api.push_message(
                                 getEnemyId(sourceId),
                                 TextSendMessage(text='あなたのターンです。行動をメニューから選んでください。'))
+                            line_bot_api.push_message(
+                                getEnemyId(sourceId),
+                                ImageSendMessage(generateCurrentMap(getEnemyId(sourceId))))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(getEnemyId(sourceId),'battle_myturn')
                             if getKingOrderStatus(sourceId) == 'ordered':
@@ -503,7 +505,7 @@ def generateQuitConfirm():
 
 def generateInitialMap(userId):
     message = ImagemapSendMessage(
-        base_url='https://s-battleship.herokuapp.com/images/'+userId+'/map',
+        base_url='https://s-battleship.herokuapp.com/images/map',
         alt_text='battle field map',
         base_size=BaseSize(height=790, width=1040))
     actions=[]
@@ -523,8 +525,15 @@ def generateInitialMap(userId):
     message.actions = actions
     return message
 
-def generateCurrentMap():
-    pass
+#imagemapにしたいが挫折
+def generateCurrentMap(userId):
+    king_position = getKingPosition(userId)
+    queen_position = getQueenPosition(userId)
+    tmp = generate_map_image(king_position,queen_position)
+    image_message = ImageSendMessage(
+        original_content_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.png',
+        preview_image_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.png')
+    return image_message
 
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
