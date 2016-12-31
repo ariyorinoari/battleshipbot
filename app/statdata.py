@@ -127,7 +127,9 @@ def setAttackPosition(userId,fromPosition,toPosition):
         return False
 
 def getAttackImpact(attackedId,position):
+
     return_msg = ''
+
     redis.hset('debug2','1',attackedId+position)
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました。\n'
@@ -148,6 +150,8 @@ def isPositionAround(src_pos,dst_pos):
     from_int = int(src_pos)
     to_int = int(dst_pos)
 
+    redis.hset('debug3','1',src_pos+dst_pos)
+    redis.hset('debug3','2',from_int+dst_int)
     if from_int ==  1:
         if to_int != 2 and to_int != 5 and to_int != 6:
             return False
