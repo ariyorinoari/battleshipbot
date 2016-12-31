@@ -420,7 +420,8 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません'))
                             else:
                                 impact_msg = getAttackImpact(getEnemyId(sourceId),num_matcher.group(0))
-                                line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=num_matcher.group(0)+'への攻撃を受けました：'+impact_msg))
+                                line_bot_api.push_message(getEnemyId(sourceId),
+                                    TextSendMessage(text=num_matcher.group(0)+'への攻撃を受けました。'+impact_msg))
                                 if impact_msg != '':
                                     line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
                                 else:

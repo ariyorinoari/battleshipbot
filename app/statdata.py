@@ -127,16 +127,18 @@ def setAttackPosition(userId,fromPosition,toPosition):
 
 def getAttackImpact(attackedId,position):
     return_msg = ''
+    print(attackedId + ' ' +position)
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました。\n'
         setKingOrderStatus(attackedId,'killed')
-    elif isPositionAround(position,getKingPosition(attackedId)):
+    elif isPositionAround(position,getKingPosition(attackedId)) == True:
+        print('isPositionAround return True')
         return_msg += 'Kingにかすりました。\n'
 
     if position == getQueenPosition(attackedId):
         return_msg += 'Queenに命中しました。\n'
         setQueenOrderStatus(attackedId,'killed')
-    elif isPositionAround(position,getQueenPosition(attackedId)):
+    elif isPositionAround(position,getQueenPosition(attackedId)) == True:
         return_msg += 'Queenにかすりました。\n'
 
     return return_msg
