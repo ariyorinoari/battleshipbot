@@ -54,10 +54,10 @@ def generate_map_image(king_position,queen_position):
     number, path = _tmpdir()
 
     if king_position != '-':
-        _composite_king_cmd(king_position,path)
+        cmd = _composite_king_cmd(king_position,path)
         os.system(cmd)
     if queen_position != '-':
-        _composite_queen_cmd(queen_position,path)
+        cmd = _composite_queen_cmd(queen_position,path)
         os.system(cmd)
 
     resize_cmd = 'mogrify -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/map.png'
