@@ -105,8 +105,8 @@ def handle_postback(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     answer = event.postback.data
-
     enemyId = getEnemyId(sourceId)
+
     if enemyId != '-':
         if answer == 'QUIT_YES':
             #Yesなら相手に「降参」Pushし、ノーマル状態へ。
@@ -132,6 +132,28 @@ def handle_postback(event):
                 sourceId,generateQuitConfirm())
             #他のメニュー押される可能性はいったん考慮しない
     else:
+        matcher = re.match(r'(.*?)__(.*)', answer)
+        if matcher is not None and matcher.group(1) == 'ACK':
+            #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
+            if isValidKey(matcher.group(2)):
+                setStat(sourceId,'battle_init')
+                if getEnemyId(sourceId) == '-':
+                    setEnemy(sourceId,matcher.group(2))
+                    line_bot_api.push_message(
+                        matcher.group(2),generateAckMsg(profile.display_name,sourceId))
+                #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
+                enemy_name = getEnemyName(matcher.group(2))
+                line_bot_api.push_message(
+                    sourceId,
+                    TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
+                line_bot_api.push_message(
+                    sourceId, generateInitialMap())
+        elif matcher is not None and matcher.group(1) == 'REJECT':
+            #誰かの招待受けて　No　の場合は拒否を相手にPush
+            if isValidKey(matcher.group(2)):
+                line_bot_api.push_message(
+                    matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
+                setEnemy(matcher.group(2),'-')
         setStat(sourceId,'normal')
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -154,7 +176,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(*^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
+                TextMessage(text='ヘルプへようこそ(^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -162,29 +184,6 @@ def handle_text_message(event):
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
-        elif matcher is not None and text.find('@') != 0:
-            if matcher.group(1) == 'ACK':
-                #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
-                if isValidKey(matcher.group(2)):
-                    setStat(sourceId,'battle_init')
-                    if getEnemyId(sourceId) == '-':
-                        setEnemy(sourceId,matcher.group(2))
-                        line_bot_api.push_message(
-                            matcher.group(2),generateAckMsg(profile.display_name,sourceId))
-                    #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
-                    enemy_name = getEnemyName(matcher.group(2))
-                    line_bot_api.push_message(
-                        sourceId,
-                        TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
-                    line_bot_api.push_message(
-                        sourceId, generateInitialMap())
-            elif matcher.group(1) == 'REJECT':
-                #誰かの招待受けて　No　の場合は拒否を相手にPush
-                if isValidKey(matcher.group(2)):
-                    line_bot_api.push_message(
-                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
-                    setEnemy(matcher.group(2),'-')
-
         elif matcher is not None and text.find('@') == 0:
             mention_matcher = re.match(r'@(.*)',matcher.group(1))
             if mention_matcher is not None:
@@ -376,7 +375,7 @@ def handle_text_message(event):
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='Queenの攻撃先をタップしてください'))
-                        setQueenOrderStatus(sourceId,'move_attack_wait')
+                        setQueenOrderStatus(sourceId,'attack_position_wait')
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
             else:
@@ -457,14 +456,14 @@ def handle_text_message(event):
             TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
 
 def generateAckMsg(fromUserName,enemyId):
-    buttons_template = ButtonsTemplate(
+    confirm_template = ConfirmTemplate(
         title='対戦OK',
         text=fromUserName+'さんが対戦OKしました',
         actions=[
-            MessageTemplateAction(label='OK', text='ACK__'+enemyId),
+            ConfirmTemplateAction(label='開始しよー', data='ACK__'+enemyId),
     ])
     template_message = TemplateSendMessage(
-        alt_text='対戦しよー', template=buttons_template)
+        alt_text='対戦OK', template=confirm_template)
     return template_message
 
 def generateInviteMsg(fromUserName,fromUserId):
@@ -474,27 +473,26 @@ def generateInviteMsg(fromUserName,fromUserId):
     if fromUserName.find('　') > 0:
         fromUserName = fromUserName.replace('　','_')
 
-    buttons_template = ButtonsTemplate(
+    confirm_template = ConfirmTemplate(
         title='挑戦者',
         text=fromUserName+'さんからの対戦申し込みです',
         actions=[
-            MessageTemplateAction(label='うけて立つ', text='ACK__'+fromUserId),
-            MessageTemplateAction(label='あとで', text='REJECT__'+fromUserId)
+            PostbackTemplateAction(label='うけて立つ', data='ACK__'+fromUserId),
+            PostbackTemplateAction(label='あとで', data='REJECT__'+fromUserId)
     ])
     template_message = TemplateSendMessage(
-        alt_text='対戦しよー', template=buttons_template)
+        alt_text='対戦しよー', template=confirm_template)
     return template_message
 
 def generateQuitConfirm():
-    buttons_template = ButtonsTemplate(
-        title='かくにん',
+    confirm_template = ConfirmTemplate(
         text='本当に対戦をやめますか？',
         actions=[
             PostbackTemplateAction(label='やめる', data='QUIT_YES'),
             PostbackTemplateAction(label='やめないで続ける', data='QUIT_NO')
     ])
     template_message = TemplateSendMessage(
-        alt_text='かくにん', template=buttons_template)
+        alt_text='かくにん', template=confirm_template)
     return template_message
 
 def generateInitialMap():
