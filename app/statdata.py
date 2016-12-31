@@ -120,7 +120,7 @@ def setQueenPosition(userId,positionNum):
             return False
 
 def setAttackPosition(userId,fromPosition,toPosition):
-    redis.hset('debug','1',userId+fromPosition)
+    redis.hset('debug','1',userId+fromPosition+toPosition)
     if isPositionAround(fromPosition,toPosition) == True:
         return isVacant(userId,toPosition)
     else:
