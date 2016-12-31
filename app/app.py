@@ -414,7 +414,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません'))
                             else:
                                 impact_msg = getAttackImpact(getEnemyId(sourceId),num_matcher.group(0))
-                                textmsg = str('への攻撃を受けました。').encode('utf-8'),
+                                textmsg = u'への攻撃を受けました。'
                                 line_bot_api.push_message(getEnemyId(sourceId),
                                     TextSendMessage(text=num_matcher.group(0) + textmsg + impact_msg))
                                 if impact_msg != '':
