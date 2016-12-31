@@ -61,6 +61,7 @@ def download_result(number, filename):
 @app.route('/images/map/<userId>/<size>', methods=['GET'])
 def download_imagemap(userId,size):
     filename = POKER_IMAGE_FILENAME.format(size)
+    redis.hset('debug','1',os.path.join(app.root_path, 'static',userId, 'map'))
     return send_from_directory(os.path.join(app.root_path, 'static',userId, 'map'),
             filename)
 
