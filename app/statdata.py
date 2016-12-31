@@ -120,7 +120,6 @@ def setQueenPosition(userId,positionNum):
             return False
 
 def setAttackPosition(userId,fromPosition,toPosition):
-    redis.hset('debug','1',userId+fromPosition+toPosition)
     if isPositionAround(fromPosition,toPosition) == True:
         return isVacant(userId,toPosition)
     else:
@@ -130,12 +129,10 @@ def getAttackImpact(attackedId,position):
 
     return_msg = ''
 
-    redis.hset('debug2','1',attackedId+position)
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました。\n'
         setKingOrderStatus(attackedId,'killed')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
-        redis.hset('debug2','2',position+getKingPosition(attackedId))
         return_msg += 'Kingにかすりました。\n'
 
     if position == getQueenPosition(attackedId):
@@ -150,69 +147,67 @@ def isPositionAround(src_pos,dst_pos):
     from_int = int(src_pos)
     to_int = int(dst_pos)
 
-    redis.hset('debug3','1',src_pos+dst_pos)
-    redis.hset('debug3','2',from_int+to_int)
     if from_int ==  1:
-        if to_int != 2 and to_int != 5 and to_int != 6:
-            return False
-        else:
+        if to_int == 2 or to_int == 5 or to_int == 6:
             return True
+        else:
+            return False
     elif from_int == 2 or from_int == 3:
-        if to_int != from_int - 1 and to_int != from_int + 1:
-            return False
-        elif to_int != from_int + 3 and to_int != from_int + 4 and to_int != from_int +5:
-            return False
-        else:
+        if to_int == from_int - 1 or to_int == from_int + 1:
             return True
+        elif to_int == from_int + 3 or to_int == from_int + 4 or to_int == from_int +5:
+            return True
+        else:
+            return False
     elif from_int == 4:
-        if to_int != 3 and to_int != 7 and to_int != 8:
-            return False
-        else:
+        if to_int == 3 or to_int == 7 or to_int == 8:
             return True
+        else:
+            return False
     elif from_int == 5 or from_int == 9:
-        if to_int != from_int - 4 and to_int != from_int -3:
-            return False
-        elif to_int != from_int +1:
-            return False
-        elif to_int != from_int +4 and to_int != from_int +5:
-            return False
-        else:
+        if to_int == from_int - 4 or to_int == from_int -3:
             return True
+        elif to_int == from_int +1:
+            return True
+        elif to_int == from_int +4 or to_int == from_int +5:
+            return True
+        else:
+            return False
     elif from_int == 6 or from_int == 7 or from_int == 10 or from_int == 11:
-        if to_int != from_int -5 and to_int != from_int -4 and to_int != from_int -3:
-            return False
-        elif to_int != from_int -1 and to_int != from_int +1:
-            return False
-        elif to_int != from_int + 3 and to_int != from_int +4 and to_int != from_int +5:
-            return False
-        else:
+        if to_int == from_int -5 or to_int == from_int -4 or to_int == from_int -3:
             return True
+        elif to_int == from_int -1 or to_int == from_int + 1:
+            return True
+        elif to_int == from_int + 3 or to_int == from_int +4 or to_int == from_int +5:
+            return True
+        else:
+            return False
     elif from_int == 8 or from_int == 12:
-        if to_int != from_int - 5 and to_int != from_int -4:
-            return False
-        elif to_int != from_int -1:
-            return False
-        elif to_int != from_int +3 and to_int != from_int +4:
-            return False
-        else:
+        if to_int == from_int - 5 or to_int == from_int -4:
             return True
+        elif to_int == from_int -1:
+            return True
+        elif to_int == from_int +3 or to_int == from_int +4:
+            return True
+        else:
+            return False
     elif from_int ==  13:
-        if to_int != 9 and to_int != 10 and to_int != 14:
-            return False
-        else:
+        if to_int == 9 or to_int == 10 or to_int == 14:
             return True
+        else:
+            return False
     elif from_int == 14 or from_int == 15:
-        if to_int != from_int - 5 and to_int != from_int -4 and to_int != from_int -3:
-            return False
-        elif to_int != from_int -1 and to_int != from_int +1:
-            return False
-        else:
+        if to_int == from_int - 5 or to_int == from_int -4 or to_int == from_int -3:
             return True
+        elif to_int == from_int -1 or to_int == from_int +1:
+            return True
+        else:
+            return False
     elif from_int ==  16:
-        if to_int != 11 and to_int != 12 and to_int != 15:
-            return False
-        else:
+        if to_int == 11 or to_int == 12 or to_int == 15:
             return True
+        else:
+            return False
 
 def getAttackedResult(fromId,toId,position):
     pass
