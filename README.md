@@ -1,4 +1,4 @@
-scrummasterbot
+battleshipbot
 ==============
 
 
