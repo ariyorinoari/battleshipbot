@@ -393,7 +393,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0))
-                                msgtxt = u'Kingが' + move_direction
+                                msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=msgtxt))
                                 setKingOrderStatus(sourceId,'ordered')
 
@@ -403,7 +403,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0))
-                                msgtxt = u'Queenが' + move_direction
+                                msgtxt = u'Queenが' + unicode(move_direction,'utf-8').
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=msgtxt))
                                 setQueenOrderStatus(sourceId,'ordered')
 
