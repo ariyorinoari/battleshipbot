@@ -415,7 +415,8 @@ def handle_text_message(event):
                                 is_king_attack = True
                                 current_position = getKingPosition(sourceId)
                             else:
-                                curren_position = getQueenPosition(sourceId)
+                                current_position = getQueenPosition(sourceId)
+
                             if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません'))
                             else:
