@@ -336,9 +336,11 @@ def handle_text_message(event):
         else:
             if matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
-                    line_bot_api.reply_message(
-                        event.reply_token,
+                    line_bot_api.reply_message(event.reply_token,
                         TextMessage(text='( ﾟﾛﾟ)Kingはすでに行動済です'))
+                elif getKingOrderStatus(sourceId) == 'killed':
+                    line_bot_api.reply_message(event.reply_token,
+                        TextMessage(text='Kingは行動不能です(-ω-)'))
                 else:
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
@@ -355,6 +357,9 @@ def handle_text_message(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='( ﾟﾛﾟ)Queenはすでに行動済です'))
+                elif getQueenOrderStatus(sourceId) == 'killed':
+                    line_bot_api.reply_message(event.reply_token,
+                        TextMessage(text='Queenは行動不能です(-ω-)'))
                 else:
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
@@ -367,53 +372,79 @@ def handle_text_message(event):
                             TextMessage(text='Queenの攻撃先をタップしてください'))
                         setQueenOrderStatus(sourceId,'move_attack_wait')
             else:
-                num_matcher = re.match(r'^[0-9]{1,}$',text)
-                if num_matcher is None:
-                    line_bot_api.reply_message(
-                        event.reply_token,
-                        TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度入力してください'))
+                if matcher is not None and text.find('@') == 0:
+                #@つき→相手への通信
+                    line_bot_api.push_message(
+                        getEnemyId(sourceId),
+                        TextMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
                 else:
-                    if getKingOrderStatus(sourceId) == 'move_position_wait':
-                        setKingOrderStatus(sourceId,'ordered')
-                    elif getKingOrderStatus(sourceId) == 'attack_position_wait':
-                        setKingOrderStatus(sourceId,'ordered')
-                    elif getQueenOrderStatus(sourceId) == 'move_position_wait':
-                        setQueenOrderStatus(sourceId,'ordered')
-                    elif getQueenOrderStatus(sourceId) == 'attack_position_wait':
-                        setQueenOrderStatus(sourceId,'ordered')
-                    if getKingOrderStatus(sourceId) == 'ordered' and getQueenOrderStatus(sourceId) == 'ordered':
-                        line_bot_api.push_message(
-                            sourceId,
-                            TextMessage(text='相手のターンに移ります'))
-                        line_bot_api.push_message(
-                            getEnemyId(sourceId),
-                            TextMessage(text='あなたのターンです。行動をメニューから選んでください。'))
-                        setStat(sourceId,'battle_not_myturn')
-                        setStat(getEnemyId(sourceId),'battle_myturn')
-                        setKingOrderStatus(sourceId,'notyet')
-                        setQueenOrderStatus(sourceId,'notyet')
+                    num_matcher = re.match(r'^[0-9]{1,}$',text)
+                    if num_matcher is None:
+                        #数字入力ではなかった
+                        line_bot_api.reply_message(
+                            event.reply_token,
+                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度位置を入力してください。\n'+
+                            '相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
+                    else:
+                        if getKingOrderStatus(sourceId) == 'move_position_wait':
+                            if setKingPosition(sourceId,num_matcher.group(0)) == False:
+                                line_bot_api.push_message(sourceId,text='その位置には動けません')
+                            else:
+                                move_direction = getDistance(current_position,num_matcher.group(0))
+                                line_bot_api.push_message(getEnemyId(sourceId),text='Kingが'+move_direction)
+                                setKingOrderStatus(sourceId,'ordered')
+                        elif getQueenOrderStatus(sourceId) == 'move_position_wait':
+                            current_position = getQueenPosition(sourceId)
+                            if setQueenPosition(sourceId,num_matcher.group(0)) == False:
+                                line_bot_api.push_message(sourceId,text='その位置には動けません')
+                            else:
+                                move_direction = getDistance(current_position,num_matcher.group(0))
+                                line_bot_api.push_message(getEnemyId(sourceId),text='Queenが'+move_direction)
+                                setQueenOrderStatus(sourceId,'ordered')
+                        elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                            is_king_attack = False
+                            if getKingOrderStatus(sourceId) == 'attack_position_wait':
+                                is_king_attack = True
+                                current_position = getKingPosition(sourceId)
+                            else:
+                                curren_position = getQueenPosition(sourceId)
+                            if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
+                                line_bot_api.push_message(sourceId,text='その位置には攻撃できません')
+                            else:
+                                impact_msg = getAttackImpact(getEnemyId(sourceId),num_matcher.group(0))
+                                line_bot_api.push_message(getEnemyId(sourceId),text=num_matcher.group(0)+'への攻撃を受けました：'+impact_msg)
+                                if impact_msg != '':
+                                    line_bot_api.push_message(sourceId,text=impact_msg)
+                                else:
+                                    line_bot_api.push_message(sourceId,text='かすりもしませんでした・・')
+
+                                if is_king_attack:
+                                    setKingOrderStatus(sourceId,'ordered')
+                                else:
+                                    setQueenOrderStatus(sourceId,'ordered')
+
+                        if (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
+                            (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
+                            line_bot_api.push_message(sourceId,
+                                TextMessage(text='相手のターンに移ります'))
+                            line_bot_api.push_message(
+                                getEnemyId(sourceId),
+                                TextMessage(text='あなたのターンです。行動をメニューから選んでください。'))
+                            setStat(sourceId,'battle_not_myturn')
+                            setStat(getEnemyId(sourceId),'battle_myturn')
+                            if getKingOrderStatus(sourceId) == 'ordered':
+                                setKingOrderStatus(sourceId,'notyet')
+                            if getQueenOrderStatus(sourceId) == 'ordered':
+                                setQueenOrderStatus(sourceId,'notyet')
 
     elif currentStatus == 'battle_not_myturn':
-        pass
-
-
-def push_all_room_member(roomId, message):
-    for i in range(0,redis.llen(roomId)):
-        line_bot_api.push_message(
-            redis.lindex(roomId,i),
-            TextSendMessage(text=message))
-
-def push_all_room_member_sticker(roomId, event):
-    pack = event.message.package_id
-    if pack == 1 or pack == 2 or pack ==3:
-        for i in range(0,redis.llen(roomId)):
-            line_bot_api.push_message(
-                redis.lindex(roomId,i),
-                StickerSendMessage(
-                    package_id=event.message.package_id,
-                    sticker_id=event.message.sticker_id))
-    else:
-        push_all_room_member(roomId,'＜スタンプ＞*対応できませんでした')
+        if matcher is not None and text.find('@') == 0:
+        #@つき→相手への通信
+            line_bot_api.push_message(getEnemyId(sourceId),
+                TextMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
+        else:
+            line_bot_api.push_message(sourceId,
+            TextMessage(text='相手のターンです。相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
 
 def generateAckMsg(fromUserName,enemyId):
     buttons_template = ButtonsTemplate(
@@ -434,10 +465,10 @@ def generateInviteMsg(fromUserName,fromUserId):
         fromUserName = fromUserName.replace('　','_')
 
     buttons_template = ButtonsTemplate(
-        title='挑戦者きました',
+        title='挑戦者',
         text=fromUserName+'さんからの対戦申し込みです',
         actions=[
-            MessageTemplateAction(label='うけてたつ', text='ACK__'+fromUserId),
+            MessageTemplateAction(label='うけて立つ', text='ACK__'+fromUserId),
             MessageTemplateAction(label='あとで', text='REJECT__'+fromUserId)
     ])
     template_message = TemplateSendMessage(

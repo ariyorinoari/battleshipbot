@@ -119,6 +119,97 @@ def setQueenPosition(userId,positionNum):
         else:
             return False
 
+def setAttackPosition(userId,fromPosition,toPosition):
+    if isPositionAroun(fromPosition,toPosition) == True:
+        return isVacant(userId,toPosition)
+    else:
+        return False
+
+def getAttackImpact(attackedId,position):
+    return_msg = ''
+    if position == getKingPosition(attackedId):
+        return_msg += 'Kingに命中しました。\n'
+        setKingOrderStatus(attackedId,'killed')
+    elif isPositionAround(position,getKingPosition(attackedId)):
+        return_msg += 'Kingにかすりました。\n'
+
+    if position == getQueenPosition(attackedId):
+        return_msg += 'Queenに命中しました。\n'
+        setQueenOrderStatus(attackedId,'killed')
+    elif isPositionAround(position,getQueenPosition(attackedId)):
+        return_msg += 'Queenにかすりました。\n'
+
+    return return_msg
+
+def isPositionAround(src_pos,dst_pos):
+    from_int = int(src_pos)
+    to_int = int(dst_pos)
+
+    if from_int ==  1:
+        if to_int != 2 and to_int != 5 and to_int != 6:
+            return False
+        else:
+            return True
+    elif from_int == 2 or from_int == 3:
+        if to_int != from_int - 1 and to_int != from_int + 1:
+            return False
+        elif to_int != from_int + 3 and to_int != from_int + 4 and to_int != from_int +5:
+            return False
+        else:
+            return True
+    elif from_int == 4:
+        if to_int != 3 and to_int != 7 and to_int != 8:
+            return False
+        else:
+            return True
+    elif from_int == 5 or from_int == 9:
+        if to_int != from_int - 4 and to_int != from_int -3:
+            return False
+        elif to_int != from_int +1:
+            return False
+        elif to_int != from_int +4 and to_int != from_int +5:
+            return False
+        else:
+            return True
+    elif from_int == 6 or from_int == 7 or from_int == 10 or from_int == 11:
+        if to_int != from_int -5 and to_int != from_int -4 and to_int != from_int -3:
+            return False
+        elif to_int != from_int -1 and to_int != from_int +1:
+            return False
+        elif to_int != from_int + 3 and to_int != from_int +4 and to_int != from_int +5:
+            return False
+        else:
+            return True
+    elif from_int == 8 or from_int == 12:
+        if to_int != from_int - 5 and to_int != from_int -4:
+            return False
+        elif to_int != from_int -1:
+            return False
+        elif to_int != from_int +3 and to_int != from_int +4:
+            return False
+        else:
+            return True
+    elif from_int ==  13:
+        if to_int != 9 and to_int != 10 and to_int != 14:
+            return False
+        else:
+            return True
+    elif from_int == 14 or from_int == 15:
+        if to_int != from_int - 5 and to_int != from_int -4 and to_int != from_int -3:
+            return False
+        elif to_int != from_int -1 and to_int != from_int +1:
+            return False
+        else:
+            return True
+    elif from_int ==  16:
+        if to_int != 11 and to_int != 12 and to_int != 15:
+            return False
+        else:
+            return True
+
+def getAttackedResult(fromId,toId,position):
+    pass
+
 def getKingOrderStatus(userId):
     return redis.hget(userId,'kingOrderStatus')
 
@@ -131,6 +222,21 @@ def getQueenOrderStatus(userId):
 def setQueenOrderStatus(userId,status):
     redis.hset(userId,'QueenOrderStatus',status)
 
+def getDistance(before,after):
+    before_int = int(before)
+    after_int = int(after)
+    if before_int < after_int:
+        if before_int % 4 == after_int % 4:
+            return_msg = '上方向に移動しました'
+        else:
+            return_msg = '左方向に移動しました'
+    else:
+        if before_int % 4 == after_int % 4:
+            return_msg = '下方向に移動しました'
+        else:
+            return_msg = '右方向に移動しました'
+
+def getKingActionImpact(fromId,toId):
 
 def isAvailablePosition(current,future):
 #飛車（縦横方向移動のみ）の動きになっているかチェック
