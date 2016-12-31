@@ -347,11 +347,15 @@ def handle_text_message(event):
                             event.reply_token,
                             TextMessage(text='Kingの移動先をタップしてください'))
                         setKingOrderStatus(sourceId,'move_position_wait')
+                        if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                            setQueenOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='Kingの攻撃先をタップしてください'))
                         setKingOrderStatus(sourceId,'attack_position_wait')
+                        if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                            setQueenOrderStatus(sourceId,'notyet')
             elif matcher is not None and matcher.group(1) == 'QUEEN':
                 if getQueenOrderStatus(sourceId) == 'ordered':
                     line_bot_api.reply_message(
@@ -366,11 +370,15 @@ def handle_text_message(event):
                             event.reply_token,
                             TextMessage(text='Queenの移動先をタップしてください'))
                         setQueenOrderStatus(sourceId,'move_position_wait')
+                        if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
+                            setKingOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='Queenの攻撃先をタップしてください'))
                         setQueenOrderStatus(sourceId,'move_attack_wait')
+                        if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
+                            setKingOrderStatus(sourceId,'notyet')
             else:
                 if matcher is not None and text.find('@') == 0:
                 #@つき→相手への通信
