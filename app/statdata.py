@@ -33,7 +33,7 @@ def createHashData(userId,display_name,image_url):
 
     redis.hset(userId,'enemyId','-')
     redis.hset(userId,'KingOrderStatus','notyet')
-    redis.hset(userId,'QueenOrderstatus','notyet')
+    redis.hset(userId,'QueenOrderStatus','notyet')
     redis.hset(userId,'KingPosition','-')
     redis.hset(userId,'QueenPosition','-')
 
@@ -211,10 +211,10 @@ def getAttackedResult(fromId,toId,position):
     pass
 
 def getKingOrderStatus(userId):
-    return redis.hget(userId,'kingOrderStatus')
+    return redis.hget(userId,'KingOrderStatus')
 
 def setKingOrderStatus(userId,status):
-    redis.hset(userId,'kingOrderStatus',status)
+    redis.hset(userId,'KingOrderStatus',status)
 
 def getQueenOrderStatus(userId):
     return redis.hget(userId,'QueenOrderStatus')
