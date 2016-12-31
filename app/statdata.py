@@ -151,7 +151,7 @@ def isPositionAround(src_pos,dst_pos):
     to_int = int(dst_pos)
 
     redis.hset('debug3','1',src_pos+dst_pos)
-    redis.hset('debug3','2',from_int+dst_int)
+    redis.hset('debug3','2',from_int+to_int)
     if from_int ==  1:
         if to_int != 2 and to_int != 5 and to_int != 6:
             return False
