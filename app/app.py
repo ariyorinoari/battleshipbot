@@ -58,10 +58,10 @@ def callback():
 def download_result(number, filename):
     return send_from_directory(os.path.join(app.root_path, 'static', 'tmp', number), filename)
 
-@app.route('/images/map/<size>', methods=['GET'])
+@app.route('/images/map/<userId>/<size>', methods=['GET'])
 def download_imagemap(size):
     filename = POKER_IMAGE_FILENAME.format(size)
-    return send_from_directory(os.path.join(app.root_path, 'static', 'map'),
+    return send_from_directory(os.path.join(app.root_path, 'static',userId, 'map'),
             filename)
 
 @handler.add(MessageEvent, message=StickerMessage)
@@ -424,7 +424,7 @@ def handle_text_message(event):
                                 msgtxt = num_matcher.group(0) + 'に攻撃されました。'
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=msgtxt))
 
-                                if impact_msg != '':
+                                if unicode(impact_msg,'utf-8') != u'':
                                     line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
                                     line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=impact_msg))
                                 else:
@@ -448,6 +448,8 @@ def handle_text_message(event):
                                 setKingOrderStatus(sourceId,'notyet')
                             if getQueenOrderStatus(sourceId) == 'ordered':
                                 setQueenOrderStatus(sourceId,'notyet')
+                        else:
+                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動をメニューから選んでください。'))
 
     elif currentStatus == 'battle_not_myturn':
         if matcher is not None and text.find('@') == 0:
@@ -498,9 +500,9 @@ def generateQuitConfirm():
         alt_text='かくにん', template=confirm_template)
     return template_message
 
-def generateInitialMap():
+def generateInitialMap(userId):
     message = ImagemapSendMessage(
-        base_url='https://s-battleship.herokuapp.com/images/map',
+        base_url='https://s-battleship.herokuapp.com/images/'+userId+'/map',
         alt_text='battle field map',
         base_size=BaseSize(height=790, width=1040))
     actions=[]

@@ -130,16 +130,16 @@ def getAttackImpact(attackedId,position):
     return_msg = ''
 
     if position == getKingPosition(attackedId):
-        return_msg += 'Kingに命中しました。\n'
+        return_msg += 'Kingに命中しました！'
         setKingOrderStatus(attackedId,'killed')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
-        return_msg += 'Kingにかすりました。\n'
+        return_msg += 'Kingにかすりました。'
 
     if position == getQueenPosition(attackedId):
-        return_msg += 'Queenに命中しました。\n'
+        return_msg += 'Queenに命中しました！'
         setQueenOrderStatus(attackedId,'killed')
     elif isPositionAround(position,getQueenPosition(attackedId)) == True:
-        return_msg += 'Queenにかすりました。\n'
+        return_msg += 'Queenにかすりました。'
 
     return return_msg
 
@@ -227,7 +227,7 @@ def setQueenOrderStatus(userId,status):
 def getDistance(before,after):
     before_int = int(before)
     after_int = int(after)
-    if before_int < after_int:
+    if before_int > after_int:
         if before_int % 4 == after_int % 4:
             return_msg = '上方向に移動しました'
         else:
