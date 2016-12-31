@@ -120,6 +120,7 @@ def setQueenPosition(userId,positionNum):
             return False
 
 def setAttackPosition(userId,fromPosition,toPosition):
+    redis.hset('debug','1',userId+fromPosition)
     if isPositionAround(fromPosition,toPosition) == True:
         return isVacant(userId,toPosition)
     else:
@@ -127,12 +128,12 @@ def setAttackPosition(userId,fromPosition,toPosition):
 
 def getAttackImpact(attackedId,position):
     return_msg = ''
-    redis.hset(attackedId,'debug1',position)
+    redis.hset('debug2','1',attackedId+position)
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました。\n'
         setKingOrderStatus(attackedId,'killed')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
-        redis.hset(attackedId,'debug2',position+getKingPosition(attackedId))
+        redis.hset('debug2','2',position+getKingPosition(attackedId))
         return_msg += 'Kingにかすりました。\n'
 
     if position == getQueenPosition(attackedId):
