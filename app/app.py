@@ -388,12 +388,14 @@ def handle_text_message(event):
                             '相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
                     else:
                         if getKingOrderStatus(sourceId) == 'move_position_wait':
+                            current_position = getKingPosition(sourceId)
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0))
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text='Kingが'+move_direction))
                                 setKingOrderStatus(sourceId,'ordered')
+
                         elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getQueenPosition(sourceId)
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
@@ -402,6 +404,7 @@ def handle_text_message(event):
                                 move_direction = getDistance(current_position,num_matcher.group(0))
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text='Queenが'+move_direction))
                                 setQueenOrderStatus(sourceId,'ordered')
+
                         elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             is_king_attack = False
                             if getKingOrderStatus(sourceId) == 'attack_position_wait':
