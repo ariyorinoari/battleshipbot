@@ -28,12 +28,23 @@ def memberNameRemove(display_name,userId):
 def createHashData(userId,display_name,image_url):
     redis.hset(userId,'displayName',display_name)
 #    redis.hset(userId,'imageUrl',image_url)
-    redis.hset(userId,'imageUrl','https://i0.wp.com/dashboard.heroku.com/images/static/ninja-avatar-48x48.png?ssl=1')
     redis.hset(userId,'status','normal')
 
     redis.hset(userId,'enemyId','-')
     redis.hset(userId,'KingOrderStatus','notyet')
     redis.hset(userId,'QueenOrderStatus','notyet')
+    redis.hset(userId,'KingHP',2)
+    redis.hset(userId,'QueenHP',1)
+    redis.hset(userId,'KingPosition','-')
+    redis.hset(userId,'QueenPosition','-')
+
+def clearHashData(userId):
+    redis.hset(userId,'status','normal')
+    redis.hset(userId,'enemyId','-')
+    redis.hset(userId,'KingOrderStatus','notyet')
+    redis.hset(userId,'QueenOrderStatus','notyet')
+    redis.hset(userId,'KingHP',2)
+    redis.hset(userId,'QueenHP',1)
     redis.hset(userId,'KingPosition','-')
     redis.hset(userId,'QueenPosition','-')
 
@@ -131,15 +142,19 @@ def getAttackImpact(attackedId,position):
 
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました！'
-        setKingOrderStatus(attackedId,'killed')
-        setKingPosition(attackedId,'-')
+        redis.hincrby(attackedId,'KingHP',-1)
+        if redis.hget(attackedId,'KingHP') == 0:
+            setKingOrderStatus(attackedId,'killed')
+            setKingPosition(attackedId,'-')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
         return_msg += 'Kingにかすりました。'
 
     if position == getQueenPosition(attackedId):
         return_msg += 'Queenに命中しました！'
-        setQueenOrderStatus(attackedId,'killed')
-        setQueenPosition(attackedId,'-')
+        redis.hincrby(attackedId,'QueenHP',-1)
+        if redis.hget(attackedId,'QueenHP') == 0:
+            setQueenOrderStatus(attackedId,'killed')
+            setQueenPosition(attackedId,'-')
     elif isPositionAround(position,getQueenPosition(attackedId)) == True:
         return_msg += 'Queenにかすりました。'
 

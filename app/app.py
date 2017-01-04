@@ -124,6 +124,10 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='ゲームを続行します'))
+    elif answer == 'GAME_END':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='また遊んでね(ﾟ∇^*)'))
     else:
         #招待へのACK/REJECT対応
         matcher = re.match(r'(.*?)__(.*)', answer)
@@ -374,8 +378,8 @@ def handle_text_message(event):
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
             else:
-                if matcher is not None and text.find('@') == 0:
-                #@つき→相手への通信
+                if text.find('@') == 0:
+                #@開始→相手への通信
                     line_bot_api.push_message(
                         getEnemyId(sourceId),
                         TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
@@ -386,8 +390,9 @@ def handle_text_message(event):
                         line_bot_api.reply_message(
                             event.reply_token,
                             TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度位置を入力してください。\n'+
-                            '相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
+                            '相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
                     else:
+                        game_end = False
                         if getKingOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getKingPosition(sourceId)
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
@@ -424,17 +429,30 @@ def handle_text_message(event):
                                 line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=msgtxt))
 
                                 if unicode(impact_msg,'utf-8') != u'':
-                                    line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
-                                    line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=impact_msg))
+                                    if getKingOrderStatus(getEnemyId(sourceId)) == 'killed' and \
+                                        getQueenOrderStatus(getEnemyId(sourceId)) == 'killed':
+                                        #全滅させたので勝敗決定
+                                        line_bot_api.push_message(sourceId,generateWinImage())
+                                        clearHashData(sourceId)
+
+                                        line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage())
+                                        clearHashData(getEnemyId(sourceId))
+                                        game_end = True
+                                    else:
+                                        line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
+                                        line_bot_api.push_message(getEnemyId(sourceId),TextSendMessage(text=impact_msg))
                                 else:
                                     line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした・・'))
 
-                                if is_king_attack:
-                                    setKingOrderStatus(sourceId,'ordered')
-                                else:
-                                    setQueenOrderStatus(sourceId,'ordered')
+                                if game_end != True:
+                                    if is_king_attack:
+                                        setKingOrderStatus(sourceId,'ordered')
+                                    else:
+                                        setQueenOrderStatus(sourceId,'ordered')
 
-                        if (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
+                        if game_end == True:
+                            pass
+                        elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
                             (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
                             line_bot_api.push_message(sourceId,
                                 TextSendMessage(text='相手のターンに移ります'))
@@ -525,7 +543,7 @@ def generateInitialMap(userId):
     message.actions = actions
     return message
 
-#imagemapにしたいが挫折のうえに、謎のエラーで機能しない★★
+#imagemapにしたいが挫折→通常イメージに仮変更したが、エラーで機能しない★★
 def generateCurrentMap(userId):
     king_position = getKingPosition(userId)
     queen_position = getQueenPosition(userId)
@@ -534,6 +552,32 @@ def generateCurrentMap(userId):
         original_content_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg',
         preview_image_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg')
     return image_message
+
+def generateWinImage(display_name,enemyId):
+    buttons_template = ButtonsTemplate(
+        title='You Win!',
+        text=display_name+'さんの勝ち！',
+        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/win.jpg',
+        actions=[
+            PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='やめる', data='GAME_END'),
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='結果', template=buttons_template)
+    return template_message
+
+def generateLoseImage(display_name,enemyId):
+    buttons_template = ButtonsTemplate(
+        title='You Lose...',
+        text=display_name+'さんの負け',
+        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/lose.jpg',
+        actions=[
+            PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='やめる', data='GAME_END'),
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='結果', template=buttons_template)
+    return template_message
 
 def genenate_voting_result_message(key):
     data = redis.hgetall(key)
