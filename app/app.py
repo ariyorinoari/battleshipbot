@@ -112,12 +112,11 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-        clearHashData(sourceId)
-
         line_bot_api.push_message(
             enemyId,
             TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
         clearHashData(enemyId)
+        clearHashData(sourceId)
     elif answer == 'QUIT_NO':
         line_bot_api.reply_message(
             event.reply_token,
@@ -126,6 +125,8 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='また遊んでね(ﾟ∇^*)'))
+        clearHashData(enemyId)
+        clearHashData(sourceId)
     else:
         #招待へのACK/REJECT対応
         matcher = re.match(r'(.*?)__(.*)', answer)
