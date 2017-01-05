@@ -112,14 +112,12 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-        setStat(sourceId,'normal')
-        setEnemy(sourceId,'-')
+        clearHashData(sourceId)
 
         line_bot_api.push_message(
             enemyId,
             TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
-        setStat(enemyId,'normal')
-        setEnemy(enemyId,'-')
+        clearHashData(enemyId)
     elif answer == 'QUIT_NO':
         line_bot_api.reply_message(
             event.reply_token,
@@ -163,6 +161,7 @@ def handle_text_message(event):
     currentStatus = getStat(sourceId)
 
 #■ステータスノーマル（非戦闘状態）
+    line_bot_api.push_message(sourceId,generateWinImage())
     if currentStatus == 'normal':
         if text == 'ENTRY_EXIT_MENU':
             #対戦申込/やめる　ボタンの場合は相手キー入力待ち状態へ
@@ -204,13 +203,13 @@ def handle_text_message(event):
     elif currentStatus == 'wait_game_key':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合はノーマル状態へ
-            setStat(sourceId,'normal')
+            clearHashData(sourceId)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦申込をキャンセルします。'))
         elif text == 'HELP_MENU':
         #ヘルプボタンの場合は招待方法を表示しノーマル状態へ
-            setStat(sourceId,'normal')
+            clearHashData(sourceId)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦を申し込むには、お相手のゲームキーが必要です。\n'+
@@ -251,7 +250,7 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                         text,
                         TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
-                    setStat(sourceId,'normal')
+                    clearHashData(sourceId)
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
                 line_bot_api.reply_message(
