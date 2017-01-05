@@ -162,7 +162,7 @@ def handle_text_message(event):
     currentStatus = getStat(sourceId)
 
 #■ステータスノーマル（非戦闘状態）
-    line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
+    line_bot_api.push_message(sourceId,generateLoseImage(profile.display_name,sourceId))
     if currentStatus == 'normal':
         if text == 'ENTRY_EXIT_MENU':
             #対戦申込/やめる　ボタンの場合は相手キー入力待ち状態へ
