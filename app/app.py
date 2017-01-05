@@ -168,7 +168,7 @@ def handle_text_message(event):
             setStat(sourceId,'wait_game_key')
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='対戦相手のゲームキーを入力してください(´▽｀)'))
+                TextMessage(text='対戦相手のゲームキーを入力してください(´▽｀)\uD83D\uDE00'))
         elif text == 'HELP_MENU':
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
