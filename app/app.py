@@ -161,7 +161,7 @@ def handle_text_message(event):
     currentStatus = getStat(sourceId)
 
 #■ステータスノーマル（非戦闘状態）
-    line_bot_api.push_message(sourceId,generateWinImage())
+    line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
     if currentStatus == 'normal':
         if text == 'ENTRY_EXIT_MENU':
             #対戦申込/やめる　ボタンの場合は相手キー入力待ち状態へ
@@ -431,10 +431,10 @@ def handle_text_message(event):
                                     if getKingOrderStatus(getEnemyId(sourceId)) == 'killed' and \
                                         getQueenOrderStatus(getEnemyId(sourceId)) == 'killed':
                                         #全滅させたので勝敗決定
-                                        line_bot_api.push_message(sourceId,generateWinImage())
+                                        line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
                                         clearHashData(sourceId)
 
-                                        line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage())
+                                        line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage(getEnemyName(sourceId),getEnemyId(sourceId)))
                                         clearHashData(getEnemyId(sourceId))
                                         game_end = True
                                     else:
