@@ -251,17 +251,17 @@ def getDistance(before,after):
     if before_int > after_int:
         if before_int % 4 == after_int % 4:
             move_dist = before_int/4 - after_int/4
-            return_msg = '上方向に'+move_dist+'歩 移動しました'
+            return_msg = '上方向に'+str(move_dist)+'歩 移動しました'
         else:
             move_dist = before_int - after_int
-            return_msg = '左方向に'+move_dist+'歩 移動しました'
+            return_msg = '左方向に'+str(move_dist)+'歩 移動しました'
     else:
         if before_int % 4 == after_int % 4:
             move_dist = after_int/4 - before_int/4
-            return_msg = '下方向に'+move_dist+'歩 移動しました'
+            return_msg = '下方向に'+str(move_dist)+'歩 移動しました'
         else:
             move_dist = after_int - before_int
-            return_msg = '右方向に'+move_dist+'歩 移動しました'
+            return_msg = '右方向に'+str(move_dist)+'歩 移動しました'
     return return_msg
 
 def isAvailablePosition(current,future):
