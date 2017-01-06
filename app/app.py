@@ -528,7 +528,7 @@ def generateQuitConfirm():
 
 def generateInitialMap(userId):
     message = ImagemapSendMessage(
-            base_url='https://s-battleship-dev.herokuapp.com/images/map',
+            base_url='https://s-battleship.herokuapp.com/images/map',
         alt_text='battle field map',
         base_size=BaseSize(height=790, width=1040))
     actions=[]
@@ -559,7 +559,7 @@ def generateCurrentMap(userId):
     #    original_content_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg',
     #    preview_image_url='https://s-battleship.herokuapp.com/images/tmp/'+tmp+'map.jpg')
     message = ImagemapSendMessage(
-            base_url='https://s-battleship-dev.herokuapp.com/images/tmp/' + number,
+            base_url='https://s-battleship.herokuapp.com/images/tmp/' + number,
         alt_text='battle field map',
         base_size=BaseSize(height=790, width=1040))
     actions=[]
