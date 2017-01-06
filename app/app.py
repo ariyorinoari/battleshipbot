@@ -481,7 +481,7 @@ def handle_text_message(event):
         elif text.find('@') == 0:
         #@つき→相手への通信
             line_bot_api.push_message(getEnemyId(sourceId),
-                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
+                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text))
         else:
             line_bot_api.push_message(sourceId,
             TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
