@@ -147,6 +147,7 @@ def getAttackImpact(attackedId,position):
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました！'
         if redis.hincrby(attackedId,'KingHP',-1) == 0:
+            return_msg += 'Kingが行動不能になりました。。'
             setKingOrderStatus(attackedId,'killed')
             redis.hset(attackedId,'KingPosition','-')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
@@ -155,6 +156,7 @@ def getAttackImpact(attackedId,position):
     if position == getQueenPosition(attackedId):
         return_msg += 'Queenに命中しました！'
         if redis.hincrby(attackedId,'QueenHP',-1) == 0:
+            return_msg += 'Queenが行動不能になりました。。'
             setQueenOrderStatus(attackedId,'killed')
             redis.hset(attackedId,'QueenPosition','-')
     elif isPositionAround(position,getQueenPosition(attackedId)) == True:

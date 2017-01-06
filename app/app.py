@@ -582,7 +582,7 @@ def generateCurrentMap(userId):
 def generateWinImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
         title='You Win!',
-        text=display_name+'さんの勝ち！',
+        text=unicode(display_name,'utf-8')+u'さんの勝ち！',
         thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/win.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
@@ -595,7 +595,7 @@ def generateWinImage(display_name,enemyId):
 def generateLoseImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
         title='You Lose...',
-        text=display_name+'さんの負け',
+        text=unicode(display_name,'utf-8')+u'さんの負け',
         thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/lose.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
