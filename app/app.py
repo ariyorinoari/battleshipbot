@@ -93,7 +93,7 @@ def handle_follow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId,profile.display_name,profile.picture_url)
@@ -284,7 +284,7 @@ def handle_text_message(event):
                     if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でQueenの位置を入力してください'))
+                            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でQueenの位置を入力してください。Kingと同じ場所はダメですよ。'))
                     else:
                         line_bot_api.reply_message(
                             event.reply_token,
@@ -311,10 +311,10 @@ def handle_text_message(event):
                         #相手に開始＆入力求めるメッセージPush
                         line_bot_api.push_message(
                             enemyId,
-                            TextSendMessage(text='ゲーム開始、あなたのターンです。行動をメニューから選んでください。'))
+                            TextSendMessage(text='ゲーム開始、あなたのターンです。行動をボードメニューから選んでください。'))
 
-#■ステータスbaattle_ready
-    elif currentStatus == 'battle_myturn':
+#■ステータスbattle_ready
+    elif currentStatus == 'battle_ready':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
             line_bot_api.push_message(
@@ -325,7 +325,7 @@ def handle_text_message(event):
                 event.reply_token,
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、相手の初期配置待ちです。\n '+
                 '相手に話しかけるには、@まだー？のように、@の後ろにメッセージをどうぞ\uD83D\uDE04'))
-#■ステータスbaattle_myturn
+#■ステータスbattle_myturn
     elif currentStatus == 'battle_myturn':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
