@@ -434,7 +434,7 @@ def handle_text_message(event):
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃を受けました。'))
 
-                                if unicode(impact_msg,'utf-8') != u'':
+                                if impact_msg != u'':
                                     if getKingOrderStatus(enemyId) == 'killed' and getQueenOrderStatus(enemyId) == 'killed':
                                         #全滅させたので勝敗決定
                                         line_bot_api.push_message(enemyId,generateLoseImage(getEnemyName(sourceId),enemyId))
