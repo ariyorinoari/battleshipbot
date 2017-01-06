@@ -141,7 +141,7 @@ def handle_postback(event):
                     line_bot_api.push_message(
                         matcher.group(2),generateAckMsg(profile.display_name,sourceId))
                 #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
-                enemy_name = getEnemyName(matcher.group(2))
+                enemy_name =getDisplayName(matcher.group(2))
                 line_bot_api.push_message(
                     sourceId,
                     TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
@@ -269,7 +269,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='マップ上の1から16の数字をタップして、位置を入力してくださいρ(-ω- ) '))
+                TextMessage(text='マップ上の1から16の数字をタップして、位置を入力してください\uD83D\uDE04 '))
         else:
             num_matcher = re.match(r'^[0-9]{1,}$',text)
             if num_matcher is None:

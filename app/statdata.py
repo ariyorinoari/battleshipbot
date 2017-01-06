@@ -74,6 +74,10 @@ def getEnemyName(myUserId):
     enemyId = redis.hget(myUserId,'enemyId')
     return redis.hget(enemyId,'displayName')
 
+def getDisplayName(myUserId):
+    return redis.hget(myUserId,'displayName')
+
+
 def getKeyFromDisplayName(userName):
     return redis.hget('memberNameList',userName)
 
@@ -142,8 +146,7 @@ def getAttackImpact(attackedId,position):
 
     if position == getKingPosition(attackedId):
         return_msg += 'Kingに命中しました！'
-        redis.hincrby(attackedId,'KingHP',-1)
-        if redis.hget(attackedId,'KingHP') == 0:
+        if redis.hincrby(attackedId,'KingHP',-1) == 0:
             setKingOrderStatus(attackedId,'killed')
             setKingPosition(attackedId,'-')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
@@ -151,8 +154,7 @@ def getAttackImpact(attackedId,position):
 
     if position == getQueenPosition(attackedId):
         return_msg += 'Queenに命中しました！'
-        redis.hincrby(attackedId,'QueenHP',-1)
-        if redis.hget(attackedId,'QueenHP') == 0:
+        if redis.hincrby(attackedId,'QueenHP',-1) == 0:
             setQueenOrderStatus(attackedId,'killed')
             setQueenPosition(attackedId,'-')
     elif isPositionAround(position,getQueenPosition(attackedId)) == True:
