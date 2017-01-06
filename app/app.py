@@ -78,7 +78,7 @@ def handle_sticker_message(event):
     if enemyId != '-':
         profile = line_bot_api.get_profile(sourceId)
         line_bot_api.push_message(
-            enemyId,TextSendMessage(text=unicode(profile.display_name,'utf-8')+u'さんからスタンプ')
+            enemyId,TextSendMessage(text=unicode(profile.display_name,'utf-8')+u'さんからスタンプ'))
         pack = event.message.package_id
         if pack == 1 or pack == 2 or pack ==3:
             line_bot_api.push_message(
