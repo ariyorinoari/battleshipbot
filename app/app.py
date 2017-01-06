@@ -86,7 +86,7 @@ def handle_follow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう(ﾟ▽ﾟ*)\n ゲームの始め方はボードメニューの中のヘルプで確認してね(＾▽＾)'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId,profile.display_name,profile.picture_url)
@@ -112,15 +112,15 @@ def handle_postback(event):
         #本当にやめますかのPostback　Yesなら相手に「降参」Pushし、ノーマル状態へ。
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね(ﾟ∇^*)'))
-        setStat(sourceId,'normal')
-        setEnemy(sourceId,'-')
+            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
+
 
         line_bot_api.push_message(
             enemyId,
-            TextSendMessage(text=profile.display_name+'さんが降参しました(￣∇￣)\n 初期状態に戻ります'))
-        setStat(enemyId,'normal')
-        setEnemy(enemyId,'-')
+            TextSendMessage(text=profile.display_name+'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
+        clearHashData(sourceId)
+        clearHashData(enemyId)
+
     elif answer == 'QUIT_NO':
         line_bot_api.reply_message(
             event.reply_token,
@@ -151,7 +151,7 @@ def handle_postback(event):
             #誰かの招待受けて　No　の場合は拒否を相手にPush
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
-                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・(;д;)'))
+                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・\uD83D\uDE22'))
                     setEnemy(matcher.group(2),'-')
                     setStat(sourceId,'normal')
 
@@ -170,12 +170,12 @@ def handle_text_message(event):
             setStat(sourceId,'wait_game_key')
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='対戦相手のゲームキーを入力してください(´▽｀)'))
+                TextMessage(text='対戦相手のゲームキーを入力してください\uD83D\uDE00'))
         elif text == 'HELP_MENU':
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ(^^*)\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
+                TextMessage(text='ヘルプへようこそ\uD83D\uDE00\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
                 '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
@@ -195,27 +195,27 @@ def handle_text_message(event):
                 else:
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='( ﾟﾛﾟ)送信相手がわかりませんでした'))
+                        TextMessage(text='\uD83D\uDE32送信相手がわかりませんでした'))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='σ(￣、￣=)'))
+                TextMessage(text='\uD83D\uDC40もう一度お願いします'))
 
 #■ステータス相手キー入力待ち
     elif currentStatus == 'wait_game_key':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合はノーマル状態へ
-            setStat(sourceId,'normal')
+            clearHashData(sourceId)
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦申込をキャンセルします。'))
         elif text == 'HELP_MENU':
         #ヘルプボタンの場合は招待方法を表示しノーマル状態へ
-            setStat(sourceId,'normal')
+            clearHashData(sourceId)
             line_bot_api.reply_message(
-                event.reply_token,
+                event.reply_token,clearHashData(sourceId)
                 TextMessage(text='対戦を申し込むには、お相手のゲームキーが必要です。\n'+
-                'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします(-人-)'))
+                'ゲームキーは、ヘルプボタンを押すと表示されますのでお相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
         else:
             #他テキストは相手キーとみなしてredis上に存在するか確認する
             if isValidKey(text):
@@ -228,7 +228,7 @@ def handle_text_message(event):
                         generateInviteMsg(profile.display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemy(sourceId,text)
@@ -240,7 +240,7 @@ def handle_text_message(event):
                         generateInviteMsg(profile.display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました(^ー^* )'))
+                        TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemy(sourceId,text)
@@ -248,16 +248,16 @@ def handle_text_message(event):
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・(;д;)\n 伝言だけしておきますね。初期状態に戻ります。'))
+                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・\uD83D\uDE22\n 伝言だけしておきますね。初期状態に戻ります。'))
                     line_bot_api.push_message(
                         text,
                         TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
-                    setStat(sourceId,'normal')
+                    clearHashData(sourceId)
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextMessage(text='キーが正しくないかもしれません( ﾟﾛﾟ)\n 確認してもう一度入力してください'))
+                    TextMessage(text='キーが正しくないかもしれません\uD83D\uDE22\n 確認してもう一度入力してください'))
 
 #■ステータスbattle_init
     elif currentStatus == 'battle_init':
@@ -275,13 +275,13 @@ def handle_text_message(event):
             if num_matcher is None:
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
+                    TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
             else:
                 if getKingPosition(sourceId) == '-':
                     if setKingPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でKingの位置を入力してください'))
+                            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でKingの位置を入力してください'))
                     else:
                         line_bot_api.reply_message(
                             event.reply_token,
@@ -290,7 +290,7 @@ def handle_text_message(event):
                     if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\n マップ上の1から16の数字でQueenの位置を入力してください'))
+                            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でQueenの位置を入力してください'))
                     else:
                         line_bot_api.reply_message(
                             event.reply_token,
@@ -312,7 +312,7 @@ def handle_text_message(event):
                         #相手側はすでに完了していた
                         line_bot_api.push_message(
                             sourceId,
-                            TextSendMessage(text='準備完了、相手のターンから開始します(^-^* )'))
+                            TextSendMessage(text='準備完了、相手のターンから開始します\uD83D\uDE04'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(enemyId,'battle_myturn')
                         #相手に開始＆入力求めるメッセージPush
@@ -336,10 +336,10 @@ def handle_text_message(event):
             if matcher is not None and matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
                     line_bot_api.reply_message(event.reply_token,
-                        TextMessage(text='( ﾟﾛﾟ)Kingはすでに行動済です'))
+                        TextMessage(text='\uD83D\uDE22Kingはすでに行動済です'))
                 elif getKingOrderStatus(sourceId) == 'killed':
                     line_bot_api.reply_message(event.reply_token,
-                        TextMessage(text='Kingは行動不能です(-ω-)'))
+                        TextMessage(text='Kingは行動不能です\uD83D\uDE22'))
                 else:
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
@@ -359,10 +359,10 @@ def handle_text_message(event):
                 if getQueenOrderStatus(sourceId) == 'ordered':
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='( ﾟﾛﾟ)Queenはすでに行動済です'))
+                        TextMessage(text='\uD83D\uDE22Queenはすでに行動済です'))
                 elif getQueenOrderStatus(sourceId) == 'killed':
                     line_bot_api.reply_message(event.reply_token,
-                        TextMessage(text='Queenは行動不能です(-ω-)'))
+                        TextMessage(text='Queenは行動不能です\uD83D\uDE22'))
                 else:
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
@@ -390,7 +390,7 @@ def handle_text_message(event):
                         #数字入力ではなかった
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='うまく認識できませんでした( ﾟﾛﾟ)\nもう一度位置を入力してください。\n'+
+                            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\nもう一度位置を入力してください。\n'+
                             '相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
                     else:
                         game_end = False
@@ -433,10 +433,10 @@ def handle_text_message(event):
                                     if getKingOrderStatus(getEnemyId(sourceId)) == 'killed' and \
                                         getQueenOrderStatus(getEnemyId(sourceId)) == 'killed':
                                         #全滅させたので勝敗決定
-                                        line_bot_api.push_message(sourceId,generateWinImage())
+                                        line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
                                         clearHashData(sourceId)
 
-                                        line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage())
+                                        line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage(getEnemyName(sourceId),getEnemyId(sourceId)))
                                         clearHashData(getEnemyId(sourceId))
                                         game_end = True
                                     else:
@@ -474,13 +474,17 @@ def handle_text_message(event):
                             line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動をメニューから選んでください。'))
 
     elif currentStatus == 'battle_not_myturn':
-        if matcher is not None and text.find('@') == 0:
+        if text == 'ENTRY_EXIT_MENU':
+            #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+        elif text.find('@') == 0:
         #@つき→相手への通信
             line_bot_api.push_message(getEnemyId(sourceId),
                 TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ matcher.group(2)))
         else:
             line_bot_api.push_message(sourceId,
-            TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@__こんにちわ　のように@__の後ろにメッセージをどうぞ'))
+            TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
 
 def generateAckMsg(fromUserName,enemyId):
     confirm_template = ConfirmTemplate(
