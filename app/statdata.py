@@ -142,25 +142,25 @@ def setAttackPosition(userId,fromPosition,toPosition):
 
 def getAttackImpact(attackedId,position):
 
-    return_msg = ''
+    return_msg = u''
 
     if position == getKingPosition(attackedId):
-        return_msg += 'Kingに命中しました！'
-        if redis.hincrby(attackedId,'KingHP',-1) == 0:
-            return_msg += 'Kingが行動不能になりました。。'
+        return_msg += u'Kingに命中しました！'
+        if int(redis.hincrby(attackedId,'KingHP',-1)) == 0:
+            return_msg += u'Kingが行動不能になりました\uD83D\uDE22'
             setKingOrderStatus(attackedId,'killed')
             redis.hset(attackedId,'KingPosition','-')
     elif isPositionAround(position,getKingPosition(attackedId)) == True:
-        return_msg += 'Kingにかすりました。'
+        return_msg += u'Kingにかすりました。'
 
     if position == getQueenPosition(attackedId):
-        return_msg += 'Queenに命中しました！'
-        if redis.hincrby(attackedId,'QueenHP',-1) == 0:
-            return_msg += 'Queenが行動不能になりました。。'
+        return_msg += u'Queenに命中しました！'
+        if int(redis.hincrby(attackedId,'QueenHP',-1)) == 0:
+            return_msg += u'Queenが行動不能になりました\uD83D\uDE22'
             setQueenOrderStatus(attackedId,'killed')
             redis.hset(attackedId,'QueenPosition','-')
     elif isPositionAround(position,getQueenPosition(attackedId)) == True:
-        return_msg += 'Queenにかすりました。'
+        return_msg += u'Queenにかすりました。'
 
     return return_msg
 
@@ -250,14 +250,18 @@ def getDistance(before,after):
     after_int = int(after)
     if before_int > after_int:
         if before_int % 4 == after_int % 4:
-            return_msg = '上方向に移動しました'
+            move_dist = before_int/4 - after_int/4
+            return_msg = '上方向に'+move_dist+'歩 移動しました'
         else:
-            return_msg = '左方向に移動しました'
+            move_dist = before_int - after_int
+            return_msg = '左方向に'+move_dist+'歩 移動しました'
     else:
         if before_int % 4 == after_int % 4:
-            return_msg = '下方向に移動しました'
+            move_dist = after_int/4 - before_int/4
+            return_msg = '下方向に'+move_dist+'歩 移動しました'
         else:
-            return_msg = '右方向に移動しました'
+            move_dist = after_int - before_int
+            return_msg = '右方向に'+move_dist+'歩 移動しました'
     return return_msg
 
 def isAvailablePosition(current,future):
