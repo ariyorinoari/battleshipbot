@@ -388,7 +388,7 @@ def handle_text_message(event):
                 if text.find('@') == 0:
                 #@開始→相手への通信
                     line_bot_api.push_message(
-                        enemyId,TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text))
+                        enemyId,TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text[1:]))
                 else:
                     num_matcher = re.match(r'^[0-9]{1,}$',text)
                     if num_matcher is None:
@@ -432,7 +432,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません。縦横または斜めに隣り合う場所で、自軍のKing、Queenが居ない場所を指定してください。'))
                             else:
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
-                                line_bot_api.push_message(enemyId,TextSendMessage(text=unicode(num_matcher.group(0),'utf-8') + u'に攻撃を受けました。'))
+                                line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃を受けました。'))
 
                                 if unicode(impact_msg,'utf-8') != u'':
                                     if getKingOrderStatus(enemyId) == 'killed' and getQueenOrderStatus(enemyId) == 'killed':
@@ -490,7 +490,7 @@ def handle_text_message(event):
         elif text.find('@') == 0:
         #@つき→相手への通信
             line_bot_api.push_message(getEnemyId(sourceId),
-                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text))
+                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text[1:]))
         else:
             line_bot_api.push_message(sourceId,
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
