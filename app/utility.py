@@ -54,20 +54,28 @@ def generate_map_image(king_position,queen_position):
     number, path = _tmpdir()
 
     if king_position != '-':
-        cmd = _composite_king_cmd(king_position,path)
+        cmd = _composite_king_cmd(king_position, BG_FILE_PATH, os.path.join(path, 'temp.png'))
         os.system(cmd)
     if queen_position != '-':
-        cmd = _composite_queen_cmd(queen_position,path)
+        cmd = _composite_queen_cmd(queen_position, os.path.join(path, 'temp.png'), os.path.join(path, 'map.png'))
         os.system(cmd)
 
-    resize_cmd = 'mogrify -format jpg -resize 50% -unsharp 2x1.4+0.5+0 -colors 65 -quality 100 -verbose ' + path + '/map.png'
-    os.system(resize_cmd)
+    for size in [240, 300, 460, 700, 1040]:
+        resize_cmd = _resize_cmd(path, size)
+        os.system(resize_cmd)
     return number
 
-def _composite_king_cmd(position,tmp):
+def _resize_cmd(path, size):
+    before = path + '/map.png'
+    after = path + '/map-' + str(size) + '.png'
+    cmd = []
+    cmd.append('convert -resize')
+    cmd.append(str(size) + 'x')
+    cmd.append(before)
+    cmd.append(after)
+    return ' '.join(cmd)
 
-    bg_file = BG_FILE_PATH
-    out_file = os.path.join(tmp, 'map.png')
+def _composite_king_cmd(position, bg_file, out_file):
 
     cmd = []
     cmd.append('composite -gravity northwest -geometry')
@@ -75,12 +83,10 @@ def _composite_king_cmd(position,tmp):
     cmd.append('-compose over')
     cmd.append(os.path.join(IMG_PATH, 'king.png'))
     cmd.append(bg_file)
-    cmd.append(os.path.join(tmp, out_file))
+    cmd.append(out_file)
     return ' '.join(cmd)
 
-def _composite_queen_cmd(position,tmp):
-    bg_file = BG_FILE_PATH
-    out_file = os.path.join(tmp, 'map.png')
+def _composite_queen_cmd(position,bg_file, out_file):
 
     cmd = []
     cmd.append('composite -gravity northwest -geometry')
@@ -88,7 +94,7 @@ def _composite_queen_cmd(position,tmp):
     cmd.append('-compose over')
     cmd.append(os.path.join(IMG_PATH, 'queen.png'))
     cmd.append(bg_file)
-    cmd.append(os.path.join(tmp, out_file))
+    cmd.append(out_file)
     return ' '.join(cmd)
 
 
