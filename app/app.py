@@ -132,9 +132,13 @@ def handle_postback(event):
         clearHashData(enemyId)
 
     elif answer == 'QUIT_NO':
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='ゲームを続行します'))
+        if getStat(sourceId) != 'normal':
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='ゲームを続行します'))
+        else:
+            line_bot_api.reply_message(
+                event.reply_token, TextSendMessage(text='ゲームはすでに終わっているようです'))
+
     elif answer == 'GAME_END':
         line_bot_api.reply_message(
             event.reply_token,
@@ -166,6 +170,24 @@ def handle_postback(event):
                         #相手側が招待済状態でこちらが拒否
                         setEnemy(matcher.group(2),'-')
                     setStat(sourceId,'normal')
+        elif matcher is not None and matcher.group(1) == 'RESTART':
+            #リベンジ申込
+            if isValidKey(matcher.group(2)):
+                enemy_status = getStat(matcher.group(2))
+                if enemy_status == 'normal':
+                    #相手ステータスがノーマル状態であれば、招待メッセージをPush
+                    line_bot_api.push_message(
+                        matcher.group(2),
+                        generateInviteMsg(profile.display_name,sourceId))
+                else:
+                    #相手は誰かと戦闘状態なのでメッセージPushのみ
+                    line_bot_api.reply_message(
+                        event.reply_token,
+                        TextMessage(text='相手はすでに他の対戦に入ったようです・・\uD83D\uDE22\n 伝言だけしておきますね。'))
+                    line_bot_api.push_message(
+                        matcher.group(2),
+                        TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが再戦を希望していましたが、あとにしてもらいますね。'))
+                    clearHashData(sourceId)
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
@@ -465,8 +487,7 @@ def handle_text_message(event):
                         elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
                             (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
                             line_bot_api.push_message(
-                                sourceId,
-                                generateCurrentMap(sourceId))
+                                sourceId, generateCurrentMap(sourceId))
                             line_bot_api.push_message(sourceId,
                                 TextSendMessage(text='相手のターンに移ります'))
                             line_bot_api.push_message(
@@ -511,14 +532,14 @@ def generateAckMsg(fromUserName,enemyId):
 
 def generateInviteMsg(fromUserName,fromUserId):
     #スペース抑制
-    if fromUserName.find(' ') > 0:
-        fromUserName = fromUserName.replace(' ','_')
-    if fromUserName.find('　') > 0:
-        fromUserName = fromUserName.replace('　','_')
+#    if fromUserName.find(' ') > 0:
+#        fromUserName = fromUserName.replace(' ','_')
+#    if fromUserName.find('　') > 0:
+#        fromUserName = fromUserName.replace('　','_')
 
     confirm_template = ConfirmTemplate(
         title='挑戦者',
-        text=fromUserName+'さんからの対戦申し込みです',
+        text=fromUserName+u'さんからの対戦申し込みです',
         actions=[
             PostbackTemplateAction(label='うけて立つ', data='ACK__'+fromUserId),
             PostbackTemplateAction(label='あとで', data='REJECT__'+fromUserId)
@@ -594,7 +615,7 @@ def generateWinImage(display_name,enemyId):
         text=display_name+u'さんの勝ち！',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/win.jpg',
         actions=[
-            PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
             PostbackTemplateAction(label='やめる', data='GAME_END'),
     ])
     template_message = TemplateSendMessage(
@@ -607,7 +628,7 @@ def generateLoseImage(display_name,enemyId):
         text=unicode(display_name,'utf-8')+u'さんの負け',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/lose.jpg',
         actions=[
-            PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
             PostbackTemplateAction(label='やめる', data='GAME_END'),
     ])
     template_message = TemplateSendMessage(
