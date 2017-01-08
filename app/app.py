@@ -175,8 +175,8 @@ def handle_text_message(event):
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
 
-generateWinImage('test',sourceId)
-generateLoseImage('test2',sourceId)
+    generateWinImage('test',sourceId)
+    generateLoseImage('test2',sourceId)
 
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
