@@ -175,9 +175,6 @@ def handle_text_message(event):
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
 
-    line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
-    line_bot_api.push_message(sourceId,generateLoseImage(getDisplayName(sourceId),sourceId))
-
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
         if text == 'ENTRY_EXIT_MENU':
