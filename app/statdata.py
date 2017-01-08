@@ -151,8 +151,8 @@ def getAttackImpact(attackedId,position):
                 return_msg += u'Kingが行動不能になりました\uD83D\uDE32'
                 setKingOrderStatus(attackedId,'killed')
                 redis.hset(attackedId,'KingPosition','-')
-            elif isPositionAround(position,getKingPosition(attackedId)) == True:
-                return_msg += u'Kingにかすりました。'
+        elif isPositionAround(position,getKingPosition(attackedId)) == True:
+            return_msg += u'Kingにかすりました。'
 
     if getQueenPosition(attackedId) != '-':
         if position == getQueenPosition(attackedId):

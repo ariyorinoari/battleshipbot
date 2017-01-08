@@ -70,22 +70,22 @@ def download_staticimage(filename):
     return send_from_directory(os.path.join(app.root_path, 'static'),
             filename)
 
-@handler.add(MessageEvent, message=StickerMessage)
-def handle_sticker_message(event):
+#@handler.add(MessageEvent, message=StickerMessage)
+#def handle_sticker_message(event):
     #スタンプ対応
-    sourceId = getSourceId(event.source)
-    enemyId = getEnemyId(sourceId)
-    if enemyId != '-':
-        profile = line_bot_api.get_profile(sourceId)
-        line_bot_api.push_message(
-            enemyId,TextSendMessage(text=unicode(profile.display_name,'utf-8')+u'さんからスタンプ'))
-        pack = event.message.package_id
-        if pack == 1 or pack == 2 or pack ==3:
-            line_bot_api.push_message(
-                enemyId,
-                StickerSendMessage(
-                package_id=event.message.package_id,
-                sticker_id=event.message.sticker_id))
+#    sourceId = getSourceId(event.source)
+#    enemyId = getEnemyId(sourceId)
+#    if enemyId != '-':
+#        profile = line_bot_api.get_profile(sourceId)
+#        line_bot_api.push_message(
+#            enemyId,TextSendMessage(text=unicode(profile.display_name,'utf-8')+u'さんからスタンプ'))
+#        pack = event.message.package_id
+#        if pack == 1 or pack == 2 or pack ==3:
+#            line_bot_api.push_message(
+#                enemyId,
+#                StickerSendMessage(
+#                package_id=event.message.package_id,
+#                sticker_id=event.message.sticker_id))
 
 @handler.add(FollowEvent)
 def handle_follow(event):
@@ -94,6 +94,10 @@ def handle_follow(event):
     profile = line_bot_api.get_profile(sourceId)
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
+    line_bot_api.push_message(
+        sourceId, TextSendMessage(text='あなたのゲームキーはこちら！わからなくなったらヘルプで確認できます。↓'))
+    line_bot_api.push_message(
+        sourceId, TextSendMessage(text=sourceId))
     memberIdAdd(sourceId)
     memberNameAdd(profile.display_name,sourceId)
     createHashData(sourceId,profile.display_name,profile.picture_url)
@@ -120,7 +124,6 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
-
 
         line_bot_api.push_message(
             enemyId,
@@ -159,7 +162,9 @@ def handle_postback(event):
                 if isValidKey(matcher.group(2)):
                     line_bot_api.push_message(
                         matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・\uD83D\uDE22'))
-                    setEnemy(matcher.group(2),'-')
+                    if getStat(matcher.group(2)) == 'normal':
+                        #相手側が招待済状態でこちらが拒否
+                        setEnemy(matcher.group(2),'-')
                     setStat(sourceId,'normal')
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -169,6 +174,9 @@ def handle_text_message(event):
     profile = line_bot_api.get_profile(sourceId)
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
+
+generateWinImage('test',sourceId)
+generateLoseImage('test2',sourceId)
 
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
@@ -216,7 +224,7 @@ def handle_text_message(event):
                 #ある場合は、相手ステータスを確認する。
                 enemy_status = getStat(text)
                 if enemy_status == 'normal':
-                    #相手ステータスがノーマル状態であれば、招待ConfirmをPush
+                    #相手ステータスがノーマル状態であれば、招待メッセージをPush
                     line_bot_api.push_message(
                         text,
                         generateInviteMsg(profile.display_name,sourceId))
