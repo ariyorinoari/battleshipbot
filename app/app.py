@@ -471,8 +471,6 @@ def handle_text_message(event):
                                 TextSendMessage(text='相手のターンに移ります'))
                             line_bot_api.push_message(
                                 enemyId,TextSendMessage(text='あなたのターンです。行動をボードメニューから選んでください。'))
-                            line_bot_api.push_message(
-                                enemyId,generateCurrentMap(enemyId))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(enemyId,'battle_myturn')
 
