@@ -144,23 +144,25 @@ def getAttackImpact(attackedId,position):
 
     return_msg = u''
 
-    if position == getKingPosition(attackedId):
-        return_msg += u'Kingに命中しました！'
-        if int(redis.hincrby(attackedId,'KingHP',-1)) == 0:
-            return_msg += u'Kingが行動不能になりました\uD83D\uDE22'
-            setKingOrderStatus(attackedId,'killed')
-            redis.hset(attackedId,'KingPosition','-')
-    elif isPositionAround(position,getKingPosition(attackedId)) == True:
-        return_msg += u'Kingにかすりました。'
+    if getKingPosition(attackedId) != '-':
+        if position == getKingPosition(attackedId):
+            return_msg += u'Kingに命中しました！'
+            if int(redis.hincrby(attackedId,'KingHP',-1)) == 0:
+                return_msg += u'Kingが行動不能になりました\uD83D\uDE32'
+                setKingOrderStatus(attackedId,'killed')
+                redis.hset(attackedId,'KingPosition','-')
+            elif isPositionAround(position,getKingPosition(attackedId)) == True:
+                return_msg += u'Kingにかすりました。'
 
-    if position == getQueenPosition(attackedId):
-        return_msg += u'Queenに命中しました！'
-        if int(redis.hincrby(attackedId,'QueenHP',-1)) == 0:
-            return_msg += u'Queenが行動不能になりました\uD83D\uDE22'
-            setQueenOrderStatus(attackedId,'killed')
-            redis.hset(attackedId,'QueenPosition','-')
-    elif isPositionAround(position,getQueenPosition(attackedId)) == True:
-        return_msg += u'Queenにかすりました。'
+    if getQueenPosition(attackedId) != '-':
+        if position == getQueenPosition(attackedId):
+            return_msg += u'Queenに命中しました！'
+            if int(redis.hincrby(attackedId,'QueenHP',-1)) == 0:
+                return_msg += u'Queenが行動不能になりました\uD83D\uDE32'
+                setQueenOrderStatus(attackedId,'killed')
+                redis.hset(attackedId,'QueenPosition','-')
+        elif isPositionAround(position,getQueenPosition(attackedId)) == True:
+            return_msg += u'Queenにかすりました。'
 
     return return_msg
 
