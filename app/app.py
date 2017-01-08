@@ -596,7 +596,7 @@ def generateCurrentMap(userId):
 def generateWinImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
         title='You Win!',
-        text=unicode(display_name,'utf-8')+u'さんの勝ち！',
+        text=display_name+u'さんの勝ち！',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/win.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='ACK__'+enemyId),
