@@ -126,11 +126,11 @@ def handle_postback(event):
                 event.reply_token,
                 TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
 
-                line_bot_api.push_message(
+            line_bot_api.push_message(
                 enemyId,
                 TextSendMessage(text=profile.display_name+'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
-            clearHashData(sourceId)
             clearHashData(enemyId)
+            clearHashData(sourceId)
         else:
             line_bot_api.reply_message(
                 event.reply_token,
