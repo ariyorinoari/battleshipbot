@@ -202,7 +202,7 @@ def handle_text_message(event):
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
 
-    line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage(getEnemyName(sourceId),enemyId))
+    line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage(getEnemyName(sourceId),getEnemyId(sourceId)))
 
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
