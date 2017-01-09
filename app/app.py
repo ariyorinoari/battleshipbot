@@ -117,19 +117,24 @@ def handle_postback(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     answer = event.postback.data
-    enemyId = getEnemyId(sourceId)
+    enemyId = str(getEnemyId(sourceId))
 
     if answer == 'QUIT_YES':
         #本当にやめますかのPostback　Yesなら相手に「降参」Pushし、ノーマル状態へ。
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
+        if enemyId != '-':
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
 
-        line_bot_api.push_message(
-            enemyId,
-            TextSendMessage(text=profile.display_name+'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
-        clearHashData(sourceId)
-        clearHashData(enemyId)
+                line_bot_api.push_message(
+                enemyId,
+                TextSendMessage(text=profile.display_name+'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
+            clearHashData(sourceId)
+            clearHashData(enemyId)
+        else:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='ゲームはすでに終わっているようです'))
 
     elif answer == 'QUIT_NO':
         if getStat(sourceId) != 'normal':
@@ -196,6 +201,8 @@ def handle_text_message(event):
     profile = line_bot_api.get_profile(sourceId)
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
+
+    line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
 
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
