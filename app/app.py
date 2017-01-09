@@ -620,7 +620,7 @@ def generateWinImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
         title='You Win!',
         text=display_name+u'さんの勝ち！',
-        thumbnail_image_url=HEROKU_SERVER_URL + 'images/win.jpg',
+        thumbnail_image_url=HEROKU_SERVER_URL + 'images/win2.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
             PostbackTemplateAction(label='やめる', data='GAME_END'),
@@ -633,7 +633,7 @@ def generateLoseImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
         title='You Lose...',
         text=unicode(display_name,'utf-8')+u'さんの負け',
-        thumbnail_image_url=HEROKU_SERVER_URL + 'images/lose.jpg',
+        thumbnail_image_url=HEROKU_SERVER_URL + 'images/lose2.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
             PostbackTemplateAction(label='やめる', data='GAME_END'),
