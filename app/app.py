@@ -202,8 +202,6 @@ def handle_text_message(event):
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
 
-    line_bot_api.push_message(getEnemyId(sourceId),generateLoseImage(getEnemyName(sourceId),getEnemyId(sourceId)))
-
 #■ステータスノーマル（非戦闘状態）
     if currentStatus == 'normal':
         if text == 'ENTRY_EXIT_MENU':
@@ -618,8 +616,7 @@ def generateCurrentMap(userId):
 
 def generateWinImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
-        title='You Win!',
-        text=display_name+u'さんの勝ち！',
+        text=display_name+u'さんの勝ち!\uD83D\uDC4F',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/win3.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
@@ -631,8 +628,7 @@ def generateWinImage(display_name,enemyId):
 
 def generateLoseImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
-        title='You Lose...',
-        text=unicode(display_name,'utf-8')+u'さんの負け',
+        text=unicode(display_name,'utf-8')+u'さんの負けです\uD83D\uDE1E',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/lose3.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
