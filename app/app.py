@@ -527,7 +527,7 @@ def handle_text_message(event):
 def generateAckMsg(fromUserName,enemyId):
     confirm_template = ConfirmTemplate(
         title='対戦OK',
-        text=fromUserName+'さんが対戦OKしました',
+        text=fromUserName+u'さんが対戦OKしました',
         actions=[
             PostbackTemplateAction(label='開始！', data='ACK__'+enemyId),
     ])
