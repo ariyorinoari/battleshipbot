@@ -29,7 +29,6 @@ from linebot.models import (
 
 from const import *
 from utility import *
-from mutex import Mutex
 from statdata import *
 
 app = Flask(__name__)
@@ -40,7 +39,6 @@ app.logger.addHandler(stream_handler)
 app.logger.setLevel(app.config['LOG_LEVEL'])
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 handler = WebhookHandler(app.config['CHANNEL_SECRET'])
-mapping = {"0":"0", "1":"1", "2":"2", "3":"3", "4":"5", "5":"8", "6":"13", "7":"20", "8":"40", "9":"?", "10":"∞", "11":"Soy"}
 
 @app.route('/callback', methods=['POST'])
 def callback():
@@ -215,7 +213,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='ヘルプへようこそ\uD83D\uDE00\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
-                '対戦できる条件は２つ。①相手がXXとLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
+                '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text='ちなみに'+profile.display_name+'さんのゲームキーはこれです！↓'))
@@ -638,38 +636,3 @@ def generateLoseImage(display_name,enemyId):
         alt_text='結果', template=buttons_template)
     return template_message
 
-def genenate_voting_result_message(key):
-    data = redis.hgetall(key)
-    tmp = generate_voting_result_image(data)
-    buttons_template = ButtonsTemplate(
-        title='ポーカー結果',
-        text='そろいましたか？',
-        thumbnail_image_url='https://scrummasterbot.herokuapp.com/images/tmp/' + tmp + '/result_11.png',
-        actions=[
-            MessageTemplateAction(label='もう１回', text='プラポ')
-    ])
-    template_message = TemplateSendMessage(
-        alt_text='結果', template=buttons_template)
-    return template_message
-
-def generate_planning_poker_message(number):
-    message = ImagemapSendMessage(
-        base_url='https://scrummasterbot.herokuapp.com/images/planning_poker',
-        alt_text='planning poker',
-        base_size=BaseSize(height=790, width=1040))
-    actions=[]
-    location=0
-    for i in range(0, 3):
-        for j in range(0, 4):
-            actions.append(MessageImagemapAction(
-                text = u'#' + number + u' ' + mapping[str(location).encode('utf-8')],
-                area=ImagemapArea(
-                    x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
-                    width=(j + 1) * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    height=(i + 1) * POKER_IMAGEMAP_ELEMENT_HEIGHT
-                )
-            ))
-            location+=1
-    message.actions = actions
-    return message
