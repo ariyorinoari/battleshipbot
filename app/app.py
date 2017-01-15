@@ -574,10 +574,10 @@ def generateInitialMap(userId):
             actions.append(MessageImagemapAction(
                 text = str(location).encode('utf-8'),
                 area=ImagemapArea(
-                    x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
-                    width=(j + 1) * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    height=(i + 1) * POKER_IMAGEMAP_ELEMENT_HEIGHT
+                    x=j * IMAGEMAP_ELEMENT_WIDTH,
+                    y=i * IMAGEMAP_ELEMENT_HEIGHT,
+                    width=(j + 1) * IMAGEMAP_ELEMENT_WIDTH,
+                    height=(i + 1) * IMAGEMAP_ELEMENT_HEIGHT
                 )
             ))
             location+=1
@@ -602,10 +602,10 @@ def generateCurrentMap(userId):
             actions.append(MessageImagemapAction(
                 text = str(location).encode('utf-8'),
                 area=ImagemapArea(
-                    x=j * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    y=i * POKER_IMAGEMAP_ELEMENT_HEIGHT,
-                    width=(j + 1) * POKER_IMAGEMAP_ELEMENT_WIDTH,
-                    height=(i + 1) * POKER_IMAGEMAP_ELEMENT_HEIGHT
+                    x=j * IMAGEMAP_ELEMENT_WIDTH,
+                    y=i * IMAGEMAP_ELEMENT_HEIGHT,
+                    width=(j + 1) * IMAGEMAP_ELEMENT_WIDTH,
+                    height=(i + 1) * IMAGEMAP_ELEMENT_HEIGHT
                 )
             ))
             location+=1
