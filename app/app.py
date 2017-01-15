@@ -156,7 +156,8 @@ def handle_postback(event):
                 if getEnemyId(sourceId) == '-':
                     setEnemy(sourceId,matcher.group(2))
                     line_bot_api.push_message(
-                        matcher.group(2),generateAckMsg(profile.display_name,sourceId))
+                        matcher.group(2),
+                        generateAckMsg(profile.display_name,sourceId))
                 #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
                 enemy_name =getDisplayName(matcher.group(2))
                 line_bot_api.push_message(
@@ -527,7 +528,7 @@ def generateAckMsg(fromUserName,enemyId):
         title='対戦OK',
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
-            PostbackTemplateAction(label='開始！', data='ACK__'+enemyId),
+            PostbackTemplateAction(label='開始！', data='ACK__'+enemyId)
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦OK', template=confirm_template)
