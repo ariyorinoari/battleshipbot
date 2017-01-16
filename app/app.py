@@ -150,6 +150,8 @@ def handle_postback(event):
                         generateAckMsg(display_name,sourceId))
                 #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
                 enemy_name =getDisplayName(matcher.group(2))
+                if isinstance(enemy_name,str):
+                    enemy_name = enemy_name.decode('utf-8')
                 line_bot_api.push_message(
                     sourceId,
                     TextSendMessage(text=enemy_name+u'さんとのゲームを開始します。Kingの位置を決めてください。'))
