@@ -524,18 +524,17 @@ def handle_text_message(event):
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
 
 def generateAckMsg(fromUserName,enemyId):
-    confirm_template = ButtonsTemplate(
+    buttons_template = ButtonsTemplate(
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
             PostbackTemplateAction(label=u'開始', data=u'ACK__'+enemyId)
     ])
     template_message = TemplateSendMessage(
-        alt_text=u'対戦OK', template=confirm_template)
+        alt_text=u'対戦OK', template=buttons_template)
     return template_message
 
 def generateInviteMsg(fromUserName,fromUserId):
     confirm_template = ConfirmTemplate(
-        title='挑戦者',
         text=fromUserName+u'さんからの対戦申し込みです',
         actions=[
             PostbackTemplateAction(label='うけて立つ', data='ACK__'+fromUserId),
