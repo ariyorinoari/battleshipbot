@@ -528,7 +528,7 @@ def generateAckMsg(fromUserName,enemyId):
         title='対戦OK',
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
-            PostbackTemplateAction(label='開始！', data='ACK__'+enemyId)
+            PostbackTemplateAction(label='開始', data='ACK__'+enemyId)
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦OK', template=confirm_template)
