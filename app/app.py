@@ -153,6 +153,10 @@ def handle_postback(event):
             #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
             if isValidKey(matcher.group(2)):
                 setStat(sourceId,'battle_init')
+                line_bot_api.push_message(matcher.group(2),generateAckMsg(profile.display_name,sourceId))
+
+
+
                 if getEnemyId(sourceId) == '-':
                     setEnemy(sourceId,matcher.group(2))
                     line_bot_api.push_message(
