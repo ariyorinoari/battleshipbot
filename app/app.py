@@ -528,7 +528,7 @@ def generateAckMsg(fromUserName,enemyId):
         title='対戦OK',
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
-            PostbackTemplateAction(label='開始', data='ACK__'+enemyId)
+            PostbackTemplateAction(label='開始', data=u'ACK__'+enemyId)
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦OK', template=confirm_template)
@@ -554,7 +554,7 @@ def generateInviteMsg(fromUserName,fromUserId):
 
 def generateQuitConfirm():
     confirm_template = ConfirmTemplate(
-        text='本当に対戦をやめますか？',
+        text=u'本当に対戦をやめますか？',
         actions=[
             PostbackTemplateAction(label='やめる', data='QUIT_YES'),
             PostbackTemplateAction(label='やめないで続ける', data='QUIT_NO')
@@ -636,4 +636,3 @@ def generateLoseImage(display_name,enemyId):
     template_message = TemplateSendMessage(
         alt_text='結果', template=buttons_template)
     return template_message
-
