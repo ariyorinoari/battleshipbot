@@ -68,28 +68,13 @@ def download_staticimage(filename):
     return send_from_directory(os.path.join(app.root_path, 'static'),
             filename)
 
-#@handler.add(MessageEvent, message=StickerMessage)
-#def handle_sticker_message(event):
-    #スタンプ対応
-#    sourceId = getSourceId(event.source)
-#    enemyId = getEnemyId(sourceId)
-#    if enemyId != '-':
-#        profile = line_bot_api.get_profile(sourceId)
-#        line_bot_api.push_message(
-#            enemyId,TextSendMessage(text=unicode(profile.display_name,'utf-8')+u'さんからスタンプ'))
-#        pack = event.message.package_id
-#        if pack == 1 or pack == 2 or pack ==3:
-#            line_bot_api.push_message(
-#                enemyId,
-#                StickerSendMessage(
-#                package_id=event.message.package_id,
-#                sticker_id=event.message.sticker_id))
-
 @handler.add(FollowEvent)
 def handle_follow(event):
 #友達追加イベント、ここでredisへの登録を行う
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
+    display_name = getUtfName(profile)
+
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     line_bot_api.push_message(
@@ -97,8 +82,7 @@ def handle_follow(event):
     line_bot_api.push_message(
         sourceId, TextSendMessage(text=sourceId))
     memberIdAdd(sourceId)
-    memberNameAdd(profile.display_name,sourceId)
-    createHashData(sourceId,profile.display_name,profile.picture_url)
+    createHashData(sourceId,display_name,profile.picture_url)
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
@@ -106,33 +90,39 @@ def handle_unfollow(event):
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
     memberIdRemove(sourceId)
-    memberNameRemove(profile.display_name,sourceId)
     removeHashData(sourceId)
+
+def getUtfName(profile):
+    if isinstance(profile.display_name,str):
+        return profile.display_name.decode('utf-8')
+    else:
+        return profile.display_name
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
 #■ステータスbattle_quit_confirm(本当にやめますか？の確認ダイアログのポストバック）
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
+    display_name = getUtfName(profile)
     answer = event.postback.data
-    enemyId = str(getEnemyId(sourceId))
+    enemyId = getEnemyId(sourceId)
 
     if answer == 'QUIT_YES':
         #本当にやめますかのPostback　Yesなら相手に「降参」Pushし、ノーマル状態へ。
         if enemyId != '-':
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
+                TextSendMessage(text=u'相手に降参メッセージを送って初期状態に戻ります。また遊んでね\uD83D\uDE09'))
 
             line_bot_api.push_message(
                 enemyId,
-                TextSendMessage(text=profile.display_name+'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
+                TextSendMessage(text=display_name+u'さんが降参しました\uD83D\uDE0F\n 初期状態に戻ります'))
             clearHashData(enemyId)
             clearHashData(sourceId)
         else:
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='ゲームはすでに終わっているようです'))
+                TextSendMessage(text=u'ゲームはすでに終わっているようです'))
 
     elif answer == 'QUIT_NO':
         if getStat(sourceId) != 'normal':
@@ -157,23 +147,23 @@ def handle_postback(event):
                     setEnemy(sourceId,matcher.group(2))
                     line_bot_api.push_message(
                         matcher.group(2),
-                        generateAckMsg(profile.display_name,sourceId))
+                        generateAckMsg(display_name,sourceId))
                 #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
                 enemy_name =getDisplayName(matcher.group(2))
                 line_bot_api.push_message(
                     sourceId,
-                    TextSendMessage(text=enemy_name+'さんとのゲームを開始します。Kingの位置を決めてください。'))
+                    TextSendMessage(text=enemy_name+u'さんとのゲームを開始します。Kingの位置を決めてください。'))
                 line_bot_api.push_message(
                     sourceId, generateInitialMap(sourceId))
         elif matcher is not None and matcher.group(1) == 'REJECT':
             #誰かの招待受けて　No　の場合は拒否を相手にPush
-                if isValidKey(matcher.group(2)):
-                    line_bot_api.push_message(
-                        matcher.group(2),TextSendMessage(text=profile.display_name+'さんは今は無理なようです・・・\uD83D\uDE22'))
-                    if getStat(matcher.group(2)) == 'normal':
-                        #相手側が招待済状態でこちらが拒否
-                        setEnemy(matcher.group(2),'-')
-                    setStat(sourceId,'normal')
+            if isValidKey(matcher.group(2)):
+                line_bot_api.push_message(
+                    matcher.group(2),TextSendMessage(text=display_name+u'さんは今は無理なようです・・・\uD83D\uDE22'))
+                if getStat(matcher.group(2)) == 'normal':
+                    #相手側が招待済状態でこちらが拒否
+                    setEnemy(matcher.group(2),'-')
+                setStat(sourceId,'normal')
         elif matcher is not None and matcher.group(1) == 'RESTART':
             #リベンジ申込
             if isValidKey(matcher.group(2)):
@@ -182,15 +172,15 @@ def handle_postback(event):
                     #相手ステータスがノーマル状態であれば、招待メッセージをPush
                     line_bot_api.push_message(
                         matcher.group(2),
-                        generateInviteMsg(profile.display_name,sourceId))
+                        generateInviteMsg(display_name,sourceId))
                 else:
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='相手はすでに他の対戦に入ったようです・・\uD83D\uDE22\n 伝言だけしておきますね。'))
+                        TextMessage(text=u'相手はすでに他の対戦に入ったようです・・\uD83D\uDE22\n 伝言だけしておきますね。'))
                     line_bot_api.push_message(
                         matcher.group(2),
-                        TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが再戦を希望していましたが、あとにしてもらいますね。'))
+                        TextSendMessage(text=u'おじゃまします。\n'+display_name+u'さんが再戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -198,6 +188,7 @@ def handle_text_message(event):
     text = event.message.text
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
+    display_name = getUtfName(profile)
     matcher = re.match(r'(.*?)__(.*)', text)
     currentStatus = getStat(sourceId)
 
@@ -217,7 +208,7 @@ def handle_text_message(event):
                 '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
-                TextSendMessage(text='ちなみに'+profile.display_name+'さんのゲームキーはこれです！↓'))
+                TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです！↓'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
@@ -250,7 +241,7 @@ def handle_text_message(event):
                     #相手ステータスがノーマル状態であれば、招待メッセージをPush
                     line_bot_api.push_message(
                         text,
-                        generateInviteMsg(profile.display_name,sourceId))
+                        generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
@@ -262,7 +253,7 @@ def handle_text_message(event):
                     setStat(text,'normal')
                     line_bot_api.push_message(
                         text,
-                        generateInviteMsg(profile.display_name,sourceId))
+                        generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
@@ -276,7 +267,7 @@ def handle_text_message(event):
                         TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・\uD83D\uDE22\n 伝言だけしておきますね。初期状態に戻ります。'))
                     line_bot_api.push_message(
                         text,
-                        TextSendMessage(text='おじゃまします。\n'+profile.display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
+                        TextSendMessage(text='おじゃまします。\n'+display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
@@ -419,7 +410,7 @@ def handle_text_message(event):
                 if text.find('@') == 0:
                 #@開始→相手への通信
                     line_bot_api.push_message(
-                        enemyId,TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text[1:]))
+                        enemyId,TextSendMessage(text=display_name + 'さんからのメッセージ：\n'+ text[1:]))
                 else:
                     num_matcher = re.match(r'^[0-9]{1,}$',text)
                     if num_matcher is None:
@@ -471,7 +462,7 @@ def handle_text_message(event):
                                         line_bot_api.push_message(enemyId,generateLoseImage(getEnemyName(sourceId),enemyId))
                                         clearHashData(enemyId)
 
-                                        line_bot_api.push_message(sourceId,generateWinImage(profile.display_name,sourceId))
+                                        line_bot_api.push_message(sourceId,generateWinImage(display_name,sourceId))
                                         clearHashData(sourceId)
                                         game_end = True
                                     else:
@@ -518,7 +509,7 @@ def handle_text_message(event):
         elif text.find('@') == 0:
         #@つき→相手への通信
             line_bot_api.push_message(getEnemyId(sourceId),
-                TextSendMessage(text=profile.display_name + 'さんからのメッセージ：\n'+ text[1:]))
+                TextSendMessage(text=display_name + 'さんからのメッセージ：\n'+ text[1:]))
         else:
             line_bot_api.push_message(sourceId,
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))

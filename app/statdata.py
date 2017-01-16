@@ -14,18 +14,9 @@ def memberIdRemove(userId):
     if redis.sismember('memberKeyList',userId) == 1:
         redis.srem('memberKeyList',userId)
 
-def memberNameAdd(display_name,userId):
-    if redis.hexists('memberNameList',display_name) == 0:
-        redis.hset('memberNameList',display_name,userId)
-    else:
-        #別ユーザーでdisplay_name の重複があり得る。重複時の対応について検討が必要
-        pass
-
-def memberNameRemove(display_name,userId):
-    #別ユーザーでdisplay_name の重複があり得る。重複時の対応について検討が必要
-    redis.hdel('memberNameList',display_name)
-
 def createHashData(userId,display_name,image_url):
+    if isinstance(display_name,str):
+        display_name = display_name.decode('utf-8')
     redis.hset(userId,'displayName',display_name)
 #    redis.hset(userId,'imageUrl',image_url)
     redis.hset(userId,'status','normal')
@@ -76,19 +67,6 @@ def getEnemyName(myUserId):
 
 def getDisplayName(myUserId):
     return redis.hget(myUserId,'displayName')
-
-
-def getKeyFromDisplayName(userName):
-    return redis.hget('memberNameList',userName)
-
-def getImage(userId):
-    return redis.hget(userId,'imageUrl')
-
-def setPreviousStat(userId,currentStat):
-    pass
-
-def getPreviousStat(userId):
-    return 'battle_init'
 
 def getKingPosition(userId):
     return redis.hget(userId,'KingPosition')
@@ -231,9 +209,6 @@ def isPositionAround(src_pos,dst_pos):
             return True
         else:
             return False
-
-def getAttackedResult(fromId,toId,position):
-    pass
 
 def getKingOrderStatus(userId):
     return redis.hget(userId,'KingOrderStatus')
