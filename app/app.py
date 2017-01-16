@@ -529,7 +529,6 @@ def handle_text_message(event):
 
 def generateAckMsg(fromUserName,enemyId):
     confirm_template = ButtonsTemplate(
-        title=u'対戦OK',
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
             PostbackTemplateAction(label=u'開始', data=u'ACK__'+enemyId)
@@ -539,12 +538,6 @@ def generateAckMsg(fromUserName,enemyId):
     return template_message
 
 def generateInviteMsg(fromUserName,fromUserId):
-    #スペース抑制
-#    if fromUserName.find(' ') > 0:
-#        fromUserName = fromUserName.replace(' ','_')
-#    if fromUserName.find('　') > 0:
-#        fromUserName = fromUserName.replace('　','_')
-
     confirm_template = ConfirmTemplate(
         title='挑戦者',
         text=fromUserName+u'さんからの対戦申し込みです',
