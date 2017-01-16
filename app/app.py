@@ -59,7 +59,7 @@ def download_current(number, size):
 
 @app.route('/images/map/<size>', methods=['GET'])
 def download_imagemap(size):
-    filename = POKER_IMAGE_FILENAME.format(size)
+    filename = FIELD_IMAGE_FILENAME.format(size)
     return send_from_directory(os.path.join(app.root_path, 'static', 'map'),
             filename)
 
