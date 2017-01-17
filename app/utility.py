@@ -72,7 +72,7 @@ def _resize_cmd(path, size):
     cmd.append('convert -resize')
     cmd.append(str(size) + 'x')
     cmd.append(before)
-    cmd.append('-quality 92')
+    cmd.append('-quality 00')
     cmd.append(after)
     return ' '.join(cmd)
 
