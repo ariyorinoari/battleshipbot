@@ -373,14 +373,14 @@ def handle_text_message(event):
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Kingの移動先をタップしてください'))
+                            TextMessage(text='Kingの移動先は?'))
                         setKingOrderStatus(sourceId,'move_position_wait')
                         if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             setQueenOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Kingの攻撃先をタップしてください'))
+                            TextMessage(text='Kingの攻撃先は?'))
                         setKingOrderStatus(sourceId,'attack_position_wait')
                         if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             setQueenOrderStatus(sourceId,'notyet')
@@ -396,14 +396,14 @@ def handle_text_message(event):
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Queenの移動先をタップしてください'))
+                            TextMessage(text='Queenの移動先は?'))
                         setQueenOrderStatus(sourceId,'move_position_wait')
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Queenの攻撃先をタップしてください'))
+                            TextMessage(text='Queenの攻撃先は?'))
                         setQueenOrderStatus(sourceId,'attack_position_wait')
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
@@ -456,7 +456,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません。縦横または斜めに隣り合う場所で、自軍のKing、Queenが居ない場所を指定してください。'))
                             else:
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
-                                line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃を受けました。'))
+                                line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり!'))
 
                                 if impact_msg != u'':
                                     if getKingOrderStatus(enemyId) == 'killed' and getQueenOrderStatus(enemyId) == 'killed':
@@ -486,9 +486,9 @@ def handle_text_message(event):
                             line_bot_api.push_message(
                                 sourceId, generateCurrentMap(sourceId))
                             line_bot_api.push_message(sourceId,
-                                TextSendMessage(text='相手のターンに移ります'))
+                                TextSendMessage(text='－－相手のターン－－'))
                             line_bot_api.push_message(
-                                enemyId,TextSendMessage(text='あなたのターンです。行動をボードメニューから選んでください。'))
+                                enemyId,TextSendMessage(text='－－あなたのターン－－行動をボードメニューから選んでください。'))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(enemyId,'battle_myturn')
 
@@ -497,7 +497,7 @@ def handle_text_message(event):
                             if getQueenOrderStatus(sourceId) == 'ordered':
                                 setQueenOrderStatus(sourceId,'notyet')
                         else:
-                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動をボードメニューから選ぶか、場所をタップしてください。'))
+                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は?'))
 
     elif currentStatus == 'battle_not_myturn':
         if text == 'ENTRY_EXIT_MENU':
