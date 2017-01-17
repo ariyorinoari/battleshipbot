@@ -471,7 +471,7 @@ def handle_text_message(event):
                                         line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
                                         line_bot_api.push_message(enemyId,TextSendMessage(text=impact_msg))
                                 else:
-                                    line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした・・'))
+                                    line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
 
                                 if game_end != True:
                                     if is_king_attack:
@@ -488,7 +488,7 @@ def handle_text_message(event):
                             line_bot_api.push_message(sourceId,
                                 TextSendMessage(text='－－相手のターン－－'))
                             line_bot_api.push_message(
-                                enemyId,TextSendMessage(text='－－あなたのターン－－行動をボードメニューから選んでください。'))
+                                enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(enemyId,'battle_myturn')
 
@@ -497,7 +497,7 @@ def handle_text_message(event):
                             if getQueenOrderStatus(sourceId) == 'ordered':
                                 setQueenOrderStatus(sourceId,'notyet')
                         else:
-                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は?'))
+                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は\u2754'))
 
     elif currentStatus == 'battle_not_myturn':
         if text == 'ENTRY_EXIT_MENU':
@@ -539,7 +539,7 @@ def generateInviteMsg(fromUserName,fromUserId):
 
 def generateQuitConfirm():
     confirm_template = ConfirmTemplate(
-        text=u'本当に対戦をやめますか？',
+        text=u'本当に対戦をやめますか\u2754',
         actions=[
             PostbackTemplateAction(label='やめる', data='QUIT_YES'),
             PostbackTemplateAction(label='やめないで続ける', data='QUIT_NO')
