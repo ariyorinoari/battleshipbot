@@ -78,7 +78,7 @@ def handle_follow(event):
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     line_bot_api.push_message(
-        sourceId, TextSendMessage(text='あなたのゲームキーはこちら！わからなくなったらヘルプで確認できます。↓'))
+        sourceId, TextSendMessage(text='あなたのゲームキーはこちら\u2755わからなくなったらヘルプで確認できます。↓'))
     line_bot_api.push_message(
         sourceId, TextSendMessage(text=sourceId))
     memberIdAdd(sourceId)
@@ -210,7 +210,7 @@ def handle_text_message(event):
                 '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
-                TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです！↓'))
+                TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです\u2755↓'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=sourceId))
@@ -373,14 +373,14 @@ def handle_text_message(event):
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Kingの移動先は?'))
+                            TextMessage(text='Kingの移動先は\u2754'))
                         setKingOrderStatus(sourceId,'move_position_wait')
                         if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             setQueenOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Kingの攻撃先は?'))
+                            TextMessage(text='Kingの攻撃先は\u2754'))
                         setKingOrderStatus(sourceId,'attack_position_wait')
                         if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             setQueenOrderStatus(sourceId,'notyet')
@@ -396,14 +396,14 @@ def handle_text_message(event):
                     if matcher.group(2) == 'MOVE':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Queenの移動先は?'))
+                            TextMessage(text='Queenの移動先は\u2754'))
                         setQueenOrderStatus(sourceId,'move_position_wait')
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
                     elif matcher.group(2) == 'ATTACK':
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Queenの攻撃先は?'))
+                            TextMessage(text='Queenの攻撃先は\u2754'))
                         setQueenOrderStatus(sourceId,'attack_position_wait')
                         if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
                             setKingOrderStatus(sourceId,'notyet')
@@ -456,7 +456,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません。縦横または斜めに隣り合う場所で、自軍のKing、Queenが居ない場所を指定してください。'))
                             else:
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
-                                line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり!'))
+                                line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり\u2755'))
 
                                 if impact_msg != u'':
                                     if getKingOrderStatus(enemyId) == 'killed' and getQueenOrderStatus(enemyId) == 'killed':
@@ -600,7 +600,7 @@ def generateCurrentMap(userId):
 
 def generateWinImage(display_name,enemyId):
     buttons_template = ButtonsTemplate(
-        text=display_name+u'さんの勝ち!\uD83D\uDC4F',
+        text=display_name+u'さんの勝ち\u2755\uD83D\uDC4F',
         thumbnail_image_url=HEROKU_SERVER_URL + 'images/win3.jpg',
         actions=[
             PostbackTemplateAction(label='もう１回', data='RESTART__'+enemyId),
