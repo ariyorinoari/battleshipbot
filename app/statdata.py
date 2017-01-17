@@ -118,6 +118,12 @@ def setAttackPosition(userId,fromPosition,toPosition):
     else:
         return False
 
+def isKingDying(userId):
+    if redis.hget(userId,'KingHP') == '1':
+        return True
+    else:
+        return False
+
 def getAttackImpact(attackedId,position):
 
     return_msg = u''
@@ -222,23 +228,35 @@ def getQueenOrderStatus(userId):
 def setQueenOrderStatus(userId,status):
     redis.hset(userId,'QueenOrderStatus',status)
 
-def getDistance(before,after):
+def getDistance(before,after,isStealth):
     before_int = int(before)
     after_int = int(after)
     if before_int > after_int:
         if before_int % 4 == after_int % 4:
-            move_dist = before_int/4 - after_int/4
-            return_msg = '上方向に'+str(move_dist)+'歩 移動しました'
+            if isStealth:
+                return_msg = '上方向に移動しました'
+            else:
+                move_dist = before_int/4 - after_int/4
+                return_msg = '上方向に'+str(move_dist)+'歩 移動しました'
         else:
-            move_dist = before_int - after_int
-            return_msg = '左方向に'+str(move_dist)+'歩 移動しました'
+            if isStealth:
+                return_msg = '左方向に移動しました'
+            else:
+                move_dist = before_int - after_int
+                return_msg = '左方向に'+str(move_dist)+'歩 移動しました'
     else:
         if before_int % 4 == after_int % 4:
-            move_dist = after_int/4 - before_int/4
-            return_msg = '下方向に'+str(move_dist)+'歩 移動しました'
+            if isStealth:
+                return_msg = '下方向に移動しました'
+            else:
+                move_dist = after_int/4 - before_int/4
+                return_msg = '下方向に'+str(move_dist)+'歩 移動しました'
         else:
-            move_dist = after_int - before_int
-            return_msg = '右方向に'+str(move_dist)+'歩 移動しました'
+            if isStealth:
+                return_msg = '右方向に移動しました'
+            else:
+                move_dist = after_int - before_int
+                return_msg = '右方向に'+str(move_dist)+'歩 移動しました'
     return return_msg
 
 def isAvailablePosition(current,future):

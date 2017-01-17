@@ -429,7 +429,7 @@ def handle_text_message(event):
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません。縦横方向で、Queenに重ならない場所を指定してください。'))
                             else:
-                                move_direction = getDistance(current_position,num_matcher.group(0))
+                                move_direction = getDistance(current_position,num_matcher.group(0),isKingDying(sourceId))
                                 msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setKingOrderStatus(sourceId,'ordered')
@@ -439,7 +439,7 @@ def handle_text_message(event):
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません。縦横方向で、Kingに重ならない場所を指定してください。'))
                             else:
-                                move_direction = getDistance(current_position,num_matcher.group(0))
+                                move_direction = getDistance(current_position,num_matcher.group(0),False)
                                 msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setQueenOrderStatus(sourceId,'ordered')
@@ -461,10 +461,10 @@ def handle_text_message(event):
                                 if impact_msg != u'':
                                     if getKingOrderStatus(enemyId) == 'killed' and getQueenOrderStatus(enemyId) == 'killed':
                                         #全滅させたので勝敗決定
-                                        line_bot_api.push_message(enemyId,generateLoseImage(getEnemyName(sourceId),enemyId))
+                                        line_bot_api.push_message(enemyId,generateLoseImage(getEnemyName(sourceId),sourceId))
                                         clearHashData(enemyId)
 
-                                        line_bot_api.push_message(sourceId,generateWinImage(display_name,sourceId))
+                                        line_bot_api.push_message(sourceId,generateWinImage(display_name,enemyId))
                                         clearHashData(sourceId)
                                         game_end = True
                                     else:
