@@ -439,7 +439,7 @@ def handle_text_message(event):
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません。縦横方向で、Kingに重ならない場所を指定してください。'))
                             else:
-                                move_direction = getDistance(current_position,num_matcher.group(0),False)
+                                move_direction = getDistance(current_position,num_matcher.group(0),True)
                                 msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setQueenOrderStatus(sourceId,'ordered')
