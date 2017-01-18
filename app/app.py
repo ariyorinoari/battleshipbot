@@ -364,7 +364,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
-                'King,Queenのアクションをボードメニューから選んで場所を指定してください\uD83D\uDE04'))
+                'King,Queenの行動をボードメニューから選んで場所を指定してください\uD83D\uDE04'))
         else:
             if matcher is not None and matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
@@ -431,7 +431,7 @@ def handle_text_message(event):
                         if getKingOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getKingPosition(sourceId)
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません。縦横方向で、Queenに重ならない場所を指定してください。'))
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Queenに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),isKingDying(sourceId))
                                 msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
@@ -441,7 +441,7 @@ def handle_text_message(event):
                         elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getQueenPosition(sourceId)
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません。縦横方向で、Kingに重ならない場所を指定してください。'))
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Kingに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),True)
                                 msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
@@ -457,7 +457,7 @@ def handle_text_message(event):
                                 current_position = getQueenPosition(sourceId)
 
                             if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません。縦横または斜めに隣り合う場所で、自軍のKing、Queenが居ない場所を指定してください。'))
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
                             else:
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり\u2755'))
