@@ -1,24 +1,38 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, abort, send_from_directory, url_for
 import redis
+from random import randint
 
 app = Flask(__name__)
 app.config.from_object('config')
 redis = redis.from_url(app.config['REDIS_URL'])
 
+def generateGameKey():
+    new_game_key = redis.incrby('maxGameKey',randint(3,7))
+    return str(new_game_key)
+
 def memberIdAdd(userId):
     if redis.sismember('memberKeyList',userId) == 0:
         redis.sadd('memberKeyList',userId)
+        game_key = generateGameKey()
+        redis.hset('gameKeyList',game_key,userId)
+    else:
+        game_key = getGameKey(userId)
+    return game_key
 
-def memberIdRemove(userId):
+def memberIdRemove(userId,game_key):
     if redis.sismember('memberKeyList',userId) == 1:
         redis.srem('memberKeyList',userId)
+        redis.hdel('gameKeyList',game_key)
 
-def createHashData(userId,display_name,image_url):
+def getGameKey(userId):
+    return redis.hget(userId,'gameKey')
+
+def createHashData(userId,display_name,game_key):
     if isinstance(display_name,str):
         display_name = display_name.decode('utf-8')
     redis.hset(userId,'displayName',display_name)
-#    redis.hset(userId,'imageUrl',image_url)
+    redis.hset(userId,'gameKey',game_key)
     redis.hset(userId,'status','normal')
 
     redis.hset(userId,'enemyId','-')
@@ -54,12 +68,15 @@ def getStat(userId):
 def setStat(userId,newStatus):
     redis.hset(userId,'status',newStatus)
 
-def isValidKey(userId):
+def isValidKey(game_key):
     #redisにキーとして登録されているかチェック
-    if redis.sismember('memberKeyList',userId) == 0:
+    if redis.hget('gameKeyList',game_key) is None:
         return False
     else:
         return True
+
+def getSourceIdfromGK(game_key):
+        return redis.hget('gameKeyList',game_key)
 
 def getEnemyName(myUserId):
     enemyId = redis.hget(myUserId,'enemyId')

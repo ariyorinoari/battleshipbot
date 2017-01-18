@@ -77,19 +77,20 @@ def handle_follow(event):
 
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
+    game_key = memberIdAdd(sourceId)
+
     line_bot_api.push_message(
         sourceId, TextSendMessage(text='あなたのゲームキーはこちら\u2755わからなくなったらヘルプで確認できます。↓'))
     line_bot_api.push_message(
-        sourceId, TextSendMessage(text=sourceId))
-    memberIdAdd(sourceId)
-    createHashData(sourceId,display_name,profile.picture_url)
+        sourceId, TextSendMessage(text=game_key))
+    createHashData(sourceId,display_name,game_key)
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
 #友達削除イベント、ここでredisからデータ削除を行う
     sourceId = getSourceId(event.source)
     profile = line_bot_api.get_profile(sourceId)
-    memberIdRemove(sourceId)
+    memberIdRemove(sourceId,getGameKey(sourceId))
     removeHashData(sourceId)
 
 def getUtfName(profile):
@@ -142,14 +143,14 @@ def handle_postback(event):
         if matcher is not None and matcher.group(1) == 'ACK':
             #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
             if isValidKey(matcher.group(2)):
+                enemyId = getSourceIdfromGK(matcher.group(2))
                 setStat(sourceId,'battle_init')
                 if getEnemyId(sourceId) == '-':
-                    setEnemy(sourceId,matcher.group(2))
+                    setEnemy(sourceId,enemyId)
                     line_bot_api.push_message(
-                        matcher.group(2),
-                        generateAckMsg(display_name,sourceId))
+                        enemyId, generateAckMsg(display_name,sourceId))
                 #battle_initの最初はimagemap表示と、King位置入力を求めるメッセージを表示
-                enemy_name =getDisplayName(matcher.group(2))
+                enemy_name =getDisplayName(enemyId)
                 if isinstance(enemy_name,str):
                     enemy_name = enemy_name.decode('utf-8')
                 line_bot_api.push_message(
@@ -160,20 +161,22 @@ def handle_postback(event):
         elif matcher is not None and matcher.group(1) == 'REJECT':
             #誰かの招待受けて　No　の場合は拒否を相手にPush
             if isValidKey(matcher.group(2)):
+                enemyId = getSourceIdfromGK(matcher.group(2))
                 line_bot_api.push_message(
-                    matcher.group(2),TextSendMessage(text=display_name+u'さんは今は無理なようです・・・\uD83D\uDE22'))
-                if getStat(matcher.group(2)) == 'normal':
+                    enemyId,TextSendMessage(text=display_name+u'さんは今は無理なようです・・・\uD83D\uDE22'))
+                if getStat(enemyId) == 'normal':
                     #相手側が招待済状態でこちらが拒否
-                    setEnemy(matcher.group(2),'-')
+                    setEnemy(enemyId,'-')
                 setStat(sourceId,'normal')
         elif matcher is not None and matcher.group(1) == 'RESTART':
             #リベンジ申込
             if isValidKey(matcher.group(2)):
-                enemy_status = getStat(matcher.group(2))
+                enemyId = getSourceIdfromGK(matcher.group(2))
+                enemy_status = getStat(enemyId)
                 if enemy_status == 'normal':
                     #相手ステータスがノーマル状態であれば、招待メッセージをPush
                     line_bot_api.push_message(
-                        matcher.group(2),
+                        enemyId,
                         generateInviteMsg(display_name,sourceId))
                 else:
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
@@ -181,7 +184,7 @@ def handle_postback(event):
                         event.reply_token,
                         TextMessage(text=u'相手はすでに他の対戦に入ったようです・・\uD83D\uDE22\n 伝言だけしておきますね。'))
                     line_bot_api.push_message(
-                        matcher.group(2),
+                        enemyId,
                         TextSendMessage(text=u'おじゃまします。\n'+display_name+u'さんが再戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
 
@@ -207,13 +210,13 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='ヘルプへようこそ\uD83D\uDE00\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
-                '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINEでお友達になっていること。②相手のゲームキーがわかっていること。'))
+                '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINE友だちになっていること。②相手のゲームキーがわかっていること。'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです\u2755↓'))
             line_bot_api.push_message(
                 sourceId,
-                TextSendMessage(text=sourceId))
+                TextSendMessage(text=getGameKey(sourceId)))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
@@ -238,37 +241,38 @@ def handle_text_message(event):
             #他テキストは相手キーとみなしてredis上に存在するか確認する
             if isValidKey(text):
                 #ある場合は、相手ステータスを確認する。
-                enemy_status = getStat(text)
+                enemyId = getSourceIdfromGK(text)
+                enemy_status = getStat(enemyId)
                 if enemy_status == 'normal':
                     #相手ステータスがノーマル状態であれば、招待メッセージをPush
                     line_bot_api.push_message(
-                        text,
+                        enemyId,
                         generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
-                    setEnemy(sourceId,text)
+                    setEnemy(sourceId,enemyId)
                 elif enemy_status == 'wait_game_key':
                     #相手がキーを入力しようとしている状態、相手ステータスをクリアした後invite
-                    setStat(text,'normal')
+                    setStat(enemyId,'normal')
                     line_bot_api.push_message(
-                        text,
+                        enemyId,
                         generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
-                    setEnemy(sourceId,text)
+                    setEnemy(sourceId,enemyId)
                 else:
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・\uD83D\uDE22\n 伝言だけしておきますね。初期状態に戻ります。'))
                     line_bot_api.push_message(
-                        text,
+                        enemyId,
                         TextSendMessage(text='おじゃまします。\n'+display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
             else:
@@ -520,7 +524,7 @@ def generateAckMsg(fromUserName,enemyId):
     buttons_template = ButtonsTemplate(
         text=fromUserName+u'さんが対戦OKしました',
         actions=[
-            PostbackTemplateAction(label=u'開始', data=u'ACK__'+enemyId)
+            PostbackTemplateAction(label=u'開始', data=u'ACK__'+getGameKey(enemyId))
     ])
     template_message = TemplateSendMessage(
         alt_text=u'対戦OK', template=buttons_template)
@@ -530,8 +534,8 @@ def generateInviteMsg(fromUserName,fromUserId):
     confirm_template = ConfirmTemplate(
         text=fromUserName+u'さんからの対戦申し込みです',
         actions=[
-            PostbackTemplateAction(label='うけて立つ', data='ACK__'+fromUserId),
-            PostbackTemplateAction(label='あとで', data='REJECT__'+fromUserId)
+            PostbackTemplateAction(label='うけて立つ', data='ACK__'+getGameKey(fromUserId)),
+            PostbackTemplateAction(label='あとで', data='REJECT__'+getGameKey(fromUserId))
     ])
     template_message = TemplateSendMessage(
         alt_text='対戦しよー', template=confirm_template)
