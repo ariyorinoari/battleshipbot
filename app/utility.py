@@ -84,7 +84,9 @@ def _resize_cmd(path, size):
 
 def _only_copy_cmd(bg_file,out_file):
     cmd = []
-    cmd.append('cp bg_file out_file')
+    cmd.append('cp')
+    cmd.append(bg_file)
+    cmd.append(out_file)
     return ' '.join(cmd)
 
 def _composite_king_cmd(position, bg_file, out_file):
