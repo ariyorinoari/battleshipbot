@@ -77,8 +77,8 @@ def handle_follow(event):
 
     line_bot_api.reply_message(
         event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n'+
-        '相手の持ち駒（King：耐久力2　と　Queen：耐久力1）をやっつけたら勝ち！の対戦ゲームです。'+
-        'http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
+        '相手の持ち駒（King：耐久力2　と　Queen：耐久力1）をやっつけたら勝ち！の対戦ゲームです。詳しくはココ→　'+
+        'http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule \nゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     game_key = memberIdAdd(sourceId)
 
     line_bot_api.push_message(
