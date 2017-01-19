@@ -76,7 +76,9 @@ def handle_follow(event):
     display_name = getUtfName(profile)
 
     line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
+        event.reply_token, TextSendMessage(text='友達追加ありがとう\uD83D\uDE04\n'+
+        '相手の持ち駒（King：耐久力2　と　Queen：耐久力1）をやっつけたら勝ち！の対戦ゲームです。'+
+        'http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule ゲームの始め方はボードメニューの中のヘルプで確認してね\uD83D\uDE03'))
     game_key = memberIdAdd(sourceId)
 
     line_bot_api.push_message(
@@ -183,9 +185,11 @@ def handle_postback(event):
                     line_bot_api.reply_message(
                         event.reply_token,
                         TextMessage(text=u'相手はすでに他の対戦に入ったようです・・\uD83D\uDE22\n 伝言だけしておきますね。'))
+                    my_game_key = getGameKey(sourceId)
                     line_bot_api.push_message(
                         enemyId,
-                        TextSendMessage(text=u'おじゃまします。\n'+display_name+u'さんが再戦を希望していましたが、あとにしてもらいますね。'))
+                        TextSendMessage(text=u'おじゃまします。\n'+display_name+u'さん('+ my_game_key +
+                        ')が再戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
 
 @handler.add(MessageEvent, message=TextMessage)

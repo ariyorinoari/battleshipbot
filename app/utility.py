@@ -55,10 +55,15 @@ def generate_map_image(king_position,queen_position):
 
     if king_position != '-':
         cmd = _composite_king_cmd(king_position, BG_FILE_PATH, os.path.join(path, 'temp.png'))
-        os.system(cmd)
+    else:
+        cmd = _only_copy_cmd(BG_FILE_PATH, os.path.join(path, 'temp.png'))
+    os.system(cmd)
+
     if queen_position != '-':
         cmd = _composite_queen_cmd(queen_position, os.path.join(path, 'temp.png'), os.path.join(path, 'map.png'))
-        os.system(cmd)
+    else:
+        cmd = _only_copy_cmd(os.path.join(path, 'temp.png'),os.path.join(path, 'map.png'))
+    os.system(cmd)
 
     for size in [240, 300, 460, 700, 1040]:
         resize_cmd = _resize_cmd(path, size)
@@ -76,6 +81,10 @@ def _resize_cmd(path, size):
     cmd.append('-colors 8')
     cmd.append(after)
     return ' '.join(cmd)
+
+def _only_copy_cmd(bg_file,out_file):
+    cmd = []
+    cmd.append('cp bg_file out_file')
 
 def _composite_king_cmd(position, bg_file, out_file):
 
