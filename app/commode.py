@@ -214,7 +214,41 @@ def _isComWin(sourceId,king_position,queen_position):
             return True
     return False
 
-def comAction(sourceId):
+def _createMovableList(current_position):
+    if current_position == '1':
+        return ['5','9','13','2','3','4']
+    if current_position == '2':
+        return ['1','3','4','6','10','14']
+    if current_position == '3':
+        return ['1','2','4','11','7','15']
+    if current_position == '4':
+        return ['1','2','3','12','8','16']
+    if current_position == '5':
+        return ['1','7','6','8','9','13']
+    if current_position == '6':
+        return ['2','8','5','7','10','14']
+    if current_position == '7':
+        return ['3','5','6','8','11','15']
+    if current_position == '8':
+        return ['5','4','6','7','16','12']
+    if current_position == '9':
+        return ['1','5','11','10','13','12']
+    if current_position == '10':
+        return ['2','6','9','11','12','14']
+    if current_position == '11':
+        return ['3','7','9','10','12','15']
+    if current_position == '12':
+        return ['4','8','9','10','11','16']
+    if current_position == '13':
+        return ['1','5','9','14','15','16']
+    if current_position == '14':
+        return ['2','6','10','16','13','15']
+    if current_position == '15':
+        return ['3','7','11','13','14','16']
+    if current_position == '16':
+        return ['4','8','13','14','12','15']
+
+def comAction(sourceId):#今はランダム動作
     king_position = getKingPosition('com_'+sourceId)
     queen_position = getQueenPosition('com_'+sourceId)
 
@@ -223,11 +257,31 @@ def comAction(sourceId):
             if _isComWin(sourceId,king_position,queen_position):
                 return 'com_win'
         else:#move
-            pass
+            at_list = _createMovableList(king_position)
+            two_list = sample(at_list,2)
+            dist_pos = two_list[0]
+            if setKingPosition('com_'+sourceId,dist_pos) == False:
+                dist_pos = two_list[1]
+                setKingPosition('com_'+sourceId,dist_pos)
+
+            move_direction = getDistance(king_position,dist_pos,isKingDying('com_'+sourceId))
+            msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
+            line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
+
     if getQueenOrderStatus('com_'+sourceId) != 'killed':
         if randint(1,2) == 1:#attack
             if _isComWin(sourceId,queen_position,king_position):
                 return 'com_win'
         else:#move
-            pass
+            at_list = _createMovableList(queen_position)
+            two_list = sample(at_list,2)
+            dist_pos = two_list[0]
+            if setQueenPosition('com_'+sourceId,dist_pos) == False:
+                dist_pos = two_list[1]
+                setQueenPosition('com_'+sourceId,dist_pos)
+
+            move_direction = getDistance(queen_position,dist_pos,True)
+            msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
+            line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
+
     return ''
