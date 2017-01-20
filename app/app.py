@@ -220,8 +220,8 @@ def handle_text_message(event):
             #ヘルプボタンの場合はゲーム説明の表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text='ヘルプへようこそ\uD83D\uDE00\n 誰かと対戦したい場合は、対戦申込/やめる　を押してください。\n'+
-                '対戦できる条件は２つ。①相手が 対戦☆Battleship とLINE友だちになっていること。②相手のゲームキーがわかっていること。'))
+                TextMessage(text='ようこそ\uD83D\uDE00\n 対戦したい場合は、対戦申込/やめる を押してください。\n'+
+                'その後相手のゲームキーを入力します。私と対戦するなら 1000 です。'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです\u2755↓'))
@@ -486,7 +486,10 @@ def handle_text_message(event):
                             setKingOrderStatus(sourceId,'notyet')
             else:
                 enemyId = getEnemyId(sourceId)
-                if text.find('@') == 0:
+                if text == 'マップ':
+                    line_bot_api.push_message(
+                        sourceId, generateCurrentMap(sourceId))
+                elif text.find('@') == 0:
                 #@開始→相手への通信
                     line_bot_api.push_message(
                         enemyId,TextSendMessage(text=display_name + 'さんからのメッセージ：\n'+ text[1:]))

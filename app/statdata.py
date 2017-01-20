@@ -121,8 +121,7 @@ def setKingPosition(userId,positionNum):
 def setQueenPosition(userId,positionNum):
     return _setPosition(userId,'QueenPosition',
         redis.hget(userId,'QueenPosition'),positionNum)
-
-
+        
 def getQueenPosition(userId):
     return redis.hget(userId,'QueenPosition')
 
