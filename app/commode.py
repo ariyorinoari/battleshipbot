@@ -176,37 +176,37 @@ def comBattleUserInput(sourceId,reply_token,text):
     return ''
 
 def _createRound8List(current_position):
-    if current_position = '1':
+    if current_position == '1':
         return ['2','5','6']
-    if current_position = '2':
+    if current_position == '2':
         return ['1','3','5','6','7']
-    if current_position = '3':
+    if current_position == '3':
         return ['2','4','6','7','8']
-    if current_position = '4':
+    if current_position == '4':
         return ['3','7','8']
-    if current_position = '5':
+    if current_position == '5':
         return ['1','2','6','9','10']
-    if current_position = '6':
+    if current_position == '6':
         return ['1','2','3','5','7','9','10','11']
-    if current_position = '7':
+    if current_position == '7':
         return ['2','3','4','6','8','10','11','12']
-    if current_position = '8':
+    if current_position == '8':
         return ['3','4','7','11','12']
-    if current_position = '9':
+    if current_position == '9':
         return ['5','6','10','13','14']
-    if current_position = '10':
+    if current_position == '10':
         return ['5','6','7','9','11','13','14','15']
-    if current_position = '11':
+    if current_position == '11':
         return ['6','7','8','10','12','14','15','16']
-    if current_position = '12':
+    if current_position == '12':
         return ['7','8','11','15','16']
-    if current_position = '13':
+    if current_position == '13':
         return ['9','10','14']
-    if current_position = '14':
+    if current_position == '14':
         return ['9','10','11','13','15']
-    if current_position = '15':
+    if current_position == '15':
         return ['10','11','12','14','16']
-    if current_position = '16':
+    if current_position == '16':
         return ['11','12','15']
 
 def _isComWin(sourceId,king_position,queen_position):
