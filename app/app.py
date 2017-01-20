@@ -221,6 +221,10 @@ def handle_text_message(event):
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text=getGameKey(sourceId)))
+            line_bot_api.push_message(
+                sourceId,
+                TextSendMessage(text='ゲームのルールはこちら http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule'))
+
         else:
             line_bot_api.reply_message(
                 event.reply_token,
@@ -240,7 +244,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦を申し込むには、相手のゲームキーが必要です。\n'+
-                'ゲームキーは、ヘルプボタンを押すと表示されますので相手にお願いして教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
+                'ゲームキーは、ヘルプボタンで表示されるので相手に教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
         else:
             #他テキストは相手キーとみなしてredis上に存在するか確認する
             if isValidKey(text):
@@ -254,7 +258,7 @@ def handle_text_message(event):
                         generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
+                        TextMessage(text='キーの持ち主に対戦申込を送りました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemy(sourceId,enemyId)
@@ -266,7 +270,7 @@ def handle_text_message(event):
                         generateInviteMsg(display_name,sourceId))
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主に対戦申込を送信しました\uD83D\uDE04'))
+                        TextMessage(text='キーの持ち主に対戦申込を送りました\uD83D\uDE04'))
                     setStat(sourceId,'normal')
                     #この時点でenemy_keyを保持
                     setEnemy(sourceId,enemyId)
@@ -274,10 +278,11 @@ def handle_text_message(event):
                     #相手は誰かと戦闘状態なのでメッセージPushのみ
                     line_bot_api.reply_message(
                         event.reply_token,
-                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・\uD83D\uDE22\n 伝言だけしておきますね。初期状態に戻ります。'))
+                        TextMessage(text='キーの持ち主は誰かと対戦中なので今はダメですね・・\uD83D\uDE22\n 伝言だけして初期状態に戻ります。'))
                     line_bot_api.push_message(
                         enemyId,
-                        TextSendMessage(text='おじゃまします。\n'+display_name+'さんが対戦を希望していましたが、あとにしてもらいますね。'))
+                        TextSendMessage(text=u'おじゃまします。\n'+display_name+u'さん('+ my_game_key +
+                        ')が対戦を希望していましたが、あとにしてもらいますね。'))
                     clearHashData(sourceId)
             else:
                 #ない場合は、エラー表示し、再度相手キーを入力させる
@@ -311,7 +316,7 @@ def handle_text_message(event):
                     else:
                         line_bot_api.reply_message(
                             event.reply_token,
-                            TextMessage(text='Kingを配置しました。\n 次はQueenの位置を入力してください'))
+                            TextMessage(text='Kingを配置しました。\n 次はQueenの位置をどうぞ'))
                 elif getQueenPosition(sourceId) == '-':
                     if setQueenPosition(sourceId,num_matcher.group(0)) == False:
                         line_bot_api.reply_message(
