@@ -314,7 +314,7 @@ def handle_text_message(event):
         elif ret == 'halfway':
             line_bot_api.push_message(
                 sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
-    elif currentStatus == 'com_battle'
+    elif currentStatus == 'com_battle':
         ret = comBattleUserInput(sourceId,event.reply_token,text)
         if ret == 'com_turn':
             line_bot_api.reply_message(event.reply_token,
