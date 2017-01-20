@@ -149,19 +149,19 @@ def comBattleUserInput(sourceId,reply_token,text):
                             setKingOrderStatus(sourceId,'ordered')
                         else:
                             setQueenOrderStatus(sourceId,'ordered')
-
-                    if game_end == True:
-                        return 'com_lose'
-                    elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
-                        (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
-
-                        if getKingOrderStatus(sourceId) == 'ordered':
-                            setKingOrderStatus(sourceId,'notyet')
-                        if getQueenOrderStatus(sourceId) == 'ordered':
-                            setQueenOrderStatus(sourceId,'notyet')
-                        return 'com_turn'
                     else:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動または場所をどうぞ'))
+                        return 'com_lose'
+
+            if (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
+                (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
+
+                if getKingOrderStatus(sourceId) == 'ordered':
+                    setKingOrderStatus(sourceId,'notyet')
+                if getQueenOrderStatus(sourceId) == 'ordered':
+                    setQueenOrderStatus(sourceId,'notyet')
+                return 'com_turn'
+            else:
+                line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動または場所をどうぞ'))
     return ''
 
 def _createRound8List(current_position):
@@ -205,14 +205,13 @@ def _isComWin(sourceId,king_position,queen_position):
         attack_pos = two_list[0]
     else:
         attack_pos = two_list[1]
-    line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃あり\u2755'))
+    line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃します\u2755'))
     impact_msg = getAttackImpact(sourceId,attack_pos)
 
     if impact_msg != u'':
+        line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
         if getKingOrderStatus(sourceId) == 'killed' and getQueenOrderStatus(sourceId) == 'killed':
             return True
-        else:
-            line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
     return False
 
 def comAction(sourceId):
