@@ -2,6 +2,9 @@
 
 from __future__ import unicode_literals
 
+import os
+import re
+
 from linebot import (
     LineBotApi, WebhookHandler,
 )
@@ -18,7 +21,10 @@ from linebot.models import (
     ImagemapSendMessage, MessageImagemapAction, BaseSize, ImagemapArea
 )
 
-import re
+app = Flask(__name__)
+app.config.from_object('config')
+line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
+
 
 from const import *
 from utility import *
