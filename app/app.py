@@ -351,7 +351,7 @@ def handle_text_message(event):
                         sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
             elif ret == 'com_lose':
                 line_bot_api.reply_message(event.reply_token,
-                    TextMessage(text='まいりました・・\uD83D\uDE22またやるならゲームキー1000です。'))
+                    TextMessage(text='まいりました・・\uD83D\uDE22 もう1回やるならゲームキー1000で対戦申込ください。'))
                 clearHashData(sourceId)
 
 #■ステータスbattle_init
