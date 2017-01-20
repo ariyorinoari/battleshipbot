@@ -154,8 +154,6 @@ def comBattleUserInput(sourceId,reply_token,text):
                         return 'com_lose'
                     elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
                         (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
-                        line_bot_api.push_message(
-                            sourceId, generateCurrentMap(sourceId))
 
                         if getKingOrderStatus(sourceId) == 'ordered':
                             setKingOrderStatus(sourceId,'notyet')
