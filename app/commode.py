@@ -253,7 +253,7 @@ def comAction(sourceId):#今はランダム動作
     queen_position = getQueenPosition('com_'+sourceId)
 
     if getKingOrderStatus('com_'+sourceId) != 'killed':
-        if randint(1,2) == 1:#attack
+        if randint(1,4) > 1:#attack
             if _isComWin(sourceId,king_position,queen_position):
                 return 'com_win'
         else:#move
@@ -269,7 +269,7 @@ def comAction(sourceId):#今はランダム動作
             line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
 
     if getQueenOrderStatus('com_'+sourceId) != 'killed':
-        if randint(1,2) == 1:#attack
+        if randint(1,4) > 1:#attack
             if _isComWin(sourceId,queen_position,king_position):
                 return 'com_win'
         else:#move
