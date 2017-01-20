@@ -308,13 +308,29 @@ def handle_text_message(event):
                     event.reply_token,
                     TextMessage(text='キーが正しくないかもしれません\uD83D\uDE22\n 確認してもう一度入力してください'))
     elif currentStatus == 'com_init':
-        ret = isComInitComplete(sourceId,event.reply_token,text)
-        if ret == 'complete':
-            setStat(sourceId,'com_battle')
-        elif ret == 'halfway':
+        if text == 'ENTRY_EXIT_MENU':
+        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
             line_bot_api.push_message(
-                sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
+                sourceId,generateQuitConfirm())
+        else:
+            ret = isComInitComplete(sourceId,event.reply_token,text)
+            if ret == 'complete':
+                setStat(sourceId,'com_battle')
+            elif ret == 'halfway':
+                line_bot_api.push_message(
+                    sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
     elif currentStatus == 'com_battle':
+        if text == 'ENTRY_EXIT_MENU':
+        #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
+            line_bot_api.push_message(
+                sourceId,generateQuitConfirm())
+        elif text == 'HELP_MENU':
+            #ヘルプボタンの場合は配置方法を表示
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text=='私と対戦中です。\n '+
+                'やめたいときには 対戦申込/やめる を押してください\uD83D\uDE04'))
+
         ret = comBattleUserInput(sourceId,event.reply_token,text)
         if ret == 'com_turn':
             line_bot_api.reply_message(event.reply_token,

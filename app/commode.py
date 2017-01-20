@@ -7,7 +7,6 @@ import re
 
 from flask import Flask, request, abort, send_from_directory, url_for
 
-
 from linebot import (
     LineBotApi, WebhookHandler,
 )
@@ -29,161 +28,142 @@ app.config.from_object('config')
 line_bot_api = LineBotApi(app.config['CHANNEL_ACCESS_TOKEN'])
 
 
+from random import randint,sample
 from const import *
 from utility import *
 from statdata import *
-from random import randint,sample
-
 
 def isComInitComplete(sourceId,reply_token,text):
-    if text == 'ENTRY_EXIT_MENU':
-    #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
+    num_matcher = re.match(r'^[0-9]{1,}$',text)
+    if num_matcher is None:
         line_bot_api.reply_message(
-            reply_token,generateQuitConfirm())
+            reply_token,
+            TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
+    else:
+        if getKingPosition(sourceId) == '-':
+            if setKingPosition(sourceId,num_matcher.group(0)) == False:
+                line_bot_api.reply_message(
+                    reply_token,
+                    TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でKingの位置を入力してください'))
+                return 'err'
+            else:
+                return 'halfway'
+        else:
+            if setQueenPosition(sourceId,num_matcher.group(0)) == False:
+                line_bot_api.reply_message(
+                    reply_token,
+                    TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でQueenの位置を入力してください。Kingと同じ場所はダメですよ。'))
+                return 'err'
+            else:
+                return 'complete'
+
+def comBattleUserInput(sourceId,reply_token,text):
+    matcher = re.match(r'(.*?)__(.*)', text)
+    if matcher is not None and matcher.group(1) == 'KING':
+        if getKingOrderStatus(sourceId) == 'ordered':
+            line_bot_api.reply_message(reply_token, TextMessage(text='\uD83D\uDE22Kingはすでに行動済です'))
+        elif getKingOrderStatus(sourceId) == 'killed':
+            line_bot_api.reply_message(reply_token, TextMessage(text='Kingは行動不能です\uD83D\uDE22'))
+        else:
+            if matcher.group(2) == 'MOVE':
+                line_bot_api.reply_message(
+                    reply_token, TextMessage(text='Kingの移動先は\u2754'))
+                setKingOrderStatus(sourceId,'move_position_wait')
+                if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                    setQueenOrderStatus(sourceId,'notyet')
+            elif matcher.group(2) == 'ATTACK':
+                line_bot_api.reply_message(
+                    reply_token, TextMessage(text='Kingの攻撃先は\u2754'))
+                setKingOrderStatus(sourceId,'attack_position_wait')
+                if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                    setQueenOrderStatus(sourceId,'notyet')
+
+    elif matcher is not None and matcher.group(1) == 'QUEEN':
+        if getQueenOrderStatus(sourceId) == 'ordered':
+            line_bot_api.reply_message(
+                reply_token, TextMessage(text='\uD83D\uDE22Queenはすでに行動済です'))
+        elif getQueenOrderStatus(sourceId) == 'killed':
+            line_bot_api.reply_message(reply_token,TextMessage(text='Queenは行動不能です\uD83D\uDE22'))
+        else:
+            if matcher.group(2) == 'MOVE':
+                line_bot_api.reply_message(
+                    reply_token, TextMessage(text='Queenの移動先は\u2754'))
+                setQueenOrderStatus(sourceId,'move_position_wait')
+                if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
+                    setKingOrderStatus(sourceId,'notyet')
+            elif matcher.group(2) == 'ATTACK':
+                line_bot_api.reply_message(
+                    reply_token, TextMessage(text='Queenの攻撃先は\u2754'))
+                setQueenOrderStatus(sourceId,'attack_position_wait')
+                if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
+                    setKingOrderStatus(sourceId,'notyet')
     else:
         num_matcher = re.match(r'^[0-9]{1,}$',text)
         if num_matcher is None:
+            #数字入力ではなかった
             line_bot_api.reply_message(
                 reply_token,
-                TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字をタップして、再度位置を入力してください'))
+                TextMessage(text='うまく認識できませんでした\uD83D\uDE22\nもう一度位置を入力してください。'))
         else:
-            if getKingPosition(sourceId) == '-':
+            #数字→攻撃または移動先指定
+            game_end = False
+            if getKingOrderStatus(sourceId) == 'move_position_wait':
+                current_position = getKingPosition(sourceId)
                 if setKingPosition(sourceId,num_matcher.group(0)) == False:
-                    line_bot_api.reply_message(
-                        reply_token,
-                        TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でKingの位置を入力してください'))
-                    return 'err'
+                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Queenに重ならない場所を指定してください。'))
                 else:
-                    return 'halfway'
-            else:
+                    setKingOrderStatus(sourceId,'ordered')
+
+            elif getQueenOrderStatus(sourceId) == 'move_position_wait':
+                current_position = getQueenPosition(sourceId)
                 if setQueenPosition(sourceId,num_matcher.group(0)) == False:
-                    line_bot_api.reply_message(
-                        reply_token,
-                        TextMessage(text='うまく認識できませんでした\uD83D\uDE22\n マップ上の1から16の数字でQueenの位置を入力してください。Kingと同じ場所はダメですよ。'))
-                    return 'err'
+                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Kingに重ならない場所を指定してください。'))
                 else:
-                    return 'complete'
+                    setQueenOrderStatus(sourceId,'ordered')
 
-def comBattleUserInput(sourceId,reply_token,text):
-    if text == 'ENTRY_EXIT_MENU':
-    #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
-        line_bot_api.reply_message(
-            reply_token,generateQuitConfirm())
-        return ''
-    elif text == 'HELP_MENU':
-        #ヘルプボタンの場合は配置方法を表示
-        line_bot_api.reply_message(
-            reply_token,
-            TextMessage(text='私と対戦中です。\n '+
-            'やめたいときには 対戦申込/やめる を押してください\uD83D\uDE04'))
-        return ''
-    else:
-        matcher = re.match(r'(.*?)__(.*)', text)
-        if matcher is not None and matcher.group(1) == 'KING':
-            if getKingOrderStatus(sourceId) == 'ordered':
-                line_bot_api.reply_message(reply_token, TextMessage(text='\uD83D\uDE22Kingはすでに行動済です'))
-            elif getKingOrderStatus(sourceId) == 'killed':
-                line_bot_api.reply_message(reply_token, TextMessage(text='Kingは行動不能です\uD83D\uDE22'))
-            else:
-                if matcher.group(2) == 'MOVE':
-                    line_bot_api.reply_message(
-                        reply_token, TextMessage(text='Kingの移動先は\u2754'))
-                    setKingOrderStatus(sourceId,'move_position_wait')
-                    if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
-                        setQueenOrderStatus(sourceId,'notyet')
-                elif matcher.group(2) == 'ATTACK':
-                    line_bot_api.reply_message(
-                        reply_token, TextMessage(text='Kingの攻撃先は\u2754'))
-                    setKingOrderStatus(sourceId,'attack_position_wait')
-                    if getQueenOrderStatus(sourceId) == 'move_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
-                        setQueenOrderStatus(sourceId,'notyet')
-
-        elif matcher is not None and matcher.group(1) == 'QUEEN':
-            if getQueenOrderStatus(sourceId) == 'ordered':
-                line_bot_api.reply_message(
-                    reply_token, TextMessage(text='\uD83D\uDE22Queenはすでに行動済です'))
-            elif getQueenOrderStatus(sourceId) == 'killed':
-                line_bot_api.reply_message(reply_token,TextMessage(text='Queenは行動不能です\uD83D\uDE22'))
-            else:
-                if matcher.group(2) == 'MOVE':
-                    line_bot_api.reply_message(
-                        reply_token, TextMessage(text='Queenの移動先は\u2754'))
-                    setQueenOrderStatus(sourceId,'move_position_wait')
-                    if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
-                        setKingOrderStatus(sourceId,'notyet')
-                elif matcher.group(2) == 'ATTACK':
-                    line_bot_api.reply_message(
-                        reply_token, TextMessage(text='Queenの攻撃先は\u2754'))
-                    setQueenOrderStatus(sourceId,'attack_position_wait')
-                    if getKingOrderStatus(sourceId) == 'move_position_wait' or getKingOrderStatus(sourceId) == 'attack_position_wait':
-                        setKingOrderStatus(sourceId,'notyet')
-        else:
-            num_matcher = re.match(r'^[0-9]{1,}$',text)
-            if num_matcher is None:
-                #数字入力ではなかった
-                line_bot_api.reply_message(
-                    reply_token,
-                    TextMessage(text='うまく認識できませんでした\uD83D\uDE22\nもう一度位置を入力してください。'))
-            else:
-                #数字→攻撃または移動先指定
-                game_end = False
-                if getKingOrderStatus(sourceId) == 'move_position_wait':
+            elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
+                is_king_attack = False
+                if getKingOrderStatus(sourceId) == 'attack_position_wait':
+                    is_king_attack = True
                     current_position = getKingPosition(sourceId)
-                    if setKingPosition(sourceId,num_matcher.group(0)) == False:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Queenに重ならない場所を指定してください。'))
-                    else:
-                        setKingOrderStatus(sourceId,'ordered')
-
-                elif getQueenOrderStatus(sourceId) == 'move_position_wait':
-                    current_position = getQueenPosition(sourceId)
-                    if setQueenPosition(sourceId,num_matcher.group(0)) == False:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Kingに重ならない場所を指定してください。'))
-                    else:
-                        setQueenOrderStatus(sourceId,'ordered')
-
-                elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
-                    is_king_attack = False
-                    if getKingOrderStatus(sourceId) == 'attack_position_wait':
-                        is_king_attack = True
-                        current_position = getKingPosition(sourceId)
-                    else:
-                        current_position = getQueenPosition(sourceId)
-
-                    if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
-                    else:
-                        impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
-
-                        if impact_msg != u'':
-                            if getKingOrderStatus('com_'+sourceId) == 'killed' and getQueenOrderStatus('com_'+sourceId) == 'killed':
-                                #全滅させたので勝敗決定
-                                clearHashData(sourceId)
-                                game_end = True
-                            else:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
-                        else:
-                            line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
-
-                        if game_end != True:
-                            if is_king_attack:
-                                setKingOrderStatus(sourceId,'ordered')
-                            else:
-                                setQueenOrderStatus(sourceId,'ordered')
-
-                if game_end == True:
-                    return 'com_lose'
-                elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
-                    (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
-                    line_bot_api.push_message(
-                        sourceId, generateCurrentMap(sourceId))
-
-                    if getKingOrderStatus(sourceId) == 'ordered':
-                        setKingOrderStatus(sourceId,'notyet')
-                    if getQueenOrderStatus(sourceId) == 'ordered':
-                        setQueenOrderStatus(sourceId,'notyet')
-                    return 'com_turn'
                 else:
-                    line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は\u2754'))
+                    current_position = getQueenPosition(sourceId)
+
+                if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
+                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
+                else:
+                    impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
+
+                    if impact_msg != u'':
+                        if getKingOrderStatus('com_'+sourceId) == 'killed' and getQueenOrderStatus('com_'+sourceId) == 'killed':
+                            #全滅させたので勝敗決定
+                            clearHashData(sourceId)
+                            game_end = True
+                        else:
+                            line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
+                    else:
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
+
+                    if game_end != True:
+                        if is_king_attack:
+                            setKingOrderStatus(sourceId,'ordered')
+                        else:
+                            setQueenOrderStatus(sourceId,'ordered')
+
+            if game_end == True:
+                return 'com_lose'
+            elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
+                (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
+                line_bot_api.push_message(
+                    sourceId, generateCurrentMap(sourceId))
+
+                if getKingOrderStatus(sourceId) == 'ordered':
+                    setKingOrderStatus(sourceId,'notyet')
+                if getQueenOrderStatus(sourceId) == 'ordered':
+                    setQueenOrderStatus(sourceId,'notyet')
+                return 'com_turn'
+            else:
+                line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は\u2754'))
     return ''
 
 def _createRound8List(current_position):
