@@ -334,25 +334,25 @@ def handle_text_message(event):
                 event.reply_token,
                 TextMessage(text=='私と対戦中です。\n '+
                 'やめたいときには 対戦申込/やめる を押してください\uD83D\uDE04'))
-
-        ret = comBattleUserInput(sourceId,event.reply_token,text)
-        if ret == 'com_turn':
-            line_bot_api.push_message(
-                sourceId, generateCurrentMap(sourceId))
-            line_bot_api.push_message(sourceId,
-                TextMessage(text='ではこちらのターンです'))
-            ###人工無能
-            if comAction(sourceId) == 'com_win':
+        else:
+            ret = comBattleUserInput(sourceId,event.reply_token,text)
+            if ret == 'com_turn':
                 line_bot_api.push_message(
-                    sourceId, TextSendMessage(text=u'私の勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
+                    sourceId, generateCurrentMap(sourceId))
+                line_bot_api.push_message(sourceId,
+                    TextMessage(text='ではこちらのターンです'))
+                ###人工無能
+                if comAction(sourceId) == 'com_win':
+                    line_bot_api.push_message(
+                        sourceId, TextSendMessage(text=u'私の勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
+                    clearHashData(sourceId)
+                else:
+                    line_bot_api.push_message(
+                        sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
+            elif ret == 'com_lose':
+                line_bot_api.reply_message(event.reply_token,
+                    TextMessage(text='まいりました・・\uD83D\uDE22またやるならゲームキー1000です。'))
                 clearHashData(sourceId)
-            else:
-                line_bot_api.push_message(
-                    sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
-        elif ret == 'com_lose':
-            line_bot_api.reply_message(event.reply_token,
-                TextMessage(text='まいりました・・\uD83D\uDE22またやるならゲームキー1000です。'))
-            clearHashData(sourceId)
 
 #■ステータスbattle_init
     elif currentStatus == 'battle_init':
