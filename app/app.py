@@ -30,6 +30,7 @@ from linebot.models import (
 from const import *
 from utility import *
 from statdata import *
+from commode import *
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -123,9 +124,15 @@ def handle_postback(event):
             clearHashData(enemyId)
             clearHashData(sourceId)
         else:
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text=u'ゲームはすでに終わっているようです'))
+            if getStat(sourceId) == 'com_init' or getStat(sourceId) == 'com_battle':
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=u'私との対戦を終了して初期状態に戻ります\uD83D\uDE09'))
+                clearHashData(sourceId)
+            else:
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextSendMessage(text=u'ゲームはすでに終わっているようです'))
 
     elif answer == 'QUIT_NO':
         if getStat(sourceId) != 'normal':
@@ -246,8 +253,19 @@ def handle_text_message(event):
                 TextMessage(text='対戦を申し込むには、相手のゲームキーが必要です。\n'+
                 'ゲームキーは、ヘルプボタンで表示されるので相手に教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
         else:
+            if text == '1000':#COMモード
+                line_bot_api.reply_message(
+                    event.reply_token,
+                    TextMessage(text='では私が相手します\uD83D\uDE04やめたいときは対戦申込/やめるを押してください'))
+                setStat(sourceId,'com_init')
+                createComData(sourceId)
+                line_bot_api.push_message(
+                    sourceId, generateInitialMap(sourceId))
+                line_bot_api.push_message(
+                    sourceId, TextSendMessage(text=u'Kingの位置をどうぞ。'))
+
             #他テキストは相手キーとみなしてredis上に存在するか確認する
-            if isValidKey(text):
+            elif isValidKey(text):
                 #ある場合は、相手ステータスを確認する。
                 enemyId = getSourceIdfromGK(text)
                 enemy_status = getStat(enemyId)
@@ -289,6 +307,30 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextMessage(text='キーが正しくないかもしれません\uD83D\uDE22\n 確認してもう一度入力してください'))
+    elif currentStatus == 'com_init':
+        ret = isComInitComplete(sourceId,event.reply_token,text)
+        if ret == 'complete':
+            setStat(sourceId,'com_battle')
+        elif ret == 'halfway':
+            line_bot_api.push_message(
+                sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
+    elif currentStatus == 'com_battle'
+        ret = comBattleUserInput(sourceId,event.reply_token,text)
+        if ret == 'com_turn':
+            line_bot_api.reply_message(event.reply_token,
+                TextMessage(text='ではこちらのターンです'))
+            ###人工無能
+            if comAction(sourceId) == 'com_win':
+                line_bot_api.push_message(
+                    sourceId, TextSendMessage(text=u'私の勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
+                clearHashData(sourceId)
+            else:
+                line_bot_api.push_message(
+                    sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
+        elif ret == 'com_lose':
+            line_bot_api.reply_message(event.reply_token,
+                TextMessage(text='まいりました・・\uD83D\uDE22またやるならゲームキー1000です。'))
+            clearHashData(sourceId)
 
 #■ステータスbattle_init
     elif currentStatus == 'battle_init':

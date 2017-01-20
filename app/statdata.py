@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, request, abort, send_from_directory, url_for
 import redis
-from random import randint
+from random import randint,sample
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -53,6 +53,13 @@ def clearHashData(userId):
     redis.hset(userId,'KingPosition','-')
     redis.hset(userId,'QueenPosition','-')
 
+def createComData(userId):
+    redis.hset('com_'+userId,'KingHP',2)
+    redis.hset('com_'+userId,'QueenHP',1)
+    pos_list = random.sample(range(16),2)
+    redis.hset('com_'+userId,'KingPosition',str(pos_list[0]+1))
+    redis.hset('com_'+userId,'QueenPosition',str(pos_list[1]+1))
+
 def removeHashData(userId):
     redis.delete(userId)
 
@@ -88,46 +95,35 @@ def getDisplayName(myUserId):
 def getKingPosition(userId):
     return redis.hget(userId,'KingPosition')
 
-def setKingPosition(userId,positionNum):
+def _setPosition(userId,posName,current_position,positionNum):
     position = int(positionNum)
     if position < 1 or position > 16:
         return False
-
-    current_position = redis.hget(userId,'KingPosition')
     if current_position == '-':
         if isVacant(userId,positionNum):
-            redis.hset(userId,'KingPosition',positionNum)
+            redis.hset(userId,posName,positionNum)
             return True
         else:
             return False
     else:
         if isAvailablePosition(current_position,positionNum) and isVacant(userId,positionNum):
-            redis.hset(userId,'KingPosition',positionNum)
+            redis.hset(userId,posName,positionNum)
             return True
         else:
             return False
+
+def setKingPosition(userId,positionNum):
+    return _setPosition(userId,'KingPosition',
+        redis.hget(userId,'KingPosition'),positionNum)
+
+def setQueenPosition(userId,positionNum):
+    return _setPosition(userId,'QueenPosition',
+        redis.hget(userId,'QueenPosition'),positionNum)
+
 
 def getQueenPosition(userId):
     return redis.hget(userId,'QueenPosition')
 
-def setQueenPosition(userId,positionNum):
-    position = int(positionNum)
-    if position < 1 or position > 16:
-        return False
-
-    current_position = redis.hget(userId,'QueenPosition')
-    if current_position == '-':
-        if isVacant(userId,positionNum):
-            redis.hset(userId,'QueenPosition',positionNum)
-            return True
-        else:
-            return False
-    else:
-        if isAvailablePosition(current_position,positionNum) and isVacant(userId,positionNum):
-            redis.hset(userId,'QueenPosition',positionNum)
-            return True
-        else:
-            return False
 
 def setAttackPosition(userId,fromPosition,toPosition):
     if isPositionAround(fromPosition,toPosition) == True:
@@ -166,6 +162,7 @@ def getAttackImpact(attackedId,position):
             return_msg += u'Queenにかすりました。'
 
     return return_msg
+
 
 def isPositionAround(src_pos,dst_pos):
     from_int = int(src_pos)
