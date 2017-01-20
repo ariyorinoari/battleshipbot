@@ -330,10 +330,10 @@ def handle_text_message(event):
                 sourceId,generateQuitConfirm())
         elif text == 'HELP_MENU':
             #ヘルプボタンの場合は配置方法を表示
-            line_bot_api.reply_message(
-                event.reply_token,
+            line_bot_api.push_message(
+                sourceId,
                 TextMessage(text=='私と対戦中です。\n '+
-                'やめたいときには 対戦申込/やめる を押してください\uD83D\uDE04'))
+                    u'やめたいときには 対戦申込/やめる を押してください \uD83D\uDE04'))
         else:
             ret = comBattleUserInput(sourceId,event.reply_token,text)
             if ret == 'com_turn':
@@ -351,7 +351,7 @@ def handle_text_message(event):
                         sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
             elif ret == 'com_lose':
                 line_bot_api.reply_message(event.reply_token,
-                    TextMessage(text='まいりました・・\uD83D\uDE22 もう1回やるならゲームキー1000で対戦申込ください。'))
+                    TextMessage(text=u'まいりました・・\uD83D\uDE22 もう1回やるならゲームキー1000で対戦申込ください。'))
                 clearHashData(sourceId)
 
 #■ステータスbattle_init

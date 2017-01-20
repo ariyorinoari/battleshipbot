@@ -265,7 +265,7 @@ def comAction(sourceId):#今はランダム動作
                 setKingPosition('com_'+sourceId,dist_pos)
 
             move_direction = getDistance(king_position,dist_pos,isKingDying('com_'+sourceId))
-            msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
+            msgtxt = u'Kingを' + unicode(move_direction,'utf-8')
             line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
 
     if getQueenOrderStatus('com_'+sourceId) != 'killed':
@@ -281,7 +281,7 @@ def comAction(sourceId):#今はランダム動作
                 setQueenPosition('com_'+sourceId,dist_pos)
 
             move_direction = getDistance(queen_position,dist_pos,True)
-            msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
+            msgtxt = u'Queenを' + unicode(move_direction,'utf-8')
             line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
 
     return ''
