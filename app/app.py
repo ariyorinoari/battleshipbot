@@ -310,8 +310,8 @@ def handle_text_message(event):
     elif currentStatus == 'com_init':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示し、battle_quit_confirm状態へ
-            line_bot_api.push_message(
-                sourceId,generateQuitConfirm())
+            line_bot_api.reply_message(
+                event.reply_token,generateQuitConfirm())
         else:
             ret = isComInitComplete(sourceId,event.reply_token,text)
             if ret == 'complete':
@@ -326,13 +326,13 @@ def handle_text_message(event):
     elif currentStatus == 'com_battle':
         if text == 'ENTRY_EXIT_MENU':
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
-            line_bot_api.push_message(
-                sourceId,generateQuitConfirm())
+            line_bot_api.reply_message(
+                event.reply_token,generateQuitConfirm())
         elif text == 'HELP_MENU':
             #ヘルプボタンの場合は配置方法を表示
-            line_bot_api.push_message(
-                sourceId,
-                TextMessage(text=='私と対戦中です。\n '+
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='私と対戦中です。\n '+
                     u'やめたいときには 対戦申込/やめる を押してください \uD83D\uDE04'))
         else:
             ret = comBattleUserInput(sourceId,event.reply_token,text)
