@@ -23,6 +23,8 @@ import re
 from const import *
 from utility import *
 from statdata import *
+from random import randint,sample
+
 
 def isComInitComplete(sourceId,reply_token,text):
     if text == 'ENTRY_EXIT_MENU':
@@ -211,7 +213,7 @@ def _createRound8List(current_position):
 
 def _isComWin(sourceId,king_position,queen_position):
     at_list = _createRound8List(king_position)
-    two_list = random.sample(at_list,2)
+    two_list = sample(at_list,2)
     if two_list[0] != queen_position:
         attack_pos = two_list[0]
     else:

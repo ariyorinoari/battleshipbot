@@ -56,7 +56,7 @@ def clearHashData(userId):
 def createComData(userId):
     redis.hset('com_'+userId,'KingHP',2)
     redis.hset('com_'+userId,'QueenHP',1)
-    pos_list = random.sample(range(16),2)
+    pos_list = sample(range(16),2)
     redis.hset('com_'+userId,'KingPosition',str(pos_list[0]+1))
     redis.hset('com_'+userId,'QueenPosition',str(pos_list[1]+1))
 
