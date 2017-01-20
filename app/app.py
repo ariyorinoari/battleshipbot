@@ -316,6 +316,10 @@ def handle_text_message(event):
             ret = isComInitComplete(sourceId,event.reply_token,text)
             if ret == 'complete':
                 setStat(sourceId,'com_battle')
+                line_bot_api.push_message(
+                    sourceId, generateCurrentMap(sourceId))
+                line_bot_api.push_message(
+                    sourceId, TextSendMessage(text=u'ではあなたのターン。ボードメニューから行動を選んでください\uD83D\uDE04'))
             elif ret == 'halfway':
                 line_bot_api.push_message(
                     sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
@@ -333,7 +337,9 @@ def handle_text_message(event):
 
         ret = comBattleUserInput(sourceId,event.reply_token,text)
         if ret == 'com_turn':
-            line_bot_api.reply_message(event.reply_token,
+            line_bot_api.push_message(
+                sourceId, generateCurrentMap(sourceId))
+            line_bot_api.push_message(sourceId,
                 TextMessage(text='ではこちらのターンです'))
             ###人工無能
             if comAction(sourceId) == 'com_win':

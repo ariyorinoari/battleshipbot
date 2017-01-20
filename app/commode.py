@@ -150,20 +150,20 @@ def comBattleUserInput(sourceId,reply_token,text):
                         else:
                             setQueenOrderStatus(sourceId,'ordered')
 
-            if game_end == True:
-                return 'com_lose'
-            elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
-                (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
-                line_bot_api.push_message(
-                    sourceId, generateCurrentMap(sourceId))
+                    if game_end == True:
+                        return 'com_lose'
+                    elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
+                        (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
+                        line_bot_api.push_message(
+                            sourceId, generateCurrentMap(sourceId))
 
-                if getKingOrderStatus(sourceId) == 'ordered':
-                    setKingOrderStatus(sourceId,'notyet')
-                if getQueenOrderStatus(sourceId) == 'ordered':
-                    setQueenOrderStatus(sourceId,'notyet')
-                return 'com_turn'
-            else:
-                line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は\u2754'))
+                        if getKingOrderStatus(sourceId) == 'ordered':
+                            setKingOrderStatus(sourceId,'notyet')
+                        if getQueenOrderStatus(sourceId) == 'ordered':
+                            setQueenOrderStatus(sourceId,'notyet')
+                        return 'com_turn'
+                    else:
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動または場所をどうぞ'))
     return ''
 
 def _createRound8List(current_position):
