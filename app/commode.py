@@ -227,7 +227,7 @@ def _isComWin(sourceId,king_position,queen_position):
     return False
 
 def comAction(sourceId):
-    king_position = getKingPosition('com_'+sourceId))
+    king_position = getKingPosition('com_'+sourceId)
     queen_position = getQueenPosition('com_'+sourceId)
 
     if getKingOrderStatus('com_'+sourceId) != 'killed':
