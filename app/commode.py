@@ -100,10 +100,14 @@ def comBattleUserInput(sourceId,reply_token,text):
     else:
         num_matcher = re.match(r'^[0-9]{1,}$',text)
         if num_matcher is None:
+            if text == 'マップ':
+                line_bot_api.reply_message(
+                    reply_token, generateCurrentMap(sourceId))
+            else:
             #数字入力ではなかった
-            line_bot_api.reply_message(
-                reply_token,
-                TextMessage(text='うまく認識できませんでした\uD83D\uDE22\nもう一度位置を入力してください。'))
+                line_bot_api.reply_message(
+                    reply_token,
+                    TextMessage(text='うまく認識できませんでした\uD83D\uDE22\nもう一度位置を入力してください。'))
         else:
             #数字→攻撃または移動先指定
             game_end = False
