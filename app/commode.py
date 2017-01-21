@@ -201,24 +201,21 @@ def _createRound8List(current_position):
     if current_position == '16':
         return ['11','12','15']
 
-def _isComWin(sourceId,king_position,queen_position):
+def _getAttackablePosition(sourceId,king_position,queen_position):
     at_list = _createRound8List(king_position)
 
     choice_list = []
     for choice_pos in at_list:
-        if choice_pos != queen_position:
+        if choice_pos != queen_position and notInClearedList(sourceId,choice_pos):
             choice_list.append(choice_pos)
 
-    #ここにはいないリストとの照合
-    attack_pos = '-'
-    for choice_pos in choice_list:
-        if notInClearedList(sourceId,choice_pos):
-            attack_pos = choice_pos
-            break
-
-    if attack_pos == '-':
+    if len(choice_list) == 0:
+        return '-'
+    else:
         sampled_list = sample(choice_list,1)
-        attack_pos = str(sampled_list[0])
+        return str(sampled_list[0])
+
+def _isComWin(sourceId,attack_pos):
 
     line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃します\u2755'))
     impact_msg = getAttackImpact(sourceId,attack_pos)
@@ -232,6 +229,8 @@ def _isComWin(sourceId,king_position,queen_position):
 
         if getKingOrderStatus(sourceId) == 'killed' and getQueenOrderStatus(sourceId) == 'killed':
             return True
+        else:
+            return False
     else:
         addNotHereList(sourceId,attack_pos)
         return False
@@ -275,10 +274,11 @@ def comAction(sourceId):#今はランダム動作
     queen_position = getQueenPosition('com_'+sourceId)
 
     if getKingOrderStatus('com_'+sourceId) != 'killed':
-        if randint(1,4) > 1:#75%の確率でattack
-            if _isComWin(sourceId,king_position,queen_position):
+        attack_pos = _getAttackablePosition(sourceId,king_position,queen_position)
+        if attack_pos != '-':
+            if _isComWin(sourceId,attack_pos):
                 return 'com_win'
-        else:#move
+        else:
             at_list = _createMovableList(king_position)
             two_list = sample(at_list,2)
             dist_pos = two_list[0]
@@ -291,8 +291,9 @@ def comAction(sourceId):#今はランダム動作
             line_bot_api.push_message(sourceId,TextSendMessage(text=msgtxt))
 
     if getQueenOrderStatus('com_'+sourceId) != 'killed':
-        if randint(1,4) > 1:#75%の確率でattack
-            if _isComWin(sourceId,queen_position,king_position):
+        attack_pos = _getAttackablePosition(sourceId,queen_position,king_position)
+        if attack_pos != '-':
+            if _isComWin(sourceId,attack_pos):
                 return 'com_win'
         else:#move
             at_list = _createMovableList(queen_position)
