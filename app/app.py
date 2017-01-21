@@ -640,8 +640,8 @@ def generateTutorialConfirm():
     confirm_template = ConfirmTemplate(
         text=u'試しに私と対戦しますか\u2754',
         actions=[
-            MessageTemplateAction(label='試す', data='1000'),
-            MessageTemplateAction(label='遠慮します', data='TUTO_NO')
+            MessageTemplateAction(label=u'試す', text='1000'),
+            MessageTemplateAction(label=u'遠慮します', text='TUTO_NO')
     ])
     template_message = TemplateSendMessage(
         alt_text='チュートリアル', template=confirm_template)
