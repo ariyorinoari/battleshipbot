@@ -219,16 +219,22 @@ def _isComWin(sourceId,king_position,queen_position):
     if attack_pos == '-':
         attack_pos = sample(choice_list,1)
 
-    addNotHereList(sourceId,attack_pos)
 
     line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃します\u2755'))
     impact_msg = getAttackImpact(sourceId,attack_pos)
 
     if impact_msg != u'':
         line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
+        if getKingPosition(sourceId) != attack_pos:
+            addNotHereList(sourceId,attack_pos)
+        else:
+            pass #命中したがKingがHP残り1なのでNotHereリストには入れない
+
         if getKingOrderStatus(sourceId) == 'killed' and getQueenOrderStatus(sourceId) == 'killed':
             return True
-    return False
+    else:
+        addNotHereList(sourceId,attack_pos)
+        return False
 
 def _createMovableList(current_position):
     if current_position == '1':

@@ -132,6 +132,7 @@ def handle_postback(event):
                     event.reply_token,
                     TextSendMessage(text=u'私との対戦を終了して初期状態に戻ります\uD83D\uDE09'))
                 clearHashData(sourceId)
+                clearNotHereList(sourceId)
             else:
                 line_bot_api.reply_message(
                     event.reply_token,
@@ -354,6 +355,7 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                         sourceId, TextSendMessage(text=u'私の勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
                     clearHashData(sourceId)
+                    clearNotHereList(sourceId)
                 else:
                     line_bot_api.push_message(
                         sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
@@ -361,6 +363,7 @@ def handle_text_message(event):
                 line_bot_api.reply_message(event.reply_token,
                     TextMessage(text=u'まいりました・・\uD83D\uDE22 もう1回やるならゲームキー1000で対戦申込ください。'))
                 clearHashData(sourceId)
+                clearNotHereList(sourceId)
 
 #■ステータスbattle_init
     elif currentStatus == 'battle_init':
