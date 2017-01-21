@@ -121,7 +121,7 @@ def setKingPosition(userId,positionNum):
 def setQueenPosition(userId,positionNum):
     return _setPosition(userId,'QueenPosition',
         redis.hget(userId,'QueenPosition'),positionNum)
-        
+
 def getQueenPosition(userId):
     return redis.hget(userId,'QueenPosition')
 
@@ -315,3 +315,16 @@ def isVacant(userId,future):
         return True
     else:
         return False
+
+def addNotHereList(sourceId,position):
+    if redis.sismember('com_'+sourceId+'_posrec',position) == 0:
+        redis.sadd('com_'+sourceId+'_posrec',position)
+
+def clearNotHereList(sourceId):
+    redis.delete('com_'+sourceId+'_posrec')
+
+def notInClearedList(sourceId,position):
+    if redis.sismember('com_'+sourceId+'_posrec',position) == 1:
+        return False
+    else:
+        return True

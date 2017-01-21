@@ -113,6 +113,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Queenに重ならない場所を指定してください。'))
                 else:
                     setKingOrderStatus(sourceId,'ordered')
+                    clearNotHereList(sourceId)
 
             elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                 current_position = getQueenPosition(sourceId)
@@ -120,6 +121,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Kingに重ならない場所を指定してください。'))
                 else:
                     setQueenOrderStatus(sourceId,'ordered')
+                    clearNotHereList(sourceId)
 
             elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                 is_king_attack = False
@@ -133,6 +135,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
                 else:
                     impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
+                    addNotHereList(sourceId,num_matcher.group(0))
 
                     if impact_msg != u'':
                         if getKingOrderStatus('com_'+sourceId) == 'killed' and getQueenOrderStatus('com_'+sourceId) == 'killed':
@@ -200,11 +203,25 @@ def _createRound8List(current_position):
 
 def _isComWin(sourceId,king_position,queen_position):
     at_list = _createRound8List(king_position)
-    two_list = sample(at_list,2)
-    if two_list[0] != queen_position:
-        attack_pos = two_list[0]
-    else:
-        attack_pos = two_list[1]
+
+    i = 0
+    for choice_pos in at_list:
+        if choice_pos != queen_position:
+            choice_list[i] = choice_pos
+            i = i + 1
+
+    #ここにはいないリストとの照合
+    attack_pos = '-'
+    for choice_pos in choice_list:
+        if notInClearedList(sourceId,choice_pos):
+            attack_pos = choice_pos
+            break
+
+    if attack_pos == '-':
+        attack_pos = sample(choice_list,1)
+
+    addNotHereList(sourceId,attack_pos)
+
     line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃します\u2755'))
     impact_msg = getAttackImpact(sourceId,attack_pos)
 
