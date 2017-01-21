@@ -343,6 +343,9 @@ def handle_text_message(event):
                 event.reply_token,
                 TextSendMessage(text='私と対戦中です。\n '+
                     u'やめたいときには 対戦申込/やめる を押してください \uD83D\uDE04'))
+        elif text == 'マップ':
+            line_bot_api.reply_message(
+                event.reply_token, generateCurrentMap(sourceId))
         else:
             ret = comBattleUserInput(sourceId,event.reply_token,text)
             if ret == 'com_turn':
