@@ -217,8 +217,8 @@ def _isComWin(sourceId,king_position,queen_position):
             break
 
     if attack_pos == '-':
-        attack_pos = sample(choice_list,1)
-
+        sampled_list = sample(choice_list,1)
+        attack_pos = str(sampled_list[0])
 
     line_bot_api.push_message(sourceId,TextSendMessage(text=attack_pos+ u'に攻撃します\u2755'))
     impact_msg = getAttackImpact(sourceId,attack_pos)
