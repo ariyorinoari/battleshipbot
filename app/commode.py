@@ -204,6 +204,7 @@ def _createRound8List(current_position):
 def _isComWin(sourceId,king_position,queen_position):
     at_list = _createRound8List(king_position)
 
+    choice_list = []
     i = 0
     for choice_pos in at_list:
         if choice_pos != queen_position:
