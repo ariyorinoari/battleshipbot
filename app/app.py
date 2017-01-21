@@ -87,7 +87,7 @@ def handle_follow(event):
     line_bot_api.push_message(
         sourceId, TextSendMessage(text=game_key))
     createHashData(sourceId,display_name,game_key)
-    setStat(sourceId,'battle_init')
+    setStat(sourceId,'wait_game_key')
     line_bot_api.push_message(
         sourceId,generateTutorialConfirm())
 
@@ -149,11 +149,6 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='また遊んでね\uD83D\uDE09'))
-    elif answer == 'TUTO_NO':
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text='困ったらヘルプかWebを見てね。よろしくです\uD83D\uDE09'))
-        setStat(sourceId,'normal')
     else:
         #招待へのACK/REJECT対応
         matcher = re.match(r'(.*?)__(.*)', answer)
@@ -260,6 +255,11 @@ def handle_text_message(event):
                 event.reply_token,
                 TextMessage(text='対戦を申し込むには、相手のゲームキーが必要です。\n'+
                 'ゲームキーは、ヘルプボタンで表示されるので相手に教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
+        elif text == 'TUTO_NO':
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text='では、困ったらヘルプかWebを見てね。よろしくお願いします\uD83D\uDE09'))
+            setStat(sourceId,'normal')
         else:
             if text == '1000':#COMモード
                 line_bot_api.reply_message(
@@ -641,7 +641,7 @@ def generateTutorialConfirm():
         text=u'試しに私と対戦しますか\u2754',
         actions=[
             MessageTemplateAction(label='試す', data='1000'),
-            PostbackTemplateAction(label='遠慮します', data='TUTO_NO')
+            MessageTemplateAction(label='遠慮します', data='TUTO_NO')
     ])
     template_message = TemplateSendMessage(
         alt_text='チュートリアル', template=confirm_template)
