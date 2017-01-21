@@ -87,6 +87,9 @@ def handle_follow(event):
     line_bot_api.push_message(
         sourceId, TextSendMessage(text=game_key))
     createHashData(sourceId,display_name,game_key)
+    setStat(sourceId,'battle_init')
+    line_bot_api.push_message(
+        soureId,generateTutorialConfirm())
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
@@ -146,6 +149,11 @@ def handle_postback(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text='また遊んでね\uD83D\uDE09'))
+    elif answer == 'TUTO_NO':
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text='困ったらヘルプかWebを見てね。よろしくです\uD83D\uDE09'))
+        setStat(sourceId,'normal')
     else:
         #招待へのACK/REJECT対応
         matcher = re.match(r'(.*?)__(.*)', answer)
@@ -627,6 +635,18 @@ def generateQuitConfirm():
     template_message = TemplateSendMessage(
         alt_text='かくにん', template=confirm_template)
     return template_message
+
+def generateTutorialConfirm():
+    confirm_template = ConfirmTemplate(
+        text=u'試しに私と対戦しますか\u2754',
+        actions=[
+            MessageTemplateAction(label='試す', data='1000'),
+            PostbackTemplateAction(label='遠慮します', data='TUTO_NO')
+    ])
+    template_message = TemplateSendMessage(
+        alt_text='チュートリアル', template=confirm_template)
+    return template_message
+
 
 def generateInitialMap(userId):
     message = ImagemapSendMessage(
