@@ -205,11 +205,9 @@ def _isComWin(sourceId,king_position,queen_position):
     at_list = _createRound8List(king_position)
 
     choice_list = []
-    i = 0
     for choice_pos in at_list:
         if choice_pos != queen_position:
-            choice_list[i] = choice_pos
-            i = i + 1
+            choice_list.append(choice_pos)
 
     #ここにはいないリストとの照合
     attack_pos = '-'
