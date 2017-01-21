@@ -89,7 +89,7 @@ def handle_follow(event):
     createHashData(sourceId,display_name,game_key)
     setStat(sourceId,'battle_init')
     line_bot_api.push_message(
-        soureId,generateTutorialConfirm())
+        sourceId,generateTutorialConfirm())
 
 @handler.add(UnfollowEvent)
 def handle_unfollow(event):
