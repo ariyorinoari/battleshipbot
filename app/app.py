@@ -64,6 +64,18 @@ def download_imagemap(size):
     return send_from_directory(os.path.join(app.root_path, 'static', 'map'),
             filename)
 
+@app.route('/images/kqbutton/<size>', methods=['GET'])
+def download_imagemap(size):
+    filename = FIELD_IMAGE_FILENAME.format(size)
+    return send_from_directory(os.path.join(app.root_path, 'static', 'kqbutton'),
+            filename)
+
+@app.route('/images/ambutton/<size>', methods=['GET'])
+def download_imagemap(size):
+    filename = FIELD_IMAGE_FILENAME.format(size)
+    return send_from_directory(os.path.join(app.root_path, 'static', 'ambutton'),
+            filename)
+
 @app.route('/images/<filename>', methods=['GET'])
 def download_staticimage(filename):
     return send_from_directory(os.path.join(app.root_path, 'static'),
