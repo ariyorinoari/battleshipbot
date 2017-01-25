@@ -623,12 +623,11 @@ def handle_text_message(event):
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
 
 def generateTurnStartButtons(sourceId):
-    if getQueenOrderStatus(sourceId) == 'wait_action' or
-        getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed':
+
+    if getQueenOrderStatus(sourceId) == 'wait_action' or getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed':
         line_bot_api.push_message(sourceId,TextSendMessage(text='Queenの行動を選んでください'))
         line_bot_api.push_message(sourceId,generateAMbuttons('QUEEN__'))
-    elif getKingOrderStatus(sourceId) == 'wait_action' or
-        getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed':
+    elif getKingOrderStatus(sourceId) == 'wait_action' or getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed':
         line_bot_api.push_message(sourceId,TextSendMessage(text='Kingの行動を選んでください'))
         line_bot_api.push_message(sourceId,generateAMbuttons('KING__'))
     else:
