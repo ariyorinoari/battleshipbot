@@ -99,6 +99,12 @@ def comBattleUserInput(sourceId,reply_token,text):
                     setKingOrderStatus(sourceId,'notyet')
     else:
         num_matcher = re.match(r'^[0-9]{1,}$',text)
+        if text == 'KING':
+            setKingOrderStatus(sourceId,'wait_action')
+            generateTurnStartButtons(sourceId)
+        elif text == 'QUEEN':
+            setQueenOrderStatus(sourceId,'wait_action')
+            generateTurnStartButtons(sourceId)
         if num_matcher is None:
         #数字入力ではなかった
             line_bot_api.reply_message(
@@ -269,7 +275,7 @@ def _createMovableList(current_position):
     if current_position == '16':
         return ['4','8','13','14','12','15']
 
-def comAction(sourceId):#今はランダム動作
+def comAction(sourceId):
     king_position = getKingPosition('com_'+sourceId)
     queen_position = getQueenPosition('com_'+sourceId)
 

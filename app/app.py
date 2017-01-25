@@ -328,7 +328,8 @@ def handle_text_message(event):
                 line_bot_api.push_message(
                     sourceId, generateCurrentMap(sourceId))
                 line_bot_api.push_message(
-                    sourceId, TextSendMessage(text=u'ではあなたのターン。ボードメニューから行動を選んでください\uD83D\uDE04'))
+                    sourceId, TextSendMessage(text=u'ではあなたのターン。KingかQueen、どちらに指示しますか\uD83D\uDE04'))
+                generateTurnStartButtons(sourceId)
             elif ret == 'halfway':
                 line_bot_api.push_message(
                     sourceId, TextSendMessage(text=u'Queenの位置をどうぞ。'))
@@ -363,7 +364,8 @@ def handle_text_message(event):
                     clearNotHereList(sourceId)
                 else:
                     line_bot_api.push_message(
-                        sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
+                        sourceId, TextSendMessage(text=u'\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
+                    generateTurnStartButtons(sourceId)
             elif ret == 'com_lose':
                 line_bot_api.reply_message(event.reply_token,
                     TextMessage(text=u'まいりました・・\uD83D\uDE22 もう1回やるならゲームキー1000で対戦申込ください。'))
@@ -428,7 +430,8 @@ def handle_text_message(event):
                         #相手に開始＆入力求めるメッセージPush
                         line_bot_api.push_message(
                             enemyId,
-                            TextSendMessage(text='ゲーム開始、あなたのターンです。行動をボードメニューから選んでください。'))
+                            TextSendMessage(text='ゲーム開始、あなたのターンです。KingかQueen、どちらに指示しますか\u2754'))
+                        generateTurnStartButtons(enemyId)
 
 #■ステータスbattle_ready
     elif currentStatus == 'battle_ready':
@@ -453,7 +456,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
-                'King,Queenの行動をボードメニューから選んで場所を指定してください\uD83D\uDE04'))
+                'King,Queenの行動をボタンかボードメニューから選んで場所を指定してください\uD83D\uDE04'))
         else:
             if matcher is not None and matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
@@ -505,6 +508,12 @@ def handle_text_message(event):
                 if text == 'マップ':
                     line_bot_api.push_message(
                         sourceId, generateCurrentMap(sourceId))
+                elif text == 'KING':
+                    setKingOrderStatus(sourceId,'wait_action')
+                    generateTurnStartButtons(sourceId)
+                elif text == 'QUEEN':
+                    setQueenOrderStatus(sourceId,'wait_action')
+                    generateTurnStartButtons(sourceId)
                 elif text.find('@') == 0:
                 #@開始→相手への通信
                     line_bot_api.push_message(
@@ -584,9 +593,10 @@ def handle_text_message(event):
                             line_bot_api.push_message(sourceId,
                                 TextSendMessage(text='－－相手のターン－－'))
                             line_bot_api.push_message(
-                                enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F 行動をボードメニューから選んでください。'))
+                                enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(enemyId,'battle_myturn')
+                            generateTurnStartButtons(enemyId)
 
                             if getKingOrderStatus(sourceId) == 'ordered':
                                 setKingOrderStatus(sourceId,'notyet')
@@ -611,6 +621,65 @@ def handle_text_message(event):
         else:
             line_bot_api.push_message(sourceId,
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
+
+def generateTurnStartButtons(sourceId):
+    if getQueenOrderStatus(sourceId) == 'wait_action' or
+        getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed':
+        line_bot_api.push_message(sourceId,TextSendMessage(text='Queenの行動を選んでください'))
+        line_bot_api.push_message(sourceId,generateAMbuttons('QUEEN__'))
+    elif getKingOrderStatus(sourceId) == 'wait_action' or
+        getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed':
+        line_bot_api.push_message(sourceId,TextSendMessage(text='Kingの行動を選んでください'))
+        line_bot_api.push_message(sourceId,generateAMbuttons('KING__'))
+    else:
+        line_bot_api.push_message(sourceId,TextSendMessage(text='KingとQueen、どちらに指示しますか\u2754'))
+        line_bot_api.push_message(sourceId,generateKQbuttons())
+
+def generateAMbuttons(character):
+    message = ImagemapSendMessage(
+        base_url= HEROKU_SERVER_URL + 'images/ambutton',
+        alt_text='attack or move',
+        base_size=BaseSize(height=790, width=1040))
+    actions=[]
+    actions.append(MessageImagemapAction(
+        text = character + 'ATTACK',
+        area=ImagemapArea(
+            x=0,
+            y=0,
+            width = BUTTON_ELEMENT_WIDTH,
+            height = BUTTON_ELEMENT_HEIGHT)))
+    actions.append(MessageImagemapAction(
+        text = character + 'MOVE',
+        area=ImagemapArea(
+            x=BUTTON_ELEMENT_WIDTH,
+            y=BUTTON_ELEMENT_HEIGHT,
+            width = BUTTON_ELEMENT_WIDTH * 2,
+            height = BUTTON_ELEMENT_HEIGHT * 2)))
+    message.actions = actions
+    return message
+
+def generateKQbuttons():
+    message = ImagemapSendMessage(
+        base_url= HEROKU_SERVER_URL + 'images/kqbutton',
+        alt_text='king or queen',
+        base_size=BaseSize(height=790, width=1040))
+    actions=[]
+    actions.append(MessageImagemapAction(
+        text = 'KING',
+        area=ImagemapArea(
+            x=0,
+            y=0,
+            width = BUTTON_ELEMENT_WIDTH,
+            height = BUTTON_ELEMENT_HEIGHT)))
+    actions.append(MessageImagemapAction(
+        text = 'QUEEN',
+        area=ImagemapArea(
+            x=BUTTON_ELEMENT_WIDTH,
+            y=BUTTON_ELEMENT_HEIGHT,
+            width = BUTTON_ELEMENT_WIDTH * 2,
+            height = BUTTON_ELEMENT_HEIGHT * 2)))
+    message.actions = actions
+    return message
 
 def generateAckMsg(fromUserName,enemyId):
     buttons_template = ButtonsTemplate(
