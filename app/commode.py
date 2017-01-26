@@ -32,7 +32,7 @@ from random import randint,sample
 from const import *
 from utility import *
 from statdata import *
-from app import generateTurnStartButtons
+import app as mainapp
 
 def isComInitComplete(sourceId,reply_token,text):
     num_matcher = re.match(r'^[0-9]{1,}$',text)
@@ -102,10 +102,10 @@ def comBattleUserInput(sourceId,reply_token,text):
         num_matcher = re.match(r'^[0-9]{1,}$',text)
         if text == 'KING':
             setKingOrderStatus(sourceId,'wait_action')
-            generateTurnStartButtons(sourceId)
+            mainapp.generateTurnStartButtons(sourceId)
         elif text == 'QUEEN':
             setQueenOrderStatus(sourceId,'wait_action')
-            generateTurnStartButtons(sourceId)
+            mainapp.generateTurnStartButtons(sourceId)
         if num_matcher is None:
         #数字入力ではなかった
             line_bot_api.reply_message(
