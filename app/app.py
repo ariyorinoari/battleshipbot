@@ -650,7 +650,7 @@ def generateAMbuttons(character):
     message = ImagemapSendMessage(
         base_url= HEROKU_SERVER_URL + 'images/ambutton',
         alt_text='attack or move',
-        base_size=BaseSize(height=790, width=1040))
+        base_size=BaseSize(height=178, width=1040))
     actions=[]
     actions.append(MessageImagemapAction(
         text = character + 'ATTACK',
@@ -673,7 +673,7 @@ def generateKQbuttons():
     message = ImagemapSendMessage(
         base_url= HEROKU_SERVER_URL + 'images/kqbutton',
         alt_text='king or queen',
-        base_size=BaseSize(height=790, width=1040))
+        base_size=BaseSize(height=178, width=1040))
     actions=[]
     actions.append(MessageImagemapAction(
         text = 'KING',
