@@ -340,7 +340,7 @@ def handle_text_message(event):
                 line_bot_api.push_message(
                     sourceId, generateCurrentMap(sourceId))
                 line_bot_api.push_message(
-                    sourceId, TextSendMessage(text=u'ではあなたのターン。KingかQueen、どちらに指示しますか\uD83D\uDE04'))
+                    sourceId, TextSendMessage(text=u'ワタシもKing、Queenの配置完了しました。あなたのターンです\uD83D\uDE04'))
                 generateTurnStartButtons(sourceId)
             elif ret == 'halfway':
                 line_bot_api.push_message(

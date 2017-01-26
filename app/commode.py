@@ -32,7 +32,7 @@ from random import randint,sample
 from const import *
 from utility import *
 from statdata import *
-from app import *
+from app import generateTurnStartButtons
 
 def isComInitComplete(sourceId,reply_token,text):
     num_matcher = re.match(r'^[0-9]{1,}$',text)
