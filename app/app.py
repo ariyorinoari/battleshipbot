@@ -667,7 +667,7 @@ def generateAMbuttons(character):
         text = character + 'MOVE',
         area=ImagemapArea(
             x=BUTTON_ELEMENT_WIDTH,
-            y=0
+            y=0,
             width = BUTTON_ELEMENT_WIDTH * 2,
             height = BUTTON_ELEMENT_HEIGHT)))
     message.actions = actions
