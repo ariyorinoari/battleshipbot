@@ -106,7 +106,7 @@ def comBattleUserInput(sourceId,reply_token,text):
         elif text == 'QUEEN':
             setQueenOrderStatus(sourceId,'wait_action')
             mainapp.generateTurnStartButtons(sourceId)
-        if num_matcher is None:
+        elif num_matcher is None:
         #数字入力ではなかった
             line_bot_api.reply_message(
                 reply_token,
@@ -154,7 +154,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                             clearHashData(sourceId)
                             game_end = True
                         else:
-                            line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
+                            line_bot_api.push_message(sourceId,TextSendMessage(text='ワタシの'+impact_msg))
                     else:
                         line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
 
@@ -175,7 +175,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     setQueenOrderStatus(sourceId,'notyet')
                 return 'com_turn'
             else:
-                line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動または場所をどうぞ'))
+                generateTurnStartButtons(sourceId)
     return ''
 
 def _createRound8List(current_position):
