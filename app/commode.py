@@ -32,6 +32,7 @@ from random import randint,sample
 from const import *
 from utility import *
 from statdata import *
+from app import generateTurnStartButtons
 
 def isComInitComplete(sourceId,reply_token,text):
     num_matcher = re.match(r'^[0-9]{1,}$',text)
@@ -138,7 +139,11 @@ def comBattleUserInput(sourceId,reply_token,text):
                     current_position = getQueenPosition(sourceId)
 
                 if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
-                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
+                    if is_king_attack == True:
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のKingの縦横斜めのお隣で、Queenが居ない場所を指定してください。'))
+                    else:
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
+
                 else:
                     impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
                     addNotHereList(sourceId,num_matcher.group(0))
@@ -227,7 +232,7 @@ def _isComWin(sourceId,attack_pos):
     impact_msg = getAttackImpact(sourceId,attack_pos)
 
     if impact_msg != u'':
-        line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
+        line_bot_api.push_message(sourceId,TextSendMessage(text=u'あなたの'+impact_msg))
         if getKingPosition(sourceId) != attack_pos:
             addNotHereList(sourceId,attack_pos)
         else:

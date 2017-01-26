@@ -436,7 +436,7 @@ def handle_text_message(event):
                         #相手側はすでに完了していた
                         line_bot_api.push_message(
                             sourceId,
-                            TextSendMessage(text='準備完了、相手のターンから開始します\uD83D\uDE04'))
+                            TextSendMessage(text='相手もKingとQueenの配置が完了しました、相手のターンから開始します\uD83D\uDE04'))
                         setStat(sourceId,'battle_not_myturn')
                         setStat(enemyId,'battle_myturn')
                         #相手に開始＆入力求めるメッセージPush
@@ -544,7 +544,7 @@ def handle_text_message(event):
                         if getKingOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getKingPosition(sourceId)
                             if setKingPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Queenに重ならない場所を指定してください。'))
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で '+display_name+'のQueenに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),isKingDying(sourceId))
                                 msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
@@ -554,7 +554,7 @@ def handle_text_message(event):
                         elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getQueenPosition(sourceId)
                             if setQueenPosition(sourceId,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で、Kingに重ならない場所を指定してください。'))
+                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で '+display_name+'のKingに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),True)
                                 msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
@@ -570,7 +570,11 @@ def handle_text_message(event):
                                 current_position = getQueenPosition(sourceId)
 
                             if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
-                                line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n縦横斜めのお隣で、自軍のKing、Queenが居ない場所を指定してください。'))
+                                if is_king_attack == True:
+                                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のKingの縦横斜めのお隣で、Queenが居ない場所を指定してください。'))
+                                else:
+                                    line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
+
                             else:
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり\u2755'))
@@ -585,8 +589,8 @@ def handle_text_message(event):
                                         clearHashData(sourceId)
                                         game_end = True
                                     else:
-                                        line_bot_api.push_message(sourceId,TextSendMessage(text=impact_msg))
-                                        line_bot_api.push_message(enemyId,TextSendMessage(text=impact_msg))
+                                        line_bot_api.push_message(sourceId,TextSendMessage(text=getEnemyName(sourceId)+u'の'+impact_msg))
+                                        line_bot_api.push_message(enemyId,TextSendMessage(text=getEnemyName(sourceId)+u'の'+impact_msg))
                                 else:
                                     line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
 
