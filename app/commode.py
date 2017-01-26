@@ -175,7 +175,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     setQueenOrderStatus(sourceId,'notyet')
                 return 'com_turn'
             else:
-                generateTurnStartButtons(sourceId)
+                mainapp.generateTurnStartButtons(sourceId)
     return ''
 
 def _createRound8List(current_position):
