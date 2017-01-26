@@ -140,9 +140,9 @@ def comBattleUserInput(sourceId,reply_token,text):
 
                 if setAttackPosition(sourceId,current_position,num_matcher.group(0)) == False:
                     if is_king_attack == True:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のKingの縦横斜めのお隣で、Queenが居ない場所を指定してください。'))
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\nあなたのKingの縦横斜めのお隣で、Queenが居ない場所を指定してください。'))
                     else:
-                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
+                        line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\nあなたのQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
 
                 else:
                     impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
