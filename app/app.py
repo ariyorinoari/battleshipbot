@@ -142,7 +142,7 @@ def handle_postback(event):
             if getStat(sourceId) == 'com_init' or getStat(sourceId) == 'com_battle':
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextSendMessage(text=u'私との対戦を終了して初期状態に戻ります\uD83D\uDE09'))
+                    TextSendMessage(text=u'ワタシとの対戦を終了して初期状態に戻ります\uD83D\uDE09'))
                 clearHashData(sourceId)
                 clearNotHereList(sourceId)
             else:
@@ -238,7 +238,7 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='ようこそ\uD83D\uDE00\n 対戦したい場合は、対戦申込/やめる を押してください。\n'+
-                'その後相手のゲームキーを入力します。私と対戦するなら 1000 です。'))
+                'その後相手のゲームキーを入力します。ワタシと対戦するなら 1000 です。'))
             line_bot_api.push_message(
                 sourceId,
                 TextSendMessage(text='ゲームのルールはこちら http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule'))
@@ -276,7 +276,7 @@ def handle_text_message(event):
             if text == '1000':#COMモード
                 line_bot_api.reply_message(
                     event.reply_token,
-                    TextMessage(text='では私が相手します\uD83D\uDE04やめたいときは対戦申込/やめるを押してください'))
+                    TextMessage(text='ではワタシが相手します\uD83D\uDE04やめたいときは対戦申込/やめるを押してください'))
                 addRecordData(sourceId,'COM','1000','COM')
                 setStat(sourceId,'com_init')
                 createComData(sourceId)
@@ -354,7 +354,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='私と対戦中です。\n '+
+                TextSendMessage(text='ワタシと対戦中です。\n '+
                     u'やめたいときには 対戦申込/やめる を押してください \uD83D\uDE04'))
         elif text == 'マップ':
             line_bot_api.reply_message(
@@ -372,7 +372,7 @@ def handle_text_message(event):
                 ###人工無能
                 if comAction(sourceId) == 'com_win':
                     line_bot_api.push_message(
-                        sourceId, TextSendMessage(text=u'私の勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
+                        sourceId, TextSendMessage(text=u'ワタシの勝ちです\uD83D\uDE04 リベンジはゲームキー1000で待ってます\uD83D\uDE00'))
                     clearHashData(sourceId)
                     clearNotHereList(sourceId)
                 else:
@@ -776,7 +776,7 @@ def generateQuitConfirm():
 
 def generateTutorialConfirm():
     confirm_template = ConfirmTemplate(
-        text=u'試しに私と対戦しますか\u2754',
+        text=u'試しにワタシと対戦しますか\u2754',
         actions=[
             MessageTemplateAction(label=u'試す', text='1000'),
             MessageTemplateAction(label=u'遠慮します', text='TUTO_NO')
