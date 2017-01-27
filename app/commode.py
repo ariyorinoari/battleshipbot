@@ -121,6 +121,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                 else:
                     setKingOrderStatus(sourceId,'ordered')
                     clearNotHereList(sourceId)
+                    setButtonStat(sourceId,'-')
 
             elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                 current_position = getQueenPosition(sourceId)
@@ -129,6 +130,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                 else:
                     setQueenOrderStatus(sourceId,'ordered')
                     clearNotHereList(sourceId)
+                    setButtonStat(sourceId,'-')
 
             elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                 is_king_attack = False
@@ -145,6 +147,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                         line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\nあなたのQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
 
                 else:
+                    setButtonStat(sourceId,'-')
                     impact_msg = getAttackImpact('com_'+sourceId,num_matcher.group(0))
                     addNotHereList(sourceId,num_matcher.group(0))
 
@@ -173,6 +176,8 @@ def comBattleUserInput(sourceId,reply_token,text):
                     setKingOrderStatus(sourceId,'notyet')
                 if getQueenOrderStatus(sourceId) == 'ordered':
                     setQueenOrderStatus(sourceId,'notyet')
+
+                setButtonStat(sourceId,'-')
                 return 'com_turn'
             else:
                 mainapp.generateTurnStartButtons(sourceId)
