@@ -656,18 +656,22 @@ def displayGameKey(sourceId,display_name):
     line_bot_api.push_message(
         sourceId,
         TextSendMessage(text=display_name+'さんのゲームキーは '+getGameKey(sourceId)+' です\u2755'))
-    line_bot_api.push_message(
-        sourceId,
-        TextSendMessage(text='--↓対戦記録↓--'))
     records = getRecordData(sourceId)
-    output_record = ''
-    for value in records.itervalues():
-        output_record += value + '\n'
+    if records is not None:
+        output_record = ''
+        for value in records.itervalues():
+            output_record += value + '\n'
 
-    line_bot_api.push_message(
-        sourceId,
-        TextSendMessage(text=output_record))
-
+        line_bot_api.push_message(
+            sourceId,
+            TextSendMessage(text='--\uD83D\uDC63対戦記録\uD83D\uDC63--'))
+        line_bot_api.push_message(
+            sourceId,
+            TextSendMessage(text=output_record))
+    else:
+        line_bot_api.push_message(
+            sourceId,
+            TextSendMessage(text='まだ対戦記録はありません'))
 
 def generateTurnStartButtons(sourceId):
 
