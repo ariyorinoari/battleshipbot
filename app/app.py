@@ -660,6 +660,7 @@ def displayGameKey(sourceId,display_name):
         sourceId,
         TextSendMessage(text='--↓対戦記録↓--'))
     records = getRecordData(sourceId)
+    output_record = ''
     for value in records.itervalues():
         output_record += value + '\n'
 
