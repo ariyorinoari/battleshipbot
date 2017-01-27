@@ -101,11 +101,25 @@ def comBattleUserInput(sourceId,reply_token,text):
     else:
         num_matcher = re.match(r'^[0-9]{1,}$',text)
         if text == 'KING':
-            setButtonStat(sourceId,'king_wait_action')
-            mainapp.generateTurnStartButtons(sourceId)
+            if getKingOrderStatus(sourceId) == 'killed':
+                line_bot_api.push_message(
+                    sourceId,TextSendMessage(text='Kingは行動不能です\uD83D\uDE22'))
+            elif getKingOrderStatus(sourceId) == 'ordered':
+                line_bot_api.push_message(
+                    sourceId,TextSendMessage(text='Kingは行動済です\uD83D\uDE22'))
+            else:
+                setButtonStat(sourceId,'king_wait_action')
+                generateTurnStartButtons(sourceId)
         elif text == 'QUEEN':
-            setButtonStat(sourceId,'queen_wait_action')
-            mainapp.generateTurnStartButtons(sourceId)
+            if getQueenOrderStatus(sourceId) == 'killed':
+                line_bot_api.push_message(
+                    sourceId,TextSendMessage(text='Queenは行動不能です\uD83D\uDE22'))
+            elif getQueenOrderStatus(sourceId) == 'ordered':
+                line_bot_api.push_message(
+                    sourceId,TextSendMessage(text='Queenは行動済です\uD83D\uDE22'))
+            else:
+                setButtonStat(sourceId,'queen_wait_action')
+                generateTurnStartButtons(sourceId)
         elif num_matcher is None:
         #数字入力ではなかった
             line_bot_api.reply_message(

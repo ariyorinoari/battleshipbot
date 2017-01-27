@@ -529,11 +529,26 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                         sourceId, generateCurrentMap(sourceId))
                 elif text == 'KING':
-                    setButtonStat(sourceId,'king_wait_action')
-                    generateTurnStartButtons(sourceId)
+                    if getKingOrderStatus(sourceId) == 'killed':
+                        line_bot_api.push_message(
+                            sourceId,TextSendMessage(text='Kingは行動不能です\uD83D\uDE22'))
+                    elif getKingOrderStatus(sourceId) == 'ordered':
+                        line_bot_api.push_message(
+                            sourceId,TextSendMessage(text='Kingは行動済です\uD83D\uDE22'))
+                    else:
+                        setButtonStat(sourceId,'king_wait_action')
+                        generateTurnStartButtons(sourceId)
                 elif text == 'QUEEN':
-                    setButtonStat(sourceId,'queen_wait_action')
-                    generateTurnStartButtons(sourceId)
+                    if getQueenOrderStatus(sourceId) == 'killed':
+                        line_bot_api.push_message(
+                            sourceId,TextSendMessage(text='Queenは行動不能です\uD83D\uDE22'))
+                    elif getQueenOrderStatus(sourceId) == 'ordered':
+                        line_bot_api.push_message(
+                            sourceId,TextSendMessage(text='Queenは行動済です\uD83D\uDE22'))
+                    else:
+                        setButtonStat(sourceId,'queen_wait_action')
+                        generateTurnStartButtons(sourceId)
+
                 elif text.find('@') == 0:
                 #@開始→相手への通信
                     line_bot_api.push_message(
