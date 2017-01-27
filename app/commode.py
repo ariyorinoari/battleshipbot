@@ -101,10 +101,10 @@ def comBattleUserInput(sourceId,reply_token,text):
     else:
         num_matcher = re.match(r'^[0-9]{1,}$',text)
         if text == 'KING':
-            setKingOrderStatus(sourceId,'wait_action')
+            setButtonStat(sourceId,'king_wait_action')
             mainapp.generateTurnStartButtons(sourceId)
         elif text == 'QUEEN':
-            setQueenOrderStatus(sourceId,'wait_action')
+            setButtonStat(sourceId,'queen_wait_action')
             mainapp.generateTurnStartButtons(sourceId)
         elif num_matcher is None:
         #数字入力ではなかった

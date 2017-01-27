@@ -36,6 +36,7 @@ def createHashData(userId,display_name,game_key):
     redis.hset(userId,'status','normal')
 
     redis.hset(userId,'enemyId','-')
+    redis.hset(userId,'buttonStatus','-')
     redis.hset(userId,'KingOrderStatus','notyet')
     redis.hset(userId,'QueenOrderStatus','notyet')
     redis.hset(userId,'KingHP',2)
@@ -46,6 +47,7 @@ def createHashData(userId,display_name,game_key):
 def clearHashData(userId):
     redis.hset(userId,'status','normal')
     redis.hset(userId,'enemyId','-')
+    redis.hset(userId,'buttonStatus','-')
     redis.hset(userId,'KingOrderStatus','notyet')
     redis.hset(userId,'QueenOrderStatus','notyet')
     redis.hset(userId,'KingHP',2)
@@ -65,6 +67,12 @@ def createComData(userId):
 def removeHashData(userId):
     redis.delete(userId)
 
+def addRecordData(userId,enemyId,enemy_key,enemy_name):
+    redis.hset('rec_'+userId,enemyId,enemy_name+' / '+enemy_key)
+
+def getRecordData(userId):
+    return redis.hgetall('rec_'+userId)
+
 def getEnemyId(userId):
     return redis.hget(userId,'enemyId')
 
@@ -76,6 +84,13 @@ def getStat(userId):
 
 def setStat(userId,newStatus):
     redis.hset(userId,'status',newStatus)
+
+def getButtonStat(userId):
+    return redis.hget(userId,'buttonStatus')
+
+def setButtonStat(userId,newStatus):
+    redis.hset(userId,'buttonStatus',newStatus)
+
 
 def isValidKey(game_key):
     #redisにキーとして登録されているかチェック

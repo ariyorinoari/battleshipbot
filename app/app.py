@@ -178,6 +178,7 @@ def handle_postback(event):
                 enemy_name =getDisplayName(enemyId)
                 if isinstance(enemy_name,str):
                     enemy_name = enemy_name.decode('utf-8')
+                addRecordData(sourceId,enemyId,matcher.group(2),enemy_name)
                 line_bot_api.push_message(
                     sourceId,
                     TextSendMessage(text=enemy_name+u'さんとのゲームを開始します。Kingの位置を決めてください。'))
@@ -240,13 +241,9 @@ def handle_text_message(event):
                 'その後相手のゲームキーを入力します。私と対戦するなら 1000 です。'))
             line_bot_api.push_message(
                 sourceId,
-                TextSendMessage(text='ちなみに'+display_name+'さんのゲームキーはこれです\u2755↓'))
-            line_bot_api.push_message(
-                sourceId,
-                TextSendMessage(text=getGameKey(sourceId)))
-            line_bot_api.push_message(
-                sourceId,
                 TextSendMessage(text='ゲームのルールはこちら http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule'))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
 
         else:
             line_bot_api.reply_message(
@@ -267,7 +264,9 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='対戦を申し込むには、相手のゲームキーが必要です。\n'+
-                'ゲームキーは、ヘルプボタンで表示されるので相手に教えてもらってくださいね。いったん対戦申込をキャンセルします\uD83D\uDE22'))
+                'ゲームキーはゲームキー表示ボタンで表示できます。いったん対戦申込をキャンセルします\uD83D\uDE22'))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
         elif text == 'TUTO_NO':
             line_bot_api.reply_message(
                 event.reply_token,
@@ -278,6 +277,7 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextMessage(text='では私が相手します\uD83D\uDE04やめたいときは対戦申込/やめるを押してください'))
+                addRecordData(sourceId,'COM','1000','COM')
                 setStat(sourceId,'com_init')
                 createComData(sourceId)
                 line_bot_api.push_message(
@@ -361,6 +361,8 @@ def handle_text_message(event):
                 event.reply_token, generateCurrentMap(sourceId))
             line_bot_api.push_message(
                 sourceId, TextSendMessage(text=u'マップを表示しました。行動または場所をどうぞ\uD83D\uDE04'))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
         else:
             ret = comBattleUserInput(sourceId,event.reply_token,text)
             if ret == 'com_turn':
@@ -395,6 +397,8 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text='マップ上の1から16の数字をタップして、位置を入力してください\uD83D\uDE04 '))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
         else:
             num_matcher = re.match(r'^[0-9]{1,}$',text)
             if num_matcher is None:
@@ -451,6 +455,8 @@ def handle_text_message(event):
         #対戦申込/やめる　ボタンの場合は本当にやめるかConfirm表示
             line_bot_api.push_message(
                 sourceId,generateQuitConfirm())
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
         elif text == 'HELP_MENU':
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
@@ -469,6 +475,8 @@ def handle_text_message(event):
                 event.reply_token,
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
                 'King,Queenの行動をボタンかボードメニューから選んで場所を指定してください\uD83D\uDE04'))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
         else:
             if matcher is not None and matcher.group(1) == 'KING':
                 if getKingOrderStatus(sourceId) == 'ordered':
@@ -521,10 +529,10 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                         sourceId, generateCurrentMap(sourceId))
                 elif text == 'KING':
-                    setKingOrderStatus(sourceId,'wait_action')
+                    setButtonStat(sourceId,'king_wait_action')
                     generateTurnStartButtons(sourceId)
                 elif text == 'QUEEN':
-                    setQueenOrderStatus(sourceId,'wait_action')
+                    setButtonStat(sourceId,'queen_wait_action')
                     generateTurnStartButtons(sourceId)
                 elif text.find('@') == 0:
                 #@開始→相手への通信
@@ -550,6 +558,7 @@ def handle_text_message(event):
                                 msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setKingOrderStatus(sourceId,'ordered')
+                                setButtonStat(sourceId,'-')
 
                         elif getQueenOrderStatus(sourceId) == 'move_position_wait':
                             current_position = getQueenPosition(sourceId)
@@ -560,6 +569,7 @@ def handle_text_message(event):
                                 msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setQueenOrderStatus(sourceId,'ordered')
+                                setButtonStat(sourceId,'-')
 
                         elif getKingOrderStatus(sourceId) == 'attack_position_wait' or getQueenOrderStatus(sourceId) == 'attack_position_wait':
                             is_king_attack = False
@@ -576,6 +586,7 @@ def handle_text_message(event):
                                     line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には攻撃できません\uD83D\uDCA6\n'+display_name+'のQueenの縦横斜めのお隣で、Kingが居ない場所を指定してください。'))
 
                             else:
+                                setButtonStat(sourceId,'-')
                                 impact_msg = getAttackImpact(enemyId,num_matcher.group(0))
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=num_matcher.group(0) + u'に攻撃あり\u2755'))
 
@@ -611,6 +622,7 @@ def handle_text_message(event):
                             line_bot_api.push_message(
                                 enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
                             setStat(sourceId,'battle_not_myturn')
+                            setButtonStat(sourceId,'-')
                             setStat(enemyId,'battle_myturn')
                             generateTurnStartButtons(enemyId)
 
@@ -629,6 +641,8 @@ def handle_text_message(event):
         elif text == 'HELP_MENU':
             line_bot_api.reply_message(event.reply_token,
                 TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、相手のターンです。'))
+        elif text == 'GAME_KEY':
+            displayGameKey(sourceId,display_name)
 
         elif text.find('@') == 0:
         #@つき→相手への通信
@@ -638,16 +652,32 @@ def handle_text_message(event):
             line_bot_api.push_message(sourceId,
                 TextSendMessage(text='相手のターンです。相手にメッセージを送るには　@こんにちわ　のように@の後ろにメッセージをどうぞ'))
 
+def displayGameKey(sourceId,display_name):
+    line_bot_api.push_message(
+        sourceId,
+        TextSendMessage(text=display_name+'さんのゲームキーは '+getGameKey(sourceId)+' です\u2755'))
+    line_bot_api.push_message(
+        sourceId,
+        TextSendMessage(text='--↓対戦記録↓--'))
+    records = getRecordData(sourceId)
+    for value in records.itervalues():
+        output_record += value + '\n'
+
+    line_bot_api.push_message(
+        sourceId,
+        TextSendMessage(text=output_record))
+
+
 def generateTurnStartButtons(sourceId):
 
-    if getQueenOrderStatus(sourceId) == 'wait_action' or getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed':
+    if getButtonStat(sourceId) == 'queen_wait_action' or getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed':
         line_bot_api.push_message(sourceId,TextSendMessage(text='Queenの行動を選んでください'))
         line_bot_api.push_message(sourceId,generateAMbuttons('QUEEN__'))
-    elif getKingOrderStatus(sourceId) == 'wait_action' or getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed':
+    elif getButtonStat(sourceId) == 'king_wait_action' or getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed':
         line_bot_api.push_message(sourceId,TextSendMessage(text='Kingの行動を選んでください'))
         line_bot_api.push_message(sourceId,generateAMbuttons('KING__'))
     else:
-        line_bot_api.push_message(sourceId,TextSendMessage(text='KingとQueen、どちらに指示しますか\u2754'))
+        line_bot_api.push_message(sourceId,TextSendMessage(text='あなたのKingとQueen、どちらに指示しますか\u2754'))
         line_bot_api.push_message(sourceId,generateKQbuttons())
 
 def generateAMbuttons(character):
