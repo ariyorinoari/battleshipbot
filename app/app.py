@@ -359,8 +359,7 @@ def handle_text_message(event):
         elif text == 'マップ':
             line_bot_api.reply_message(
                 event.reply_token, generateCurrentMap(sourceId))
-            line_bot_api.push_message(
-                sourceId, TextSendMessage(text=u'マップを表示しました。行動または場所をどうぞ\uD83D\uDE04'))
+            generateTurnStartButtons(sourceId)
         elif text == 'GAME_KEY':
             displayGameKey(sourceId,display_name)
         else:
@@ -528,6 +527,7 @@ def handle_text_message(event):
                 if text == 'マップ':
                     line_bot_api.push_message(
                         sourceId, generateCurrentMap(sourceId))
+                    generateTurnStartButtons(sourceId)
                 elif text == 'KING':
                     if getKingOrderStatus(sourceId) == 'killed':
                         line_bot_api.push_message(
