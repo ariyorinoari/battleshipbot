@@ -679,14 +679,10 @@ def displayGameKey(sourceId,display_name):
 
         line_bot_api.push_message(
             sourceId,
-            TextSendMessage(text='--\uD83D\uDC63対戦記録\uD83D\uDC63--'))
+            TextSendMessage(text='--\uD83D\uDC63過去の対戦相手\uD83D\uDC63--'))
         line_bot_api.push_message(
             sourceId,
             TextSendMessage(text=output_record))
-    else:
-        line_bot_api.push_message(
-            sourceId,
-            TextSendMessage(text='まだ対戦記録はありません'))
 
 def generateTurnStartButtons(sourceId):
 
