@@ -109,7 +109,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     sourceId,TextSendMessage(text='Kingは行動済です\uD83D\uDE22'))
             else:
                 setButtonStat(sourceId,'king_wait_action')
-                generateTurnStartButtons(sourceId)
+                mainapp.generateTurnStartButtons(sourceId)
         elif text == 'QUEEN':
             if getQueenOrderStatus(sourceId) == 'killed':
                 line_bot_api.push_message(
@@ -119,7 +119,7 @@ def comBattleUserInput(sourceId,reply_token,text):
                     sourceId,TextSendMessage(text='Queenは行動済です\uD83D\uDE22'))
             else:
                 setButtonStat(sourceId,'queen_wait_action')
-                generateTurnStartButtons(sourceId)
+                mainapp.generateTurnStartButtons(sourceId)
         elif num_matcher is None:
         #数字入力ではなかった
             line_bot_api.reply_message(
