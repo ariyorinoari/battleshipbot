@@ -154,6 +154,7 @@ def handle_postback(event):
         if getStat(sourceId) != 'normal':
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='ゲームを続行します'))
+            generateTurnStartButtons(sourceId)
         else:
             line_bot_api.reply_message(
                 event.reply_token, TextSendMessage(text='ゲームはすでに終わっているようです'))
