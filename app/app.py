@@ -677,7 +677,7 @@ def displayGameKey(sourceId,display_name):
     if records is not None:
         output_record = u''
         for value in records.itervalues():
-            output_record += value + u'\n'
+            output_record += unicode(value,'utf-8') + u'\n'
 
         line_bot_api.push_message(
             sourceId,
