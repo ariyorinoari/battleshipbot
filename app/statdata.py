@@ -47,7 +47,7 @@ def createHashData(userId,display_name,game_key):
 def updateDisplayName(sourceId,display_name):
     if isinstance(display_name,str):
         display_name = display_name.decode('utf-8')
-    redis.hset(userId,'displayName',display_name)
+    redis.hset(sourceId,'displayName',display_name)
 
 def clearHashData(userId):
     redis.hset(userId,'status','normal')
