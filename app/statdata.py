@@ -73,7 +73,9 @@ def removeHashData(userId):
     redis.delete(userId)
 
 def addRecordData(userId,enemyId,enemy_key,enemy_name):
-    redis.hset('rec_'+userId,enemyId,enemy_name+' / '+enemy_key)
+    if isinstance(enemy_name,str):
+        enemy_name = enemy_name.decode('utf-8')
+    redis.hset(u'rec_'+userId,enemyId,enemy_name+' / '+enemy_key)
 
 def getRecordData(userId):
     return redis.hgetall('rec_'+userId)

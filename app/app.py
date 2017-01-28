@@ -675,9 +675,9 @@ def displayGameKey(sourceId,display_name):
         TextSendMessage(text=display_name+'さんのゲームキーは '+getGameKey(sourceId)+' です\u2755'))
     records = getRecordData(sourceId)
     if records is not None:
-        output_record = ''
+        output_record = u''
         for value in records.itervalues():
-            output_record += value + '\n'
+            output_record += value + u'\n'
 
         line_bot_api.push_message(
             sourceId,
