@@ -465,7 +465,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、相手の初期配置待ちです。\n '+
+                TextMessage(text=unicode(getEnemyName(sourceId),'utf-8')+'さんと対戦中、相手の初期配置待ちです。\n '+
                 '相手に話しかけるには、@まだー？のように、@の後ろにメッセージをどうぞ\uD83D\uDE04'))
 #■ステータスbattle_myturn
     elif currentStatus == 'battle_myturn':
@@ -477,7 +477,7 @@ def handle_text_message(event):
             #ヘルプボタンの場合は配置方法を表示
             line_bot_api.reply_message(
                 event.reply_token,
-                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、あなたのターンです。\n '+
+                TextMessage(text=unicode(getEnemyName(sourceId),'utf-8')+'さんと対戦中、あなたのターンです。\n '+
                 'King,Queenの行動をボタンかボードメニューから選んで場所を指定してください\uD83D\uDE04'))
         elif text == 'GAME_KEY':
             displayGameKey(sourceId,display_name)
@@ -661,7 +661,7 @@ def handle_text_message(event):
                 sourceId,generateQuitConfirm())
         elif text == 'HELP_MENU':
             line_bot_api.reply_message(event.reply_token,
-                TextMessage(text=getEnemyName(sourceId)+'さんと対戦中、相手のターンです。'))
+                TextMessage(text=unicode(getEnemyName(sourceId),'utf-8')+'さんと対戦中、相手のターンです。'))
         elif text == 'GAME_KEY':
             displayGameKey(sourceId,display_name)
 
