@@ -246,7 +246,10 @@ def handle_text_message(event):
                 TextSendMessage(text='ゲームのルールはこちら http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule'))
         elif text == 'GAME_KEY':
             displayGameKey(sourceId,display_name)
-
+        elif text == 'マップ':
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextMessage(text='対戦状態のときにぜひ見てください\uD83D\uDE09'))
         else:
             line_bot_api.reply_message(
                 event.reply_token,
