@@ -450,7 +450,7 @@ def handle_text_message(event):
                         #相手に開始＆入力求めるメッセージPush
                         line_bot_api.push_message(
                             enemyId,
-                            TextSendMessage(text='ゲーム開始、あなたのターンです\u2754'))
+                            TextSendMessage(text='ゲーム開始、あなたのターンです\u2755'))
                         generateTurnStartButtons(enemyId)
 
 #■ステータスbattle_ready
@@ -620,8 +620,8 @@ def handle_text_message(event):
                                         clearHashData(sourceId)
                                         game_end = True
                                     else:
-                                        line_bot_api.push_message(sourceId,TextSendMessage(text=getEnemyName(sourceId)+u'の'+impact_msg))
-                                        line_bot_api.push_message(enemyId,TextSendMessage(text=getEnemyName(sourceId)+u'の'+impact_msg))
+                                        line_bot_api.push_message(sourceId,TextSendMessage(text=unicode(getEnemyName(sourceId),'utf-8')+u'の'+impact_msg))
+                                        line_bot_api.push_message(enemyId,TextSendMessage(text=unicode(getEnemyName(sourceId),'utf-8')+u'の'+impact_msg))
                                 else:
                                     line_bot_api.push_message(sourceId,TextSendMessage(text='かすりもしませんでした\uD83D\uDE12'))
 
