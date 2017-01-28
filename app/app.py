@@ -478,7 +478,9 @@ def handle_text_message(event):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextMessage(text=unicode(getEnemyName(sourceId),'utf-8')+'さんと対戦中、あなたのターンです。\n '+
-                'King,Queenの行動をボタンかボードメニューから選んで場所を指定してください\uD83D\uDE04'))
+                'King,Queenの行動を選んで場所を指定してください\uD83D\uDE04'))
+            line_bot_api.push_message(
+                sourceId,TextSendMessage(text='攻撃可能な場所や移動可能な場所のルールを確認するにはこちら！ http://yb300k.hateblo.jp/entry/2017/01/05/234756#rule'))
         elif text == 'GAME_KEY':
             displayGameKey(sourceId,display_name)
         else:
