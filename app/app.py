@@ -639,18 +639,21 @@ def handle_text_message(event):
                             setButtonStat(enemyId,'-')
                             line_bot_api.push_message(
                                 sourceId, generateCurrentMap(sourceId))
-                            line_bot_api.push_message(sourceId,
-                                TextSendMessage(text='－－相手のターン－－'))
-                            line_bot_api.push_message(
-                                enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
                             setStat(sourceId,'battle_not_myturn')
                             setStat(enemyId,'battle_myturn')
-                            generateTurnStartButtons(enemyId)
 
                             if getKingOrderStatus(sourceId) == 'ordered':
                                 setKingOrderStatus(sourceId,'notyet')
                             if getQueenOrderStatus(sourceId) == 'ordered':
                                 setQueenOrderStatus(sourceId,'notyet')
+
+                            line_bot_api.push_message(sourceId,
+                                TextSendMessage(text='－－相手のターン－－'))
+                            line_bot_api.push_message(
+                                enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
+
+                            generateTurnStartButtons(enemyId)
+
                         else:
                             generateTurnStartButtons(sourceId)
 
