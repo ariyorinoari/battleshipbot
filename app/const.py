@@ -12,5 +12,5 @@ AM_IMAGE_FILENAME = 'am-{0}.png'
 IMG_PATH = os.path.join(os.path.dirname(__file__), 'static', 'map')
 TMP_ROOT_PATH = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 BG_FILE_PATH = os.path.join(os.path.dirname(__file__), 'static', 'map', 'map-700.png')
-#HEROKU_SERVER_URL = 'https://s-battleship.herokuapp.com/'
-HEROKU_SERVER_URL = 'https://smbot161201.herokuapp.com/'
+HEROKU_SERVER_URL = 'https://s-battleship.herokuapp.com/'
+#HEROKU_SERVER_URL = 'https://smbot161201.herokuapp.com/'
