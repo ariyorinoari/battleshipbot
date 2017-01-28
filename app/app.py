@@ -167,6 +167,7 @@ def handle_postback(event):
         matcher = re.match(r'(.*?)__(.*)', answer)
         if matcher is not None and matcher.group(1) == 'ACK':
             #誰かの招待受けて　Ack　の場合は、battle_init　状態へ、招待した側にAckメッセージ→battle_initへ。
+            updateDisplayName(sourceId,display_name)
             if isValidKey(matcher.group(2)):
                 enemyId = getSourceIdfromGK(matcher.group(2))
                 setStat(sourceId,'battle_init')
@@ -445,7 +446,7 @@ def handle_text_message(event):
                         #相手に開始＆入力求めるメッセージPush
                         line_bot_api.push_message(
                             enemyId,
-                            TextSendMessage(text='ゲーム開始、あなたのターンです。KingかQueen、どちらに指示しますか\u2754'))
+                            TextSendMessage(text='ゲーム開始、あなたのターンです\u2754'))
                         generateTurnStartButtons(enemyId)
 
 #■ステータスbattle_ready
@@ -570,7 +571,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で '+display_name+'のQueenに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),isKingDying(sourceId))
-                                msgtxt = u'Kingが' + unicode(move_direction,'utf-8')
+                                msgtxt = display_name+u'のKingが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setKingOrderStatus(sourceId,'ordered')
                                 setButtonStat(sourceId,'-')
@@ -581,7 +582,7 @@ def handle_text_message(event):
                                 line_bot_api.push_message(sourceId,TextSendMessage(text='その位置には動けません\uD83D\uDCA6\n縦横方向で '+display_name+'のKingに重ならない場所を指定してください。'))
                             else:
                                 move_direction = getDistance(current_position,num_matcher.group(0),True)
-                                msgtxt = u'Queenが' + unicode(move_direction,'utf-8')
+                                msgtxt = display_name+u'のQueenが' + unicode(move_direction,'utf-8')
                                 line_bot_api.push_message(enemyId,TextSendMessage(text=msgtxt))
                                 setQueenOrderStatus(sourceId,'ordered')
                                 setButtonStat(sourceId,'-')
@@ -638,6 +639,7 @@ def handle_text_message(event):
                                 enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
                             setStat(sourceId,'battle_not_myturn')
                             setButtonStat(sourceId,'-')
+                            setButtonStat(enemyId,'-')
                             setStat(enemyId,'battle_myturn')
                             generateTurnStartButtons(enemyId)
 
@@ -646,7 +648,7 @@ def handle_text_message(event):
                             if getQueenOrderStatus(sourceId) == 'ordered':
                                 setQueenOrderStatus(sourceId,'notyet')
                         else:
-                            line_bot_api.push_message(sourceId,TextSendMessage(text='次の行動は\u2754'))
+                            generateTurnStartButtons(sourceId)
 
     elif currentStatus == 'battle_not_myturn':
         if text == 'ENTRY_EXIT_MENU':
