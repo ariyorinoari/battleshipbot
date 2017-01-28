@@ -635,6 +635,8 @@ def handle_text_message(event):
                             pass
                         elif (getKingOrderStatus(sourceId) == 'ordered' or getKingOrderStatus(sourceId) == 'killed') and \
                             (getQueenOrderStatus(sourceId) == 'ordered' or getQueenOrderStatus(sourceId) == 'killed'):
+                            setButtonStat(sourceId,'-')
+                            setButtonStat(enemyId,'-')
                             line_bot_api.push_message(
                                 sourceId, generateCurrentMap(sourceId))
                             line_bot_api.push_message(sourceId,
@@ -642,8 +644,6 @@ def handle_text_message(event):
                             line_bot_api.push_message(
                                 enemyId,TextSendMessage(text='\uD83C\uDF1Fあなたのターン\uD83C\uDF1F'))
                             setStat(sourceId,'battle_not_myturn')
-                            setButtonStat(sourceId,'-')
-                            setButtonStat(enemyId,'-')
                             setStat(enemyId,'battle_myturn')
                             generateTurnStartButtons(enemyId)
 
