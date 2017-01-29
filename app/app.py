@@ -95,7 +95,7 @@ def handle_follow(event):
     game_key = memberIdAdd(sourceId)
 
     line_bot_api.push_message(
-        sourceId, TextSendMessage(text='あなたのゲームキーはこちら\u2755わからなくなったらヘルプで確認できます。↓'))
+        sourceId, TextSendMessage(text='あなたのゲームキーはこちら\u2755わからなくなったらゲームキー表示で確認できます。↓'))
     line_bot_api.push_message(
         sourceId, TextSendMessage(text=game_key))
     createHashData(sourceId,display_name,game_key)
